@@ -16,6 +16,9 @@ return [
 
     'name'          => env('AFRITOPUP_NAME', 'AfriTopup'),
     'company'       => env('AFRITOPUP_COMPANY', 'AfriTopup'),
+    // Credit shown in the footer, on the sign-in page and in the app.
+    'developer'     => env('AFRITOPUP_DEVELOPER', 'Qudroid Systems'),
+    'developer_url' => env('AFRITOPUP_DEVELOPER_URL', 'https://qudroids.com'),
     'tagline'       => env('AFRITOPUP_TAGLINE', 'Your One-Stop Digital Payment and Recharge Platform.'),
     'website'       => env('AFRITOPUP_WEBSITE', 'https://afritopup.com'),
     'support_email' => env('AFRITOPUP_SUPPORT_EMAIL', 'support@afritopup.com'),
@@ -34,6 +37,26 @@ return [
 
     // Customers create their own accounts (web and app). Staff are invited.
     'allow_registration' => (bool) env('AFRITOPUP_ALLOW_REGISTRATION', true),
+
+    /*
+    | Sign in with Google / Apple (web and app). A provider is offered once it
+    | has at least one client ID. Tokens are accepted for any listed ID.
+    |   google: the Web client ID (also the app's serverClientId), plus the
+    |           Android and iOS client IDs from Google Cloud → Credentials.
+    |   apple:  the app's bundle ID (com.afritopup.app) and, for the website,
+    |           the Services ID; `web_client_id` is the Services ID.
+    */
+    'social' => [
+        'google' => [
+            'client_ids'    => array_filter(explode(',', (string) env('GOOGLE_CLIENT_IDS', env('GOOGLE_WEB_CLIENT_ID', '')))),
+            'web_client_id' => env('GOOGLE_WEB_CLIENT_ID'),
+            'ios_client_id' => env('GOOGLE_IOS_CLIENT_ID'),
+        ],
+        'apple' => [
+            'client_ids'    => array_filter(explode(',', (string) env('APPLE_CLIENT_IDS', 'com.afritopup.app'))),
+            'web_client_id' => env('APPLE_SERVICES_ID'),
+        ],
+    ],
 
     /*
     | The first administrator, created by `php artisan db:seed`.

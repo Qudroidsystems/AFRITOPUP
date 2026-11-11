@@ -28,6 +28,7 @@ Route::get('app/config', [AppConfigController::class, 'show'])->name('app.config
 
 Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:10,1,api-login')->name('login');
+    Route::post('social', [AuthController::class, 'social'])->middleware('throttle:20,1,api-social')->name('social');
     Route::post('register', [AuthController::class, 'register'])->middleware('throttle:5,10,api-register')->name('register');
     Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:5,10,api-forgot')->name('forgot');
 });

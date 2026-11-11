@@ -96,6 +96,41 @@ class AuthController extends ApiController
         ], 'Welcome to ' . config('afritopup.name') . '!', 201);
     }
 
+    /**
+     * Sign in (or sign up) with Google or Apple. The app sends the provider's ID token;
+     * the server checks it with the provider's keys. Apple sends the name only the
+     * first time, so the app passes it along.
+     */
+    public function social(Request $request, \App\Services\Auth\SocialLogin $social)
+    {
+        $data = $request->validate([
+            'provider'    => 'required|in:google,apple',
+            'id_token'    => 'required|string|max:8000',
+            'name'        => 'nullable|string|max:255',
+            'device_name' => 'nullable|string|max:120',
+            'platform'    => 'nullable|in:android,ios,web',
+            'app_version' => 'nullable|string|max:30',
+            'push_token'  => 'nullable|string|max:512',
+        ]);
+
+        try {
+            [$user, $created] = $social->resolve($data['provider'], $data['id_token'], $data['name'] ?? null);
+        } catch (\RuntimeException $e) {
+            return $this->fail($e->getMessage(), 422, 'social_failed');
+        }
+
+        $user->forceFill(['last_login_at' => now(), 'last_login_ip' => $request->ip()])->saveQuietly();
+        $token = $user->createToken(($data['device_name'] ?? null) ?: 'Mobile app', ['*']);
+        $this->rememberDevice($user->id, $token->accessToken->id, $data);
+
+        return $this->ok([
+            'token'      => $token->plainTextToken,
+            'token_type' => 'Bearer',
+            'created'    => $created,
+            'user'       => ApiUserPresenter::present($user->fresh()),
+        ], $created ? 'Welcome to ' . config('afritopup.name') . '!' : 'Signed in.', $created ? 201 : 200);
+    }
+
     public function me(Request $request)
     {
         return $this->ok(ApiUserPresenter::present($request->user()));

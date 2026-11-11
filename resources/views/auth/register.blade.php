@@ -67,6 +67,8 @@
             </button>
         </div>
     </form>
+
+    @include('auth.partials.social')
 @endsection
 
 @section('footer')

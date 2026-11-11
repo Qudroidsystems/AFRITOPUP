@@ -552,6 +552,9 @@
                                             <p class="text-white opacity-75 mb-0 mt-3">
                                                 {{ now()->year }} &copy; {{ $brand['company'] ?? 'AfriTopup' }} &middot; {{ $authName }}
                                             </p>
+                                            @if(!empty($brand['developer']))
+                                                <p class="text-white opacity-50 small mb-0 mt-1">Developed by <a href="{{ $brand['developer_url'] ?? '#' }}" target="_blank" rel="noopener" class="text-white fw-semibold">{{ $brand['developer'] }}</a></p>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -579,6 +582,9 @@
                                             <div class="text-center mt-4">
                                                 @yield('footer')
                                             </div>
+                                        @endif
+                                        @if(!empty($brand['developer']))
+                                            <p class="text-center text-muted small mt-4 mb-0 d-sm-none">Developed by <a href="{{ $brand['developer_url'] ?? '#' }}" target="_blank" rel="noopener" class="fw-semibold">{{ $brand['developer'] }}</a></p>
                                         @endif
                                     </div><!-- end card body -->
                                 </div><!-- end card -->

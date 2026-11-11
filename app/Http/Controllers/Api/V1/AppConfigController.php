@@ -20,6 +20,16 @@ class AppConfigController extends ApiController
             'logo_light_url'=> !empty($b['logo_light']) ? asset($b['logo_light']) : null,
             'primary_color' => $b['primary_color'],
             'accent_color'  => $b['accent_color'] ?? null,
+            'developer'     => $b['developer'] ?? null,
+            'developer_url' => $b['developer_url'] ?? null,
+            // Sign in with Google / Apple: the app shows a button once its provider is set up.
+            'social'        => [
+                'google' => \App\Services\Auth\SocialTokenVerifier::enabled('google') ? [
+                    'server_client_id' => $b['social']['google']['web_client_id'] ?? null,
+                    'ios_client_id'    => $b['social']['google']['ios_client_id'] ?? null,
+                ] : null,
+                'apple' => \App\Services\Auth\SocialTokenVerifier::enabled('apple'),
+            ],
             'allow_registration' => (bool) ($b['allow_registration'] ?? false),
             'categories'    => collect($b['categories'] ?? [])->map(fn ($c, $key) => ['key' => $key, 'name' => $c['name'], 'color' => $c['color']])->values(),
             'countries'     => rescue(fn () => \App\Models\Country::active()->ordered()->get(['code', 'name', 'currency', 'dial_code', 'flag']), [], false),

@@ -29,6 +29,10 @@ Auth::routes([
     'verify'   => false,
 ]);
 
+// Continue with Google / Apple (the page posts the provider's ID token)
+Route::post('/auth/social/{provider}', \App\Http\Controllers\Auth\SocialLoginController::class)
+    ->where('provider', 'google|apple')->middleware(['guest', 'throttle:20,1,web.social'])->name('auth.social');
+
 // Payment-provider webhooks (no sign-in; signature-checked)
 require __DIR__ . '/webhooks.php';
 

@@ -52,6 +52,8 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'transaction_pin',
+        'google_id',
+        'apple_id',
     ];
 
     protected function casts(): array

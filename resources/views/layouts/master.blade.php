@@ -754,7 +754,11 @@
                 </div>
                 <div class="col-sm-6">
                     <div class="text-sm-end">
-                        <a href="{{ $brand['website'] ?? 'https://afritopup.com' }}" target="_blank" rel="noopener noreferrer" class="fw-semibold">{{ preg_replace('#^https?://#', '', $brand['website'] ?? 'afritopup.com') }}</a>
+                        @if(!empty($brand['developer']))
+                            Developed by <a href="{{ $brand['developer_url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="fw-semibold">{{ $brand['developer'] }}</a>
+                        @else
+                            <a href="{{ $brand['website'] ?? 'https://afritopup.com' }}" target="_blank" rel="noopener noreferrer" class="fw-semibold">{{ preg_replace('#^https?://#', '', $brand['website'] ?? 'afritopup.com') }}</a>
+                        @endif
                     </div>
                 </div>
             </div>

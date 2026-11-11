@@ -41,7 +41,7 @@
         <x-brand-logo animate size="46px" :rest="false" />
     </div>
     <div class="ql-bar"></div>
-    <div class="ql-foot">A <b>{{ $brand['company'] ?? 'AfriTopup' }}</b> product</div>
+    <div class="ql-foot">Developed by <b>{{ $brand['developer'] ?? 'Qudroid Systems' }}</b></div>
     <script>
         (function () {
             var el = document.getElementById('ql-loader');

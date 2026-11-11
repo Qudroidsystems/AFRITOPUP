@@ -83,6 +83,8 @@
             </button>
         </div>
     </form>
+
+    @include('auth.partials.social')
 @endsection
 
 @if (Route::has('register'))
