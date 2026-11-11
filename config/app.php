@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Qlouds Workspace'),
+    'name' => env('APP_NAME', 'AfriTopup'),
 
     /*
     |--------------------------------------------------------------------------

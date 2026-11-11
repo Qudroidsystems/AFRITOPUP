@@ -7,8 +7,7 @@ use Illuminate\Database\Seeder;
 /**
  * php artisan db:seed
  *
- * Safe to run again at any time (after adding a module's permissions, say):
- * every seeder only adds what is missing.
+ * Safe to run again at any time: every seeder only adds what is missing.
  */
 class DatabaseSeeder extends Seeder
 {
@@ -18,6 +17,8 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             RoleSeeder::class,
             SuperAdminSeeder::class,
+            CountrySeeder::class,
+            CatalogueSeeder::class,
         ]);
     }
 }

@@ -1,17 +1,17 @@
 {{--
     Shared shell for the sign-in, sign-up and password pages: the dark panel with the orbiting
-    module icons on the left, the animated Qlouds logo and the page's form on the right.
+    module icons on the left, the animated AfriTopup logo and the page's form on the right.
     Pages set: title, heading, subheading, content, and optionally footer and scripts.
 --}}
-@php($authName = $brand['name'] ?? 'Qlouds Workspace')
+@php($authName = $brand['name'] ?? 'AfriTopup')
 <!doctype html>
 <html lang="en" data-layout="vertical" data-sidebar="dark" data-sidebar-size="lg" data-preloader="disable" data-theme="default" data-topbar="light" data-bs-theme="light">
 <head>
     <meta charset="utf-8">
     <title>@yield('title') | {{ $authName }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="{{ $brand['company'] ?? 'Qudroid Systems' }} portal" name="description">
-    <meta content="{{ $brand['company'] ?? 'Qudroid Systems' }}" name="author">
+    <meta content="{{ $brand['company'] ?? 'AfriTopup' }} portal" name="description">
+    <meta content="{{ $brand['company'] ?? 'AfriTopup' }}" name="author">
     <link rel="shortcut icon" href="{{ asset($brand['favicon']) }}">
     <link rel="icon" href="{{ asset($brand['favicon']) }}">
     <link rel="apple-touch-icon" href="{{ asset($brand['logo_small']) }}">
@@ -30,8 +30,8 @@
     <link href="{{ asset('theme/layouts/assets/css/app.min.css')}}" rel="stylesheet" type="text/css">
     <!-- custom Css-->
     <link href="{{ asset('theme/layouts/assets/css/custom.min.css')}}" rel="stylesheet" type="text/css">
-    <!-- Qlouds logo -->
-    <link href="{{ asset('css/qlouds-logo.css') }}?v={{ @filemtime(public_path('css/qlouds-logo.css')) }}" rel="stylesheet" type="text/css">
+    <!-- AfriTopup logo -->
+    <link href="{{ asset('css/brand-logo.css') }}?v={{ @filemtime(public_path('css/brand-logo.css')) }}" rel="stylesheet" type="text/css">
 
     <style>
         /* =====================================================
@@ -536,7 +536,7 @@
                                             </div>
 
                                             <ul class="auth-user-list list-unstyled">
-                                                @foreach(collect(config('qudroid.modules'))->take(5)->values() as $index => $mod)
+                                                @foreach(collect(config('afritopup.modules'))->take(5)->values() as $index => $mod)
                                                     <li style="animation-delay: {{ $index * 0.2 }}s;">
                                                         <span class="avatar-sm d-inline-block" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $mod['name'] }}">
                                                             <span class="avatar-title bg-white shadow-lg rounded-circle fs-4" style="color: {{ $mod['color'] ?? '#405189' }};">
@@ -550,7 +550,7 @@
 
                                         <div class="text-center">
                                             <p class="text-white opacity-75 mb-0 mt-3">
-                                                {{ now()->year }} &copy; {{ $brand['company'] ?? 'Qudroid Systems' }} &middot; {{ $authName }}
+                                                {{ now()->year }} &copy; {{ $brand['company'] ?? 'AfriTopup' }} &middot; {{ $authName }}
                                             </p>
                                         </div>
                                     </div>
@@ -562,7 +562,7 @@
                                 <div class="card mb-0 border-0 shadow-none mb-0" style="background: transparent;">
                                     <div class="card-body p-sm-5 m-lg-4" id="authCardBody">
                                         <div class="logo-container">
-                                            <x-qlouds-logo animate size="52px" :rest="false" />
+                                            <x-brand-logo animate size="52px" :rest="false" />
                                         </div>
 
                                         <div class="text-center mt-2">

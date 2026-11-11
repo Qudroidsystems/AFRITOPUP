@@ -11,13 +11,11 @@ class NotificationPresenter
 {
     /** Colours for each group's app icon (iOS system colours). */
     public const COLORS = [
-        'messages' => '#34c759', 'mail' => '#007aff', 'calls' => '#34c759', 'meetings' => '#ff9500', 'work' => '#5856d6',
-        'files' => '#30b0c7', 'money' => '#34c759', 'people' => '#ff2d55', 'academy' => '#af52de', 'clients' => '#ff9500',
-        'stock' => '#8e8e93', 'system' => '#8e8e93',
+        'purchases' => '#0B8457', 'wallet' => '#F5A623', 'approvals' => '#ff2d55', 'support' => '#007aff', 'system' => '#8e8e93',
     ];
 
     /** Filters on the notification centre. */
-    public const FILTERS = ['all' => 'All', 'unread' => 'Unread', 'mentions' => 'Mentions', 'approvals' => 'Approvals'];
+    public const FILTERS = ['all' => 'All', 'unread' => 'Unread', 'approvals' => 'Approvals'];
 
     public static function item(DatabaseNotification $n): array
     {
@@ -31,7 +29,7 @@ class NotificationPresenter
             'body' => $d['body'] ?? '',
             'type' => $type,
             'group' => $group,
-            'group_label' => PortalNotifier::GROUPS[$group][0] ?? 'Qudroid',
+            'group_label' => PortalNotifier::GROUPS[$group][0] ?? 'AfriTopup',
             'icon' => $d['icon'] ?? (PortalNotifier::ICONS[$type] ?? 'ri-notification-3-line'),
             'color' => self::COLORS[$group] ?? self::COLORS['system'],
             'category' => $d['category'] ?? PortalNotifier::categoryOf($type, $d['key'] ?? null),

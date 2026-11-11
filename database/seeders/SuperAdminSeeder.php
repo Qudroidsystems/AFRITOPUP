@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * The first administrator (config/qudroid.php → super_admin, set from .env).
+ * The first administrator (config/afritopup.php → super_admin, set from .env).
  * Created once; an existing account with that e-mail is left as it is
  * apart from making sure it holds the Super Administrator role.
  */
@@ -15,7 +15,7 @@ class SuperAdminSeeder extends Seeder
 {
     public function run(): void
     {
-        $cfg = config('qudroid.super_admin');
+        $cfg = config('afritopup.super_admin');
 
         $user = User::where('email', strtolower($cfg['email']))->first();
 
@@ -25,13 +25,14 @@ class SuperAdminSeeder extends Seeder
                 'email'     => strtolower($cfg['email']),
                 'user_type' => User::TYPE_STAFF,
                 'job_title' => 'System Administrator',
+                'country_code' => config('afritopup.default_country', 'NG'),
                 'password'  => Hash::make($cfg['password']),
             ]);
             // Choose a real password at first sign-in.
             $user->forceFill(['must_change_password' => true, 'email_verified_at' => now()])->save();
-            $this->command?->warn("Super Administrator created: {$user->email} (temporary password from QUDROID_ADMIN_PASSWORD).");
+            $this->command?->warn("Super Administrator created: {$user->email} (temporary password from AFRITOPUP_ADMIN_PASSWORD).");
         }
 
-        $user->assignRole(config('qudroid.super_admin_role', 'Super Administrator'));
+        $user->assignRole(config('afritopup.super_admin_role', 'Super Administrator'));
     }
 }

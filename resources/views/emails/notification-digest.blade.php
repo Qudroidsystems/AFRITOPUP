@@ -1,5 +1,5 @@
 {{-- The morning summary of unread notifications. --}}
-@php $tint = config('qudroid.primary_color', '#405189'); @endphp
+@php $tint = config('afritopup.primary_color', '#405189'); @endphp
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>What you missed</title></head>

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Firebase Cloud Messaging (HTTP v1) without extra packages.
  *
- * Needs the service-account JSON of the Qlouds Workspace Firebase project
+ * Needs the service-account JSON of the AfriTopup Firebase project
  * (Firebase console → Project settings → Service accounts → Generate new
  * private key). Save it as storage/app/fcm-service-account.json, or point
  * FCM_CREDENTIALS in .env at it.

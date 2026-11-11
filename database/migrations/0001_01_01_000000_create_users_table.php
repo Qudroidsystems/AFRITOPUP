@@ -15,8 +15,8 @@ return new class extends Migration
             $table->string('username', 60)->nullable()->unique();
             $table->string('phone_number', 30)->nullable()->index();
 
-            // staff | student | client | partner (see config/qudroid.php)
-            $table->string('user_type', 20)->default('staff')->index();
+            // customer | agent | reseller | staff (see config/afritopup.php)
+            $table->string('user_type', 20)->default('customer')->index();
 
             // Profile
             $table->string('avatar')->nullable();

@@ -17,7 +17,7 @@
 
         <div class="mb-4">
             <label class="form-label" for="email">Email <span class="text-danger">*</span></label>
-            <input id="email" type="email" class="form-control apple-input @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="you@qudroids.com">
+            <input id="email" type="email" class="form-control apple-input @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="you@example.com">
             @error('email')
                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
             @enderror

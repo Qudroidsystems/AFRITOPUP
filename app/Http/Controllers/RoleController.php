@@ -352,6 +352,6 @@ class RoleController extends Controller
 
     protected function superRole(): string
     {
-        return (string) config('qudroid.super_admin_role', 'Super Administrator');
+        return (string) config('afritopup.super_admin_role', 'Super Administrator');
     }
 }

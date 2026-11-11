@@ -2,56 +2,73 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ActivityLogController;
+use App\Models\Service;
+use App\Models\Transaction;
 use App\Models\User;
+use App\Models\Wallet;
+use App\Models\WalletFunding;
+use App\Services\Topup\Providers\ProviderManager;
 use App\Support\Modules;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
-use Spatie\Permission\Models\Role;
 
 /**
- * Qlouds Workspace home: the app launcher every user sees, plus the
- * organisation overview for people allowed to see it.
+ * Home. Buyers see their wallet, quick-buy tiles and recent purchases;
+ * staff with "View dashboard" see the platform: sales, fundings, float,
+ * failures and provider balances.
  */
 class DashboardController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, ProviderManager $providers)
     {
         $user = $request->user();
-        $modules = Modules::all($user);
 
         $overview = null;
         if ($user->can('View dashboard')) {
-            $since = now()->subMinutes(ActivityLogController::ONLINE_MINUTES);
-            $types = User::query()->selectRaw('user_type, COUNT(*) as total')->groupBy('user_type')->pluck('total', 'user_type');
+            $today = now()->startOfDay();
+            $ok = Transaction::where('status', Transaction::SUCCESSFUL);
 
             $overview = [
-                'users'       => (int) $types->sum(),
-                'types'       => $types,
-                'disabled'    => User::where('is_disabled', true)->count(),
-                'online'      => User::where('last_seen_at', '>=', $since)->count(),
-                'roles'       => Role::count(),
-                'signins'     => Schema::hasTable('activity_logs')
-                    ? DB::table('activity_logs')->where('event', 'login')->where('created_at', '>=', now()->startOfDay())->distinct()->count('user_id')
-                    : 0,
-                'newThisMonth'=> User::where('created_at', '>=', now()->startOfMonth())->count(),
-                'recent'      => Schema::hasTable('activity_logs') && $user->can('View activity log')
-                    ? DB::table('activity_logs as a')->leftJoin('users as u', 'u.id', '=', 'a.user_id')
-                        ->orderByDesc('a.id')->limit(8)->get(['a.event', 'a.description', 'a.created_at', 'u.name'])
-                    : collect(),
+                'salesToday'    => (clone $ok)->where('created_at', '>=', $today)->sum('total'),
+                'countToday'    => (clone $ok)->where('created_at', '>=', $today)->count(),
+                'salesMonth'    => (clone $ok)->where('created_at', '>=', now()->startOfMonth())->sum('total'),
+                'marginMonth'   => (clone $ok)->where('created_at', '>=', now()->startOfMonth())->selectRaw('SUM(total - COALESCE(cost, total)) as m')->value('m') ?? 0,
+                'fundedToday'   => WalletFunding::where('status', 'successful')->where('paid_at', '>=', $today)->sum('amount'),
+                'float'         => Wallet::sum('balance'),
+                'failedToday'   => Transaction::whereIn('status', [Transaction::FAILED])->where('created_at', '>=', $today)->count(),
+                'processing'    => Transaction::where('status', Transaction::PROCESSING)->count(),
+                'stuck'         => Transaction::where('status', Transaction::PROCESSING)->where('created_at', '<=', now()->subMinutes(15))->count(),
+                'newCustomers'  => User::buyers()->where('created_at', '>=', $today)->count(),
+                'buyers'        => User::buyers()->count(),
+                'byCategory'    => Transaction::where('status', Transaction::SUCCESSFUL)->where('created_at', '>=', now()->subDays(30))
+                    ->selectRaw('category, COUNT(*) as n, SUM(total) as total')->groupBy('category')->orderByDesc('total')->get(),
+                'daily'         => Transaction::where('status', Transaction::SUCCESSFUL)->where('created_at', '>=', now()->subDays(13)->startOfDay())
+                    ->get(['created_at', 'total'])->groupBy(fn ($t) => $t->created_at->format('Y-m-d'))->map->sum('total'),
+                'recent'        => Transaction::with('user:id,name', 'service:id,name,short_name,color,category')->latest('id')->limit(8)->get(),
+                'balances'      => Cache::remember('provider-balances', 300, fn () => collect(['vtpass', 'termii'])
+                    ->mapWithKeys(fn ($k) => [$providers->get($k)->name() => $providers->get($k)->configured() ? rescue(fn () => $providers->get($k)->balance(), null, false) : null])->all()),
+                'sandbox'       => Service::where('is_active', true)->where('provider', 'sandbox')->count(),
             ];
         }
 
-        $notifications = Schema::hasTable('notifications')
-            ? $user->notifications()->latest()->limit(6)->get()
-            : collect();
+        $buyer = null;
+        if ($user->can('Buy services')) {
+            $country = $user->country_code ?: config('afritopup.default_country', 'NG');
+            $buyer = [
+                'wallet'     => $user->wallet(),
+                'categories' => collect(config('afritopup.categories'))->filter(fn ($c, $k) => Service::active()->in($country)->where('category', $k)->exists()),
+                'recent'     => $user->transactions()->with('service', 'product')->latest('id')->limit(6)->get(),
+                'spentMonth' => $user->transactions()->where('status', Transaction::SUCCESSFUL)->where('created_at', '>=', now()->startOfMonth())->sum('total'),
+                'hasPin'     => $user->hasTransactionPin(),
+            ];
+        }
 
         return view('dashboard.index', [
             'pagetitle'     => 'Dashboard',
-            'modules'       => $modules,
+            'modules'       => Modules::all($user),
             'overview'      => $overview,
-            'notifications' => $notifications,
+            'buyer'         => $buyer,
             'unread'        => Schema::hasTable('notifications') ? $user->unreadNotifications()->count() : 0,
         ]);
     }

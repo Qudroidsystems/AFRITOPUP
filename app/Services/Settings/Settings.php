@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Schema;
  */
 class Settings
 {
-    public const SECRET = ['paystack.test_secret_key', 'paystack.live_secret_key', 'opay.test_secret_key', 'opay.live_secret_key', 'giphy.api_key', 'mail.stalwart_token'];
+    public const SECRET = ['paystack.test_secret_key', 'paystack.live_secret_key',
+        'provider.vtpass.api_key', 'provider.vtpass.secret_key', 'provider.termii.api_key'];
 
     protected const CACHE = 'portal-settings';
 
@@ -120,61 +121,29 @@ class Settings
         return 'env';
     }
 
-    // ── OPay ────────────────────────────────────────────────────────────
+    // ── VTU / SMS providers ─────────────────────────────────────────────
 
-    public const OPAY = ['opay.active', 'opay.mode', 'opay.merchant_id', 'opay.test_public_key', 'opay.test_secret_key', 'opay.live_public_key', 'opay.live_secret_key'];
+    /** Fields each provider has on Settings → Providers (the secret ones are in SECRET). */
+    public const PROVIDER_FIELDS = [
+        'vtpass' => ['mode', 'api_key', 'public_key', 'secret_key'],
+        'termii' => ['api_key', 'sender_id', 'channel', 'base_url'],
+    ];
 
-    /** config('services.opay') with saved values on top. */
-    public function opay(): array
+    /** config('afritopup.providers.{key}') with saved values on top. */
+    public function provider(string $key): array
     {
-        $c = (array) config('services.opay', []);
-        foreach (self::OPAY as $key) {
-            if ($this->has($key)) $c[substr($key, 5)] = $this->get($key);
-        }
-        $c['active'] = $this->has('opay.active') ? $this->get('opay.active') === '1' : (bool) ($c['active'] ?? false);
-
-        return $c;
-    }
-
-    // ── Integrations ────────────────────────────────────────────────────
-
-    /** The GIPHY key for GIFs in chat: saved in the portal, else GIPHY_API_KEY. */
-    public function giphyKey(): ?string
-    {
-        return $this->get('giphy.api_key') ?: (config('services.giphy.key') ?: null);
-    }
-
-    // ── Payroll (PAYE) ──────────────────────────────────────────────────
-
-    public const PAYROLL_FIELDS = ['pension_employee', 'pension_employer', 'nhf_rate', 'rent_relief_rate', 'rent_relief_cap', 'working_days_month'];
-
-    /** config('qudroid.payroll') with saved rates on top. */
-    public function payroll(): array
-    {
-        $c = (array) config('qudroid.payroll', []);
-        $saved = $this->json('payroll.rates') ?? [];
-        foreach (array_merge(self::PAYROLL_FIELDS, ['tax_bands']) as $field) {
-            if (array_key_exists($field, $saved)) $c[$field] = $saved[$field];
+        $c = (array) config('afritopup.providers.' . $key, []);
+        foreach (self::PROVIDER_FIELDS[$key] ?? [] as $field) {
+            if ($this->has("provider.$key.$field")) $c[$field] = $this->get("provider.$key.$field");
         }
 
         return $c;
     }
 
-    /** The accountant's sign-off ['name', 'note', 'at', 'by'], only while it still matches the rates in use. */
-    public function payrollReview(): ?array
+    public function providerSource(string $key): string
     {
-        $r = $this->json('payroll.review');
+        foreach (self::PROVIDER_FIELDS[$key] ?? [] as $field) if ($this->has("provider.$key.$field")) return 'portal';
 
-        return $r && ($r['hash'] ?? null) === $this->payrollHash() ? $r : null;
-    }
-
-    /** A fingerprint of the rates in use, so a sign-off lapses when they change. */
-    public function payrollHash(?array $c = null): string
-    {
-        $c ??= $this->payroll();
-        $keep = array_intersect_key($c, array_flip(array_merge(self::PAYROLL_FIELDS, ['tax_bands'])));
-        ksort($keep);
-
-        return sha1(json_encode($keep));
+        return 'env';
     }
 }

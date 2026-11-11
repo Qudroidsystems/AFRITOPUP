@@ -480,7 +480,7 @@ body{font-family:var(--rol-font);}
                                 <span style="background:var(--rol-accent);color:#fff;border-radius:12px;padding:1px 8px;font-size:10px;" id="staff-count">0</span>
                             </button>
                             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#student-tab" type="button">
-                                <i class="fas fa-user-graduate"></i> Students
+                                <i class="fas fa-users"></i> Customers
                                 <span style="background:var(--rol-success);color:#fff;border-radius:12px;padding:1px 8px;font-size:10px;" id="student-count">0</span>
                             </button>
                         </div>
@@ -506,7 +506,7 @@ body{font-family:var(--rol-font);}
                                         $allUsersNotInRole = \App\Models\User::whereDoesntHave('roles', function ($q) use ($role) {
                                             $q->where('name', $role->name);
                                         })->get();
-                                        $staffUsers = $allUsersNotInRole->filter(fn ($u) => $u->user_type !== 'student')->sortBy('name');
+                                        $staffUsers = $allUsersNotInRole->filter(fn ($u) => $u->user_type === 'staff')->sortBy('name');
                                     @endphp
                                     @forelse($staffUsers as $staff)
                                     @php $sInit = strtoupper(substr($staff->name,0,1)); @endphp
@@ -532,7 +532,7 @@ body{font-family:var(--rol-font);}
                             {{-- STUDENTS --}}
                             <div class="tab-pane fade" id="student-tab">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <span style="font-size:12px;font-weight:700;color:var(--rol-muted);text-transform:uppercase;letter-spacing:.5px;">Students</span>
+                                    <span style="font-size:12px;font-weight:700;color:var(--rol-muted);text-transform:uppercase;letter-spacing:.5px;">Customers, agents &amp; resellers</span>
                                     <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--rol-accent);">
                                         <input type="checkbox" class="rol-checkbox" id="select-all-students">
                                         Select All
@@ -540,7 +540,7 @@ body{font-family:var(--rol-font);}
                                 </div>
                                 <div class="row g-2" id="student-list-container">
                                     @php
-                                        $studentUsers = $allUsersNotInRole->filter(fn ($u) => $u->user_type === 'student')->sortBy('name');
+                                        $studentUsers = $allUsersNotInRole->filter(fn ($u) => $u->user_type !== 'staff')->sortBy('name');
                                     @endphp
                                     @forelse($studentUsers as $studentUser)
                                     @php $stInit = strtoupper(substr($studentUser->name,0,1)); @endphp
@@ -560,7 +560,7 @@ body{font-family:var(--rol-font);}
                                         </div>
                                     </div>
                                     @empty
-                                    <div class="col-12"><div class="rol-info-banner">No students available.</div></div>
+                                    <div class="col-12"><div class="rol-info-banner">No customers available.</div></div>
                                     @endforelse
                                 </div>
                             </div>

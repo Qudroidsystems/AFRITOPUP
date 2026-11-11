@@ -2,7 +2,7 @@
 
 @section('title', 'Sign Up')
 @section('heading', 'Create your free account')
-@section('subheading', 'Get started with your learning journey')
+@section('subheading', 'Buy airtime, data, TV and power in seconds')
 
 @section('content')
     <form method="POST" action="{{ route('register') }}" id="registerForm" data-auth-form novalidate>
@@ -22,6 +22,14 @@
             <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
             <input id="name" type="text" class="form-control apple-input @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus placeholder="John Doe">
             @error('name')
+                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+            @enderror
+        </div>
+
+        <div class="mb-4">
+            <label for="phone_number" class="form-label">Phone number <span class="text-danger">*</span></label>
+            <input id="phone_number" type="tel" class="form-control apple-input @error('phone_number') is-invalid @enderror" name="phone_number" value="{{ old('phone_number') }}" required autocomplete="tel" placeholder="0803 123 4567">
+            @error('phone_number')
                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
             @enderror
         </div>
@@ -47,6 +55,11 @@
         </div>
 
         @include('auth.partials.password-rules')
+
+        <div class="mb-4 mt-3">
+            <label for="referral" class="form-label">Referral code <span class="text-muted small">(optional)</span></label>
+            <input id="referral" type="text" class="form-control apple-input" name="referral" value="{{ old('referral', request('ref')) }}" placeholder="e.g. 8F3K2Q9X">
+        </div>
 
         <div class="mt-4">
             <button class="btn btn-primary w-100 apple-button" type="submit" id="registerButton" data-loading-text="Creating Account...">

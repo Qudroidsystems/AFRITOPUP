@@ -3,32 +3,14 @@
 use App\Http\Controllers\Settings\SettingsController;
 use Illuminate\Support\Facades\Route;
 
-// Portal-wide settings: Paystack and OPay keys and payroll tax rates. Loaded inside the signed-in group.
-Route::prefix('admin/settings')->name('portal-settings.')->group(function () {
-    Route::middleware('permission:Manage settings')->group(function () {
-        Route::get('/payments', [SettingsController::class, 'payments'])->name('payments');
-        Route::post('/payments', [SettingsController::class, 'savePayments'])->name('payments.save');
-        Route::post('/payments/test', [SettingsController::class, 'testPayments'])->name('payments.test');
-        Route::post('/payments/env', [SettingsController::class, 'useEnv'])->name('payments.env');
-        Route::post('/payments/opay', [SettingsController::class, 'saveOpay'])->name('payments.opay');
-        Route::post('/payments/opay/test', [SettingsController::class, 'testOpay'])->middleware('throttle:10,1,modules-settings.payments.opay.test')->name('payments.opay.test');
+// Platform settings: payment gateways and VTU / SMS provider keys. Loaded inside the signed-in group.
+Route::prefix('admin/settings')->name('portal-settings.')->middleware('permission:Manage settings')->group(function () {
+    Route::get('/payments', [SettingsController::class, 'payments'])->name('payments');
+    Route::post('/payments', [SettingsController::class, 'savePayments'])->name('payments.save');
+    Route::post('/payments/test', [SettingsController::class, 'testPayments'])->name('payments.test');
+    Route::post('/payments/env', [SettingsController::class, 'useEnv'])->name('payments.env');
 
-        Route::get('/integrations', [SettingsController::class, 'integrations'])->name('integrations');
-        Route::post('/integrations', [SettingsController::class, 'saveIntegrations'])->name('integrations.save');
-
-        Route::get('/units', [SettingsController::class, 'units'])->name('units');
-        Route::post('/units', [SettingsController::class, 'storeUnit'])->name('units.store');
-        Route::put('/units/{unit}', [SettingsController::class, 'updateUnit'])->name('units.update');
-    });
-    Route::middleware('permission:Manage settings|Manage mail')->group(function () {
-        Route::get('/mail', [SettingsController::class, 'mail'])->name('mail');
-        Route::post('/mail', [SettingsController::class, 'saveMail'])->name('mail.save');
-        Route::post('/mail/test', [SettingsController::class, 'testMail'])->middleware('throttle:10,1,modules-settings.mail.test')->name('mail.test');
-    });
-    Route::middleware('permission:Manage settings|Manage payroll')->group(function () {
-        Route::get('/payroll', [SettingsController::class, 'payroll'])->name('payroll');
-        Route::post('/payroll', [SettingsController::class, 'savePayroll'])->name('payroll.save');
-        Route::post('/payroll/review', [SettingsController::class, 'reviewPayroll'])->name('payroll.review');
-        Route::post('/payroll/reset', [SettingsController::class, 'resetPayroll'])->name('payroll.reset');
-    });
+    Route::get('/providers', [SettingsController::class, 'providers'])->name('providers');
+    Route::post('/providers/{provider}', [SettingsController::class, 'saveProvider'])->where('provider', 'vtpass|termii')->name('providers.save');
+    Route::post('/providers/{provider}/test', [SettingsController::class, 'testProvider'])->where('provider', 'vtpass|termii')->middleware('throttle:10,1,settings.providers.test')->name('providers.test');
 });

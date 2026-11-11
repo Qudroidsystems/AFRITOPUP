@@ -330,7 +330,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; }
         <div class="row align-items-center">
             <div class="col">
                 <h1><i class="ri-team-line me-2"></i>User Management</h1>
-                <p>Manage staff, student, client and partner accounts and the roles that control what each person can see.</p>
+                <p>Manage staff, customer, agent and reseller accounts and the roles that control what each person can see.</p>
             </div>
             <div class="col-auto d-none d-md-flex gap-2">
                 @can('Create user')
@@ -597,7 +597,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; }
                             </div>
                             <div class="col-12">
                                 <label class="u-form-label">Email Address</label>
-                                <input type="email" id="email" name="email" class="u-form-input" placeholder="name@qudroid.com" required>
+                                <input type="email" id="email" name="email" class="u-form-input" placeholder="name@afritopup.com" required>
                             </div>
                             <div class="col-12">
                                 <label class="u-form-label">Account Type</label>

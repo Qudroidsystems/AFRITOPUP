@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{{ $pagetitle ?? 'Dashboard' }} | {{ $brand['name'] ?? 'Qlouds Workspace' }}</title>
+    <title>{{ $pagetitle ?? 'Dashboard' }} | {{ $brand['name'] ?? 'AfriTopup' }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="{{ $brand['company'] ?? 'Qudroid Systems' }} — business, learning and collaboration portal" name="description">
+    <meta content="{{ $brand['company'] ?? 'AfriTopup' }} — digital payments and recharge platform" name="description">
     <meta content="" name="author">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -362,15 +362,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link href="{{ asset('css/cb-ui.css') }}?v={{ @filemtime(public_path('css/cb-ui.css')) }}" rel="stylesheet">
-    {{-- Apple-style skin on top of CB UI (body.qd-apple). The tint is the brand colour from config/qudroid.php. --}}
+    {{-- Apple-style skin on top of CB UI (body.qd-apple). The tint is the brand colour from config/afritopup.php. --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="{{ asset('css/qd-apple.css') }}?v={{ @filemtime(public_path('css/qd-apple.css')) }}" rel="stylesheet">
     @php
-        $qdTint = preg_match('/^#[0-9a-f]{6}$/i', (string) config('qudroid.primary_color')) ? config('qudroid.primary_color') : '#405189';
+        $qdTint = preg_match('/^#[0-9a-f]{6}$/i', (string) config('afritopup.primary_color')) ? config('afritopup.primary_color') : '#405189';
         $qdRgb = implode(', ', array_map('hexdec', str_split(substr($qdTint, 1), 2)));
     @endphp
     <style>:root { --qd-tint: {{ $qdTint }}; --qd-tint-rgb: {{ $qdRgb }}; }</style>
-    <link href="{{ asset('css/qlouds-logo.css') }}?v={{ @filemtime(public_path('css/qlouds-logo.css')) }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('css/brand-logo.css') }}?v={{ @filemtime(public_path('css/brand-logo.css')) }}" rel="stylesheet" type="text/css">
 </head>
 
 <body class="cb-ui qd-apple">
@@ -383,20 +383,20 @@
         <!-- LOGO -->
         <div class="navbar-brand-box">
             @php
-                $brandName      = $brand['name'] ?? config('app.name', 'Qlouds Workspace');
+                $brandName      = $brand['name'] ?? config('app.name', 'AfriTopup');
                 $brandLogo      = asset($brand['logo'] ?? 'theme/layouts/assets/images/logo-dark.png');
                 $brandLogoLight = asset($brand['logo_light'] ?? 'theme/layouts/assets/images/logo-light.png');
                 $brandLogoSmall = asset($brand['logo_small'] ?? 'theme/layouts/assets/images/logo-sm.png');
             @endphp
 
-            {{-- The Qlouds logotype; the light copy shows on dark sidebars. --}}
+            {{-- The AfriTopup logotype; the light copy shows on dark sidebars. --}}
             <a href="{{ route('dashboard') }}" class="logo logo-dark" aria-label="{{ $brandName }}">
-                <span class="logo-sm"><x-qlouds-logo mark size="30px" /></span>
-                <span class="logo-lg"><x-qlouds-logo size="22px" /></span>
+                <span class="logo-sm"><x-brand-logo mark size="30px" /></span>
+                <span class="logo-lg"><x-brand-logo size="22px" /></span>
             </a>
             <a href="{{ route('dashboard') }}" class="logo logo-light" aria-label="{{ $brandName }}">
-                <span class="logo-sm"><x-qlouds-logo mark dark size="30px" /></span>
-                <span class="logo-lg"><x-qlouds-logo dark size="22px" /></span>
+                <span class="logo-sm"><x-brand-logo mark dark size="30px" /></span>
+                <span class="logo-lg"><x-brand-logo dark size="22px" /></span>
             </a>
 
             <button type="button" class="btn btn-sm p-0 fs-3xl header-item float-end btn-vertical-sm-hover" id="vertical-hover">
@@ -423,39 +423,87 @@
                             <i class="ri-notification-3-line"></i> <span>Notifications</span>
                         </a>
                     </li>
-                    @if(Route::has('billing.index'))
-                    <li class="nav-item">
-                        <a href="{{ route('billing.index') }}" class="nav-link menu-link {{ request()->routeIs('billing.*') ? 'active' : '' }}">
-                            <i class="ri-wallet-3-line"></i> <span>My bills</span>
-                        </a>
-                    </li>
-                    @endif
+                    {{-- BUY & PAY — customers, agents and resellers --}}
+                    @can('Buy services')
+                        <li class="menu-title"><i class="ri-more-fill"></i> <span>BUY &amp; PAY</span></li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link {{ request()->routeIs('topup.buy*') ? 'active' : 'collapsed' }}" href="#sidebarBuy" data-bs-toggle="collapse" role="button" aria-expanded="{{ request()->routeIs('topup.buy*') ? 'true' : 'false' }}" aria-controls="sidebarBuy">
+                                <i class="ri-shopping-bag-3-line"></i> <span>Buy &amp; Pay</span>
+                            </a>
+                            <div class="collapse menu-dropdown {{ request()->routeIs('topup.buy*') ? 'show' : '' }}" id="sidebarBuy">
+                                <ul class="nav nav-sm flex-column">
+                                    <li class="nav-item"><a href="{{ route('topup.buy') }}" class="nav-link {{ request()->routeIs('topup.buy') ? 'active' : '' }}">All services</a></li>
+                                    @foreach(config('afritopup.categories') as $catKey => $cat)
+                                        <li class="nav-item"><a href="{{ route('topup.buy.form', $catKey) }}" class="nav-link {{ request()->is('buy/' . $catKey) ? 'active' : '' }}">{{ $cat['name'] }}</a></li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('topup.wallet') }}" class="nav-link menu-link {{ request()->routeIs('topup.wallet*') ? 'active' : '' }}">
+                                <i class="ri-wallet-3-line"></i> <span>My Wallet</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('topup.transactions') }}" class="nav-link menu-link {{ request()->routeIs('topup.transactions*') ? 'active' : '' }}">
+                                <i class="ri-file-list-3-line"></i> <span>My Transactions</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('topup.sender-ids') }}" class="nav-link menu-link {{ request()->routeIs('topup.sender-ids*') ? 'active' : '' }}">
+                                <i class="ri-message-2-line"></i> <span>SMS Sender IDs</span>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('Use reseller API')
+                        <li class="nav-item">
+                            <a href="{{ route('topup.developer') }}" class="nav-link menu-link {{ request()->routeIs('topup.developer*') ? 'active' : '' }}">
+                                <i class="ri-code-box-line"></i> <span>Resellers &amp; API</span>
+                            </a>
+                        </li>
+                    @endcan
 
-                    @if(Route::has('me.leave') && auth()->user()->isStaff() && auth()->user()->employee)
-                    <li class="nav-item">
-                        <a href="{{ route('me.leave') }}" class="nav-link menu-link {{ request()->routeIs('me.*') ? 'active' : '' }}">
-                            <i class="ri-suitcase-line"></i> <span>My leave & pay</span>
-                        </a>
-                    </li>
+                    {{-- OPERATIONS — running the platform --}}
+                    @if(auth()->user()->can('View transactions') || auth()->user()->can('View wallets') || auth()->user()->can('Manage services'))
+                        <li class="menu-title"><i class="ri-more-fill"></i> <span>OPERATIONS</span></li>
                     @endif
-
-                    {{-- WORKSPACE — one entry per installed module the user may open.
-                         A module can supply its own sub-menu in resources/views/modules/<key>/nav.blade.php --}}
-                    @php $navModules = \App\Support\Modules::available(); @endphp
-                    @if(count($navModules))
-                        <li class="menu-title"><i class="ri-more-fill"></i> <span>WORKSPACE</span></li>
-                        @foreach($navModules as $m)
-                            @if(view()->exists('modules.' . $m['key'] . '.nav'))
-                                @include('modules.' . $m['key'] . '.nav', ['module' => $m])
-                            @else
-                                <li class="nav-item">
-                                    <a href="{{ $m['url'] }}" class="nav-link menu-link {{ request()->routeIs(\Illuminate\Support\Str::beforeLast($m['route'], '.') . '.*') ? 'active' : '' }}">
-                                        <i class="{{ $m['icon'] }}"></i> <span>{{ $m['name'] }}</span>
-                                    </a>
-                                </li>
-                            @endif
-                        @endforeach
+                    @if(auth()->user()->can('View transactions') || auth()->user()->can('Manage transactions'))
+                        <li class="nav-item">
+                            <a href="{{ route('admin.transactions.index') }}" class="nav-link menu-link {{ request()->routeIs('admin.transactions.*') ? 'active' : '' }}">
+                                <i class="ri-exchange-funds-line"></i> <span>Transactions</span>
+                            </a>
+                        </li>
                     @endif
+                    @if(auth()->user()->can('View wallets') || auth()->user()->can('Manage wallets'))
+                        <li class="nav-item">
+                            <a class="nav-link menu-link {{ request()->routeIs('admin.fundings.*', 'admin.wallets.*') ? 'active' : 'collapsed' }}" href="#sidebarWallets" data-bs-toggle="collapse" role="button" aria-expanded="{{ request()->routeIs('admin.fundings.*', 'admin.wallets.*') ? 'true' : 'false' }}" aria-controls="sidebarWallets">
+                                <i class="ri-bank-card-line"></i> <span>Wallets</span>
+                            </a>
+                            <div class="collapse menu-dropdown {{ request()->routeIs('admin.fundings.*', 'admin.wallets.*') ? 'show' : '' }}" id="sidebarWallets">
+                                <ul class="nav nav-sm flex-column">
+                                    <li class="nav-item"><a href="{{ route('admin.fundings.index') }}" class="nav-link {{ request()->routeIs('admin.fundings.*') ? 'active' : '' }}">Fundings</a></li>
+                                    <li class="nav-item"><a href="{{ route('admin.wallets.index') }}" class="nav-link {{ request()->routeIs('admin.wallets.*') ? 'active' : '' }}">Balances</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    @endif
+                    @can('Manage services')
+                        @php $catOpen = request()->routeIs('admin.services.*', 'admin.countries.*', 'admin.tiers.*', 'admin.schools.*', 'admin.sender-ids.*'); @endphp
+                        <li class="nav-item">
+                            <a class="nav-link menu-link {{ $catOpen ? 'active' : 'collapsed' }}" href="#sidebarCatalogue" data-bs-toggle="collapse" role="button" aria-expanded="{{ $catOpen ? 'true' : 'false' }}" aria-controls="sidebarCatalogue">
+                                <i class="ri-price-tag-3-line"></i> <span>Services &amp; Pricing</span>
+                            </a>
+                            <div class="collapse menu-dropdown {{ $catOpen ? 'show' : '' }}" id="sidebarCatalogue">
+                                <ul class="nav nav-sm flex-column">
+                                    <li class="nav-item"><a href="{{ route('admin.services.index') }}" class="nav-link {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">Services &amp; plans</a></li>
+                                    <li class="nav-item"><a href="{{ route('admin.tiers.index') }}" class="nav-link {{ request()->routeIs('admin.tiers.*') ? 'active' : '' }}">Price tiers</a></li>
+                                    <li class="nav-item"><a href="{{ route('admin.countries.index') }}" class="nav-link {{ request()->routeIs('admin.countries.*') ? 'active' : '' }}">Countries</a></li>
+                                    <li class="nav-item"><a href="{{ route('admin.schools.index') }}" class="nav-link {{ request()->routeIs('admin.schools.*') ? 'active' : '' }}">Schools</a></li>
+                                    <li class="nav-item"><a href="{{ route('admin.sender-ids.index') }}" class="nav-link {{ request()->routeIs('admin.sender-ids.*') ? 'active' : '' }}">SMS sender IDs</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    @endcan
 
                     {{-- ADMINISTRATION --}}
                     @if(auth()->user()->can('View user') || auth()->user()->can('View role') || auth()->user()->can('View permission') || auth()->user()->can('View activity log') || auth()->user()->can('View online staff') || auth()->user()->can('Manage settings'))
@@ -504,13 +552,13 @@
                         </li>
                     @endif
 
-                    @if(auth()->user()->can('Manage settings') || auth()->user()->can('Manage payroll'))
+                    @can('Manage settings')
                         <li class="nav-item">
-                            <a class="nav-link menu-link {{ request()->routeIs('portal-settings.*') ? 'active' : '' }}" href="{{ auth()->user()->can('Manage settings') ? route('portal-settings.payments') : route('portal-settings.payroll') }}">
+                            <a class="nav-link menu-link {{ request()->routeIs('portal-settings.*') ? 'active' : '' }}" href="{{ route('portal-settings.payments') }}">
                                 <i class="ri-settings-4-line"></i> <span>Settings</span>
                             </a>
                         </li>
-                    @endif
+                    @endcan
 
                     {{-- MY ACCOUNT --}}
                     <li class="menu-title"><i class="ri-more-fill"></i> <span>MY ACCOUNT</span></li>
@@ -585,12 +633,12 @@
                 <div class="d-flex">
                     <div class="navbar-brand-box horizontal-logo">
                         <a href="{{ route('dashboard') }}" class="logo logo-dark">
-                            <span class="logo-sm"><x-qlouds-logo mark size="24px" /></span>
-                            <span class="logo-lg"><x-qlouds-logo size="18px" /></span>
+                            <span class="logo-sm"><x-brand-logo mark size="24px" /></span>
+                            <span class="logo-lg"><x-brand-logo size="18px" /></span>
                         </a>
                         <a href="{{ route('dashboard') }}" class="logo logo-light">
-                            <span class="logo-sm"><x-qlouds-logo mark dark size="24px" /></span>
-                            <span class="logo-lg"><x-qlouds-logo dark size="18px" /></span>
+                            <span class="logo-sm"><x-brand-logo mark dark size="24px" /></span>
+                            <span class="logo-lg"><x-brand-logo dark size="18px" /></span>
                         </a>
                     </div>
                     <button type="button" class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger shadow-none" id="topnav-hamburger-icon">
@@ -702,11 +750,11 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6">
-                    {{ now()->year }} &copy; {{ $brand['company'] ?? 'Qudroid Systems' }} &middot; {{ $brand['name'] ?? 'Qlouds Workspace' }}
+                    {{ now()->year }} &copy; {{ $brand['company'] ?? 'AfriTopup' }} &middot; {{ $brand['name'] ?? 'AfriTopup' }}
                 </div>
                 <div class="col-sm-6">
                     <div class="text-sm-end">
-                        <a href="{{ $brand['website'] ?? 'https://qudroids.com' }}" target="_blank" rel="noopener noreferrer" class="fw-semibold">{{ preg_replace('#^https?://#', '', $brand['website'] ?? 'qudroids.com') }}</a>
+                        <a href="{{ $brand['website'] ?? 'https://afritopup.com' }}" target="_blank" rel="noopener noreferrer" class="fw-semibold">{{ preg_replace('#^https?://#', '', $brand['website'] ?? 'afritopup.com') }}</a>
                     </div>
                 </div>
             </div>
@@ -1067,7 +1115,7 @@
 
         /* ── Administration ── */
         @can('View user')
-        {title:'User Management',           url:'{{ route("users.index") }}',                                 icon:'mdi-account-group',    category:'Administration',     keywords:['staff','students','clients','accounts','users','import']},
+        {title:'User Management',           url:'{{ route("users.index") }}',                                 icon:'mdi-account-group',    category:'Administration',     keywords:['staff','customers','agents','resellers','accounts','users','import']},
         @endcan
         @can('View role')
         {title:'Roles',                     url:'{{ route("roles.index") }}',                                 icon:'mdi-shield-account',   category:'Administration',     keywords:['roles','access','privileges']},
@@ -1079,19 +1127,36 @@
         {title:"Who's Online",              url:'{{ route("online-staff.index") }}',                          icon:'mdi-account-clock',    category:'Security & Audit',   keywords:['online','presence','signed in']},
         @endif
         @can('Manage settings')
-        {title:'Payment settings (Paystack, OPay)', url:'{{ route("portal-settings.payments") }}',                    icon:'mdi-credit-card-settings-outline', category:'Administration', keywords:['paystack','opay','keys','api','webhook','payments','settings']},
+        {title:'Payment gateways (Paystack)', url:'{{ route("portal-settings.payments") }}',                  icon:'mdi-credit-card-settings-outline', category:'Administration', keywords:['paystack','keys','api','webhook','payments','settings']},
+        {title:'VTU & SMS providers',       url:'{{ route("portal-settings.providers") }}',                   icon:'mdi-power-plug',       category:'Administration',     keywords:['vtpass','termii','keys','provider','api','settings']},
         @endcan
-        @if(auth()->user()->can('Manage settings') || auth()->user()->can('Manage payroll'))
-        {title:'Payroll tax rates',         url:'{{ route("portal-settings.payroll") }}',                     icon:'mdi-percent',          category:'Administration',     keywords:['paye','tax','pension','nhf','payroll','rates','settings']},
-        @endif
+
+        /* ── Buy & Pay ── */
+        @can('Buy services')
+        {title:'My Wallet',                 url:'{{ route("topup.wallet") }}',                                icon:'mdi-wallet',           category:'Buy & Pay',          keywords:['fund','balance','top up','paystack','pin']},
+        {title:'My Transactions',           url:'{{ route("topup.transactions") }}',                          icon:'mdi-receipt',          category:'Buy & Pay',          keywords:['history','receipts','purchases']},
+        @foreach(config('afritopup.categories') as $catKey => $cat)
+        {title:@json('Buy ' . $cat['name']),  url:@json(route('topup.buy.form', $catKey)),                    icon:'mdi-cart',             category:'Buy & Pay',          keywords:@json([$catKey, strtolower($cat['name'])])},
+        @endforeach
+        @endcan
+
+        /* ── Operations ── */
+        @can('View transactions')
+        {title:'All transactions',          url:'{{ route("admin.transactions.index") }}',                    icon:'mdi-swap-horizontal',  category:'Operations',         keywords:['purchases','refund','requery','failed']},
+        @endcan
+        @can('View wallets')
+        {title:'Wallet fundings',           url:'{{ route("admin.fundings.index") }}',                        icon:'mdi-bank-transfer-in', category:'Operations',         keywords:['paystack','top up','credit']},
+        {title:'Wallet balances',           url:'{{ route("admin.wallets.index") }}',                         icon:'mdi-wallet-outline',   category:'Operations',         keywords:['float','balance','credit','debit']},
+        @endcan
+        @can('Manage services')
+        {title:'Services & plans',          url:'{{ route("admin.services.index") }}',                        icon:'mdi-tag-multiple',     category:'Operations',         keywords:['pricing','plans','data','bouquet','provider','vtpass']},
+        {title:'Price tiers',               url:'{{ route("admin.tiers.index") }}',                           icon:'mdi-sale',             category:'Operations',         keywords:['discount','agent','reseller']},
+        {title:'Countries',                 url:'{{ route("admin.countries.index") }}',                       icon:'mdi-earth',            category:'Operations',         keywords:['ghana','kenya','market']},
+        @endcan
         @can('View activity log')
         {title:'Activity Log',              url:'{{ route("activity.index") }}',                              icon:'mdi-history',          category:'Security & Audit',   keywords:['audit','log','changes','history','trail']},
         @endcan
 
-        /* ── Modules (as each one is installed) ── */
-        @foreach(\App\Support\Modules::available() as $m)
-        {title:@json($m['name']),           url:@json($m['url']),                                             icon:'mdi-apps',             category:'Workspace',          keywords:@json(array_values(array_filter(explode(' ', strtolower($m['description'] ?? '')))))},
-        @endforeach
     ];
 
     /* Server-side search across records (people, projects, invoices …). Set when a search endpoint exists. */
@@ -1100,18 +1165,15 @@
     /* ── category colours ── */
     var CAT_COLORS = {
         'General':'#4f8ef7','My Account':'#2a9d8f','Administration':'#405189',
-        'Security & Audit':'#ef4444','Workspace':'#10b981'
+        'Security & Audit':'#ef4444','Buy & Pay':'#0B8457','Operations':'#7C3AED'
     };
-    @foreach(\App\Services\Search\GlobalSearch::CATEGORIES as $cat => [$icon, $color])
-    CAT_COLORS[@json($cat)] = @json($color);
-    @endforeach
 
     /* ── popular / suggestion chips ── */
     var POPULAR = [
-        {label:'Users',         q:'users'},
-        {label:'Roles',         q:'roles'},
-        {label:'Notifications', q:'notifications'},
-        {label:'Activity',      q:'activity'},
+        {label:'Airtime',       q:'airtime'},
+        {label:'Data',          q:'data'},
+        {label:'Wallet',        q:'wallet'},
+        {label:'Transactions',  q:'transactions'},
         {label:'Profile',       q:'profile'},
     ];
 
@@ -1474,9 +1536,6 @@
 @include('layouts.partials.sounds')
 @include('layouts.partials.live')
 @stack('scripts')
-@if(auth()->check() && Route::has('connect.calls.ringing') && (auth()->user()->can('Use connect') || auth()->user()->can('Chat as a guest')))
-    @include('modules.connect._ring')
-@endif
 
 <script>
 /* Expired session on an AJAX / fetch call (HTTP 419) → go to the login page

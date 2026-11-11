@@ -31,7 +31,7 @@
                        class="form-control apple-input @error('email') is-invalid @enderror"
                        id="email"
                        name="email"
-                       placeholder="you@qudroids.com"
+                       placeholder="you@example.com"
                        value="{{ old('email') }}"
                        required
                        autocomplete="username"

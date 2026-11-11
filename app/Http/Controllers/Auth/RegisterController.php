@@ -51,7 +51,9 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'phone_number' => ['required', 'string', 'max:30'],
+            'password' => ['required', 'string', 'min:8'],
+            'referral' => ['nullable', 'string', 'max:20'],
         ]);
     }
 
@@ -61,15 +63,28 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\Models\User
      */
+    /** Customers sign themselves up; they get the Customer role and a wallet straight away. */
     protected function create(array $data)
     {
-        // Self sign-up (off unless QUDROID_ALLOW_REGISTRATION=true) is for
-        // prospective students; staff and clients are invited by an administrator.
-        return User::create([
-            'name'      => $data['name'],
-            'email'     => strtolower($data['email']),
-            'user_type' => User::TYPE_STUDENT,
-            'password'  => Hash::make($data['password']),
+        $referrer = !empty($data['referral']) ? User::where('referral_code', strtoupper(trim($data['referral'])))->first() : null;
+
+        $user = User::create([
+            'name'          => $data['name'],
+            'email'         => strtolower($data['email']),
+            'phone_number'  => $data['phone_number'],
+            'user_type'     => User::TYPE_CUSTOMER,
+            'country_code'  => config('afritopup.default_country', 'NG'),
+            'referred_by'   => $referrer?->id,
+            'referral_code' => strtoupper(\Illuminate\Support\Str::random(8)),
+            'password'      => Hash::make($data['password']),
         ]);
+        try {
+            $user->assignRole('Customer');
+        } catch (\Throwable $e) {
+            // Roles not seeded yet.
+        }
+        $user->wallet();
+
+        return $user;
     }
 }

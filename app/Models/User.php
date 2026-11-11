@@ -11,22 +11,19 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * One account per person, whatever their relationship with Qudroid:
- * staff, students, clients and partners all sign in here. `user_type`
- * says which part of the portal is their home; roles and permissions
- * (spatie/laravel-permission) say what they may do.
- *
- * Module records (employee files, student records, client accounts …)
- * link back to users.id rather than copying names and e-mails.
+ * One account per person: customers, agents, resellers and AfriTopup staff
+ * all sign in here. `user_type` says what kind of account it is; roles and
+ * permissions (spatie/laravel-permission) say what they may do; the price
+ * tier says what discount they buy at.
  */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
-    public const TYPE_STAFF   = 'staff';
-    public const TYPE_STUDENT = 'student';
-    public const TYPE_CLIENT  = 'client';
-    public const TYPE_PARTNER = 'partner';
+    public const TYPE_CUSTOMER = 'customer';
+    public const TYPE_AGENT    = 'agent';
+    public const TYPE_RESELLER = 'reseller';
+    public const TYPE_STAFF    = 'staff';
 
     /** Folder on the "public" disk that holds profile photos. */
     public const AVATAR_DIR = 'avatars';
@@ -37,6 +34,11 @@ class User extends Authenticatable
         'username',
         'phone_number',
         'user_type',
+        'country_code',
+        'price_tier_id',
+        'business_name',
+        'referred_by',
+        'referral_code',
         'avatar',
         'gender',
         'date_of_birth',
@@ -49,6 +51,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'transaction_pin',
     ];
 
     protected function casts(): array
@@ -63,6 +66,7 @@ class User extends Authenticatable
             'presence_until'       => 'datetime',
             'status_until'         => 'datetime',
             'password'             => 'hashed',
+            'transaction_pin'      => 'hashed',
             'muted_notifications'  => 'array',
             'notify_digest'        => 'boolean',
             'notify_digest_at'     => 'datetime',
@@ -76,24 +80,24 @@ class User extends Authenticatable
         return $this->user_type === self::TYPE_STAFF;
     }
 
-    public function isStudent(): bool
+    public function isCustomer(): bool
     {
-        return $this->user_type === self::TYPE_STUDENT;
+        return $this->user_type === self::TYPE_CUSTOMER;
     }
 
-    public function isClient(): bool
+    public function isAgent(): bool
     {
-        return $this->user_type === self::TYPE_CLIENT;
+        return $this->user_type === self::TYPE_AGENT;
     }
 
-    public function isPartner(): bool
+    public function isReseller(): bool
     {
-        return $this->user_type === self::TYPE_PARTNER;
+        return $this->user_type === self::TYPE_RESELLER;
     }
 
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole(config('qudroid.super_admin_role', 'Super Administrator'));
+        return $this->hasRole(config('afritopup.super_admin_role', 'Super Administrator'));
     }
 
     public function isActive(): bool
@@ -103,19 +107,75 @@ class User extends Authenticatable
 
     public function getUserTypeLabelAttribute(): string
     {
-        return config('qudroid.user_types.' . $this->user_type, ucfirst((string) $this->user_type));
+        return config('afritopup.user_types.' . $this->user_type, ucfirst((string) $this->user_type));
     }
 
-    /** The HR record, for staff on the payroll. */
-    /** Qmail mailboxes this person can read and send from. */
-    public function mailAccounts(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    // ── Wallet, purchases and pricing ─────────────────────────────────
+
+    public function wallets(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->belongsToMany(\App\Models\Mail\MailAccount::class, 'mail_account_user')->withPivot('role', 'is_default')->withTimestamps();
+        return $this->hasMany(Wallet::class);
     }
 
-    public function employee(): \Illuminate\Database\Eloquent\Relations\HasOne
+    /** The wallet in the user's currency (or the one given), created on first use. */
+    public function wallet(?string $currency = null): Wallet
     {
-        return $this->hasOne(\App\Models\Hr\Employee::class);
+        $currency = strtoupper($currency ?: $this->currency());
+
+        return $this->wallets()->firstOrCreate(['currency' => $currency], ['balance' => 0]);
+    }
+
+    public function currency(): string
+    {
+        $country = $this->country_code ?: config('afritopup.default_country', 'NG');
+
+        return (string) (Country::where('code', $country)->value('currency') ?: config('afritopup.default_currency', 'NGN'));
+    }
+
+    public function transactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function fundings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(WalletFunding::class);
+    }
+
+    public function apiKeys(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ApiKey::class);
+    }
+
+    public function senderIds(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SmsSenderId::class);
+    }
+
+    public function priceTier(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(PriceTier::class);
+    }
+
+    public function country(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'country_code', 'code');
+    }
+
+    /** The tier this user buys at: their own, or the default one. */
+    public function tier(): ?PriceTier
+    {
+        return $this->priceTier ?? PriceTier::default();
+    }
+
+    public function hasTransactionPin(): bool
+    {
+        return !empty($this->getRawOriginal('transaction_pin'));
+    }
+
+    public function checkTransactionPin(?string $pin): bool
+    {
+        return $this->hasTransactionPin() && $pin !== null && \Illuminate\Support\Facades\Hash::check($pin, $this->getRawOriginal('transaction_pin'));
     }
 
     // ── Names and photo ────────────────────────────────────────────────
@@ -150,7 +210,7 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute(): string
     {
         return $this->avatar_path_url
-            ?? 'https://ui-avatars.com/api/?name=' . urlencode((string) $this->name) . '&color=FFFFFF&format=png&background=' . ltrim((string) config('qudroid.primary_color', '#405189'), '#');
+            ?? 'https://ui-avatars.com/api/?name=' . urlencode((string) $this->name) . '&color=FFFFFF&format=png&background=' . ltrim((string) config('afritopup.primary_color', '#0B8457'), '#');
     }
 
     public function getFormattedDobAttribute(): ?string
@@ -170,14 +230,10 @@ class User extends Authenticatable
         return $query->where('user_type', self::TYPE_STAFF);
     }
 
-    public function scopeStudents(Builder $query): Builder
+    /** Everyone who buys: customers, agents and resellers. */
+    public function scopeBuyers(Builder $query): Builder
     {
-        return $query->where('user_type', self::TYPE_STUDENT);
-    }
-
-    public function scopeClients(Builder $query): Builder
-    {
-        return $query->where('user_type', self::TYPE_CLIENT);
+        return $query->where('user_type', '!=', self::TYPE_STAFF);
     }
 
     public function scopeActive(Builder $query): Builder

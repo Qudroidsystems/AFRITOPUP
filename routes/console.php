@@ -4,32 +4,15 @@ use Illuminate\Support\Facades\Schedule;
 
 /*
 | Scheduler — needs ONE cron job running every minute:
-|   * * * * * cd /path/to/qudroid-portal && php artisan schedule:run >> /dev/null 2>&1
-|
-| Modules add their own scheduled commands here as they are built.
+|   * * * * * cd /path/to/afritopup && php artisan schedule:run >> /dev/null 2>&1
 */
 
-// Queued jobs (push notifications, e-mails) on hosts without a permanent queue worker.
-// Remove this line once a Redis queue worker (php artisan queue:work) runs under Supervisor.
+// Queued jobs (reseller webhooks, push notifications) on hosting without a queue worker.
 Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3')->everyMinute()->withoutOverlapping(5);
 
-// Keep a year of activity history.
+// Purchases the provider has not confirmed yet.
+Schedule::command('topup:requery')->everyFiveMinutes()->withoutOverlapping(10);
+
 Schedule::command('activity:prune --days=365')->dailyAt('02:30');
-
-// Read notifications older than 6 months are removed.
 Schedule::command('notifications:prune --days=180')->dailyAt('02:45');
-
-// Meeting reminders (each meeting's own "remind me" time before it starts).
-Schedule::command('meetings:remind')->everyMinute()->withoutOverlapping(2);
-
-// Scheduled chat messages and "remind me" reminders.
-Schedule::command('connect:later')->everyMinute()->withoutOverlapping(2);
-
-// Workflow automations: waits, overdue checks and scheduled workflows.
-Schedule::command('workflows:tick')->everyMinute()->withoutOverlapping(5);
-
-// Qmail: fetch new mail, wake snoozed conversations, send scheduled messages.
-Schedule::command('mail:sync')->everyMinute()->withoutOverlapping(10);
-
-// The daily summary e-mail of unread notifications, for people who turned it on.
 Schedule::command('notifications:digest')->dailyAt('07:00')->withoutOverlapping(30);

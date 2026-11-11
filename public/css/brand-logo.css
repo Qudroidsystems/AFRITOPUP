@@ -1,0 +1,16 @@
+/* AfriTopup logotype (resources/views/components/brand-logo.blade.php). Sizes follow font-size. */
+.blogo { --bl-green: #0B8457; --bl-gold: #F5A623; display: inline-flex; align-items: center; gap: .32em; font-family: "Inter", "Segoe UI", system-ui, sans-serif; font-weight: 800; letter-spacing: -.02em; line-height: 1; white-space: nowrap; font-size: 22px; }
+.blogo-tile { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 1.35em; height: 1.35em; border-radius: .38em; background: linear-gradient(135deg, var(--bl-green), #0a6b47); color: #fff; font-size: 1em; box-shadow: 0 .12em .35em rgba(11,132,87,.35); }
+.blogo-tile > span { font-size: .78em; transform: translateY(.02em); }
+.blogo-bolt { position: absolute; right: -.14em; top: -.14em; width: .5em; height: .5em; border-radius: 50%; background: var(--bl-gold); border: .08em solid #fff; }
+.blogo-a { color: var(--bl-green); }
+.blogo-b { color: var(--bl-gold); }
+.blogo--dark .blogo-a { color: #fff; }
+.blogo--dark .blogo-bolt { border-color: #0f172a; }
+.blogo--animate .blogo-tile { animation: blogo-pop .6s cubic-bezier(.2,1.4,.4,1) both; }
+.blogo--animate .blogo-word { animation: blogo-slide .55s .18s ease-out both; }
+.blogo--animate .blogo-bolt { animation: blogo-pulse 1.6s .7s ease-in-out infinite; }
+@keyframes blogo-pop { from { transform: scale(.4) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes blogo-slide { from { transform: translateX(-.4em); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes blogo-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+@media (prefers-reduced-motion: reduce) { .blogo--animate * { animation: none !important; } }

@@ -13,6 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
+        then: function () {
+            // Reseller API (API-key auth), separate from the mobile app's /api/v1.
+            \Illuminate\Support\Facades\Route::middleware('api')->prefix('api/reseller/v1')->group(base_path('routes/reseller.php'));
+        },
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
@@ -22,12 +26,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'force.password' => \App\Http\Middleware\ForcePasswordChange::class,
             // Mobile app API (routes/api_v1.php)
             'api.active' => \App\Http\Middleware\EnsureApiUserActive::class,
+            // Reseller API (routes/reseller.php)
+            'api.key' => \App\Http\Middleware\AuthenticateApiKey::class,
         ]);
 
         // Temporary passwords must be changed first; every change is logged.
         $middleware->web(append: [\App\Http\Middleware\ForcePasswordChange::class, \App\Http\Middleware\LogActivity::class]);
 
-        // Payment-gateway callbacks (Paystack etc.) will live under webhook/*.
+        // Payment-gateway callbacks (Paystack) live under webhook/*.
         $middleware->validateCsrfTokens(except: [
             'webhook/*',
         ]);
@@ -43,12 +49,12 @@ return Application::configure(basePath: dirname(__DIR__))
         );
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // The mobile API always answers in JSON, even without an Accept header.
+        // The APIs always answer in JSON, even without an Accept header.
         $exceptions->shouldRenderJsonWhen(fn ($request, $e) => $request->is('api/*') || $request->expectsJson());
 
-        // Mobile API (v1): errors use the same envelope as successful responses.
+        // Mobile API (v1) and reseller API: errors use the same envelope as successful responses.
         $exceptions->render(function (\Throwable $e, $request) {
-            if (!$request->is('api/v1/*')) return null;
+            if (!$request->is('api/v1/*', 'api/reseller/*')) return null;
 
             if ($e instanceof \Illuminate\Validation\ValidationException) {
                 return response()->json([

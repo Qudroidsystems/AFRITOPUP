@@ -55,6 +55,47 @@ class AuthController extends ApiController
         ], 'Signed in.');
     }
 
+    /** Customer sign-up from the app (when registration is open). Returns a token like login. */
+    public function register(Request $request)
+    {
+        if (!config('afritopup.allow_registration')) return $this->fail('Sign-up is closed. Please contact support.', 403, 'registration_closed');
+
+        $data = $request->validate([
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|email|max:255|unique:users,email',
+            'phone_number' => 'required|string|max:30|unique:users,phone_number',
+            'password'     => ['required', 'string', Password::min(8)],
+            'referral'     => 'nullable|string|max:20',
+            'device_name'  => 'nullable|string|max:120',
+            'platform'     => 'nullable|in:android,ios,web',
+            'app_version'  => 'nullable|string|max:30',
+            'push_token'   => 'nullable|string|max:512',
+        ]);
+
+        $referrer = !empty($data['referral']) ? User::where('referral_code', strtoupper(trim($data['referral'])))->first() : null;
+        $user = User::create([
+            'name'          => $data['name'],
+            'email'         => strtolower($data['email']),
+            'phone_number'  => $data['phone_number'],
+            'user_type'     => User::TYPE_CUSTOMER,
+            'country_code'  => config('afritopup.default_country', 'NG'),
+            'referred_by'   => $referrer?->id,
+            'referral_code' => strtoupper(\Illuminate\Support\Str::random(8)),
+            'password'      => Hash::make($data['password']),
+        ]);
+        try { $user->assignRole('Customer'); } catch (\Throwable $e) {}
+        $user->wallet();
+
+        $token = $user->createToken(($data['device_name'] ?? null) ?: 'Mobile app', ['*']);
+        $this->rememberDevice($user->id, $token->accessToken->id, $data);
+
+        return $this->ok([
+            'token'      => $token->plainTextToken,
+            'token_type' => 'Bearer',
+            'user'       => ApiUserPresenter::present($user->fresh()),
+        ], 'Welcome to ' . config('afritopup.name') . '!', 201);
+    }
+
     public function me(Request $request)
     {
         return $this->ok(ApiUserPresenter::present($request->user()));

@@ -17,41 +17,23 @@ use Illuminate\Support\Str;
 class PortalNotifier
 {
     public const ICONS = [
-        'system'      => 'ri-notification-3-line',
-        'announcement'=> 'ri-broadcast-line',
-        'approval'    => 'ri-shield-check-line',
-        'task'        => 'ri-task-line',
-        'project'     => 'ri-folder-chart-line',
-        'message'     => 'ri-chat-3-line',
-        'mail'        => 'ri-mail-line',
-        'call'        => 'ri-phone-line',
-        'reminder'    => 'ri-alarm-line',
-        'meeting'     => 'ri-video-chat-line',
-        'drive'       => 'ri-folder-3-line',
-        'course'      => 'ri-book-open-line',
-        'payment'     => 'ri-money-dollar-circle-line',
-        'invoice'     => 'ri-bill-line',
-        'inventory'   => 'ri-archive-line',
-        'leave'       => 'ri-calendar-event-line',
-        'payroll'     => 'ri-wallet-3-line',
-        'certificate' => 'ri-award-line',
-        'client'      => 'ri-briefcase-4-line',
-        'support'     => 'ri-customer-service-2-line',
+        'system'       => 'ri-notification-3-line',
+        'announcement' => 'ri-broadcast-line',
+        'approval'     => 'ri-shield-check-line',
+        'purchase'     => 'ri-shopping-bag-3-line',
+        'wallet'       => 'ri-wallet-3-line',
+        'refund'       => 'ri-refund-2-line',
+        'sms'          => 'ri-message-3-line',
+        'support'      => 'ri-customer-service-2-line',
+        'reminder'     => 'ri-alarm-line',
     ];
 
     /** Kinds of notification people can filter by and switch off. `system` and `announcement` can't be switched off. */
     public const GROUPS = [
-        'messages' => ['Messages', 'ri-chat-3-line', ['message']],
-        'mail'     => ['E-mail', 'ri-mail-line', ['mail']],
-        'calls'    => ['Calls', 'ri-phone-line', ['call']],
-        'meetings' => ['Meetings', 'ri-video-chat-line', ['meeting']],
-        'work'     => ['Tasks & projects', 'ri-task-line', ['task', 'project']],
-        'files'    => ['Files', 'ri-folder-3-line', ['drive']],
-        'money'    => ['Money', 'ri-money-dollar-circle-line', ['payment', 'invoice', 'payroll']],
-        'people'   => ['Leave & approvals', 'ri-shield-check-line', ['leave', 'approval']],
-        'academy'  => ['Academy', 'ri-book-open-line', ['course', 'certificate']],
-        'clients'  => ['Clients & support', 'ri-briefcase-4-line', ['client', 'crm', 'support']],
-        'stock'    => ['Stock', 'ri-archive-line', ['inventory']],
+        'purchases' => ['Purchases', 'ri-shopping-bag-3-line', ['purchase', 'refund', 'sms']],
+        'wallet'    => ['Wallet', 'ri-wallet-3-line', ['wallet']],
+        'approvals' => ['Approvals', 'ri-shield-check-line', ['approval']],
+        'support'   => ['Support', 'ri-customer-service-2-line', ['support']],
     ];
 
     /**
@@ -59,14 +41,13 @@ class PortalNotifier
      * time-sensitive push. normal: a banner and a push. passive: only the
      * notification centre (no banner, no sound, a quiet push).
      */
-    public const URGENT = ['call', 'approval', 'leave', 'meeting'];
-    public const PASSIVE = ['system', 'drive', 'inventory', 'certificate'];
+    public const URGENT = ['approval'];
+    public const PASSIVE = ['system'];
 
     /** The mobile app's categories (Android channels, iOS categories). */
     public const CATEGORIES = [
-        'message' => 'message', 'call' => 'call', 'meeting' => 'meeting', 'task' => 'task', 'project' => 'task',
-        'approval' => 'approval', 'leave' => 'approval', 'payment' => 'finance', 'invoice' => 'finance', 'payroll' => 'finance',
-        'course' => 'academy', 'certificate' => 'academy', 'mail' => 'mail',
+        'purchase' => 'purchase', 'refund' => 'purchase', 'sms' => 'purchase',
+        'wallet' => 'wallet', 'approval' => 'approval', 'support' => 'support',
     ];
 
     public static function levelOf(string $type): string
@@ -76,8 +57,6 @@ class PortalNotifier
 
     public static function categoryOf(string $type, ?string $key = null): string
     {
-        if ($type === 'message' && $key && str_starts_with($key, 'connect-mention:')) return 'mention';
-
         return self::CATEGORIES[$type] ?? 'system';
     }
 
@@ -210,7 +189,7 @@ class PortalNotifier
         return $type . ':' . substr(md5((string) $url), 0, 8);
     }
 
-    /** Every active account of one type (staff, student, client, partner). */
+    /** Every active account of one type (customer, agent, reseller, staff). */
     public static function userIdsOfType(string $type): array
     {
         return User::where('user_type', $type)->where('is_disabled', false)->pluck('id')->all();

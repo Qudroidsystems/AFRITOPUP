@@ -50,7 +50,7 @@ class PermissionMeta
         'Manage maintenance mode'   => ['Manage', 'Turn the portal\'s maintenance mode on or off.'],
         'Manage feature flags'      => ['Manage', 'Switch portal modules on or off (module access).'],
         'Release salary payments'   => ['Release','Release staff salary payments — the money is sent.'],
-        'Manage payment gateways'   => ['Manage', 'Configure the payment gateways (Paystack, OPay).'],
+        'Manage payment gateways'   => ['Manage', 'Configure the payment gateways (Paystack).'],
         'Close accounting period'   => ['Close',  'Lock the accounting books up to a date.'],
         'Post journal entries'      => ['Post',   'Post entries directly into the general ledger.'],
     ];

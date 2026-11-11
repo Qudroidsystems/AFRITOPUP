@@ -14,27 +14,26 @@ use Illuminate\Support\Facades\Session;
 
 /*
 |--------------------------------------------------------------------------
-| Qlouds Workspace — web routes (foundation)
+| AfriTopup — web routes (foundation)
 |--------------------------------------------------------------------------
 | Authentication, users, roles and permissions, profile, notifications and
-| the activity log. Each module (Academy, Projects, Connect, CRM, Finance,
-| Inventory, HR …) adds its own file in routes/modules/ — every file there
-| is loaded automatically inside the signed-in group below.
+| the activity log. Each module (buying, wallet, admin catalogue …) adds its
+| own file in routes/modules/ — every file there is loaded automatically
+| inside the signed-in group below.
 */
 
-// The public website: "/" and its pages (routes/site.php)
-require __DIR__ . '/site.php';
+Route::get('/', fn () => auth()->check() ? redirect()->route('dashboard') : redirect()->route('login'))->name('home');
 
 Auth::routes([
-    'register' => (bool) config('qudroid.allow_registration'),
+    'register' => (bool) config('afritopup.allow_registration'),
     'verify'   => false,
 ]);
 
 // Payment-provider webhooks (no sign-in; signature-checked)
 require __DIR__ . '/webhooks.php';
 
-// Public pages (online applications)
-require __DIR__ . '/public.php';
+// Paystack sends the mobile app's browser here after paying; the app closes the web view.
+Route::get('/wallet/fund/app-return', fn () => response()->view('topup.wallet.app-return'))->name('topup.fund.app-return');
 
 // CSRF refresh (keeps long-open pages working)
 Route::get('/refresh-csrf', function () {
@@ -106,6 +105,3 @@ Route::middleware('auth')->group(function () {
         require $moduleRoutes;
     }
 });
-
-// Anything else may be a website page (e.g. /about), otherwise not found.
-Route::fallback([\App\Http\Controllers\Website\SiteController::class, 'page']);

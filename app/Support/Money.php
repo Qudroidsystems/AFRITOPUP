@@ -12,7 +12,7 @@ class Money
 
     public static function format($amount, ?string $currency = null): string
     {
-        $currency = strtoupper($currency ?: config('qudroid.academy.currency', 'NGN'));
+        $currency = strtoupper($currency ?: config('afritopup.academy.currency', 'NGN'));
         $symbol = self::SYMBOLS[$currency] ?? $currency . ' ';
 
         return $symbol . number_format((float) $amount, 2);

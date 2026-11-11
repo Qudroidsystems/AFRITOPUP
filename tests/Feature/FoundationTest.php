@@ -8,7 +8,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->seed(DatabaseSeeder::class);
-    $this->admin = User::where('email', config('qudroid.super_admin.email'))->first();
+    $this->admin = User::where('email', config('afritopup.super_admin.email'))->first();
     $this->admin->forceFill(['must_change_password' => false])->save();
 });
 
@@ -38,7 +38,7 @@ test('profile pages open for the owner', function () {
 });
 
 test('role pages open', function () {
-    $role = \Spatie\Permission\Models\Role::where('name', 'Staff')->first();
+    $role = \Spatie\Permission\Models\Role::where('name', 'Support Officer')->first();
     $this->actingAs($this->admin)->get(route('roles.show', $role->id))->assertOk();
     $this->actingAs($this->admin)->get(route('roles.edit', $role->id))->assertRedirect(route('roles.show', $role->id));
     $this->actingAs($this->admin)->get(route('roles.adduser', $role->id))->assertOk();
@@ -46,7 +46,7 @@ test('role pages open', function () {
 
 test('a staff member without admin permissions is kept out of user management', function () {
     $staff = User::factory()->create();
-    $staff->assignRole('Staff');
+    $staff->assignRole('Customer');
 
     $this->actingAs($staff)->get(route('dashboard'))->assertOk();
     $this->actingAs($staff)->get(route('users.index'))->assertForbidden();
@@ -57,19 +57,19 @@ test('a staff member without admin permissions is kept out of user management', 
 
 test('an administrator can create, update, disable and delete a user', function () {
     $res = $this->actingAs($this->admin)->postJson(route('users.store'), [
-        'name' => 'Ada Obi', 'email' => 'ada@example.com', 'user_type' => 'client',
-        'roles' => ['Client'], 'password' => 'Secret123', 'password_confirmation' => 'Secret123',
+        'name' => 'Ada Obi', 'email' => 'ada@example.com', 'user_type' => 'customer',
+        'roles' => ['Customer'], 'password' => 'Secret123', 'password_confirmation' => 'Secret123',
     ])->assertCreated();
 
     $user = User::where('email', 'ada@example.com')->first();
-    expect($user->user_type)->toBe('client')
-        ->and($user->hasRole('Client'))->toBeTrue()
+    expect($user->user_type)->toBe('customer')
+        ->and($user->hasRole('Customer'))->toBeTrue()
         ->and($user->must_change_password)->toBeTrue();
 
     $this->actingAs($this->admin)->putJson(route('users.update', $user->id), [
-        'name' => 'Ada N. Obi', 'email' => 'ada@example.com', 'user_type' => 'client', 'roles' => ['Client', 'Staff'],
+        'name' => 'Ada N. Obi', 'email' => 'ada@example.com', 'user_type' => 'customer', 'roles' => ['Customer', 'Support Officer'],
     ])->assertOk();
-    expect($user->fresh()->name)->toBe('Ada N. Obi')->and($user->fresh()->hasRole('Staff'))->toBeTrue();
+    expect($user->fresh()->name)->toBe('Ada N. Obi')->and($user->fresh()->hasRole('Support Officer'))->toBeTrue();
 
     $this->actingAs($this->admin)->postJson(route('users.toggle-status', $user->id))->assertOk();
     expect($user->fresh()->is_disabled)->toBeTrue();
@@ -110,9 +110,10 @@ test('people can sign in with e-mail, and disabled accounts cannot', function ()
 
 test('the mobile api signs in and returns the user', function () {
     $user = User::factory()->create(['email' => 'app@example.com', 'password' => bcrypt('Password1')]);
-    $user->assignRole('Staff');
+    $user->forceFill(['user_type' => 'staff'])->save();
+    $user->assignRole('Support Officer');
 
-    $this->getJson('/api/v1/app/config')->assertOk()->assertJsonPath('data.name', config('qudroid.name'));
+    $this->getJson('/api/v1/app/config')->assertOk()->assertJsonPath('data.name', config('afritopup.name'));
 
     $token = $this->postJson('/api/v1/auth/login', ['login' => 'app@example.com', 'password' => 'Password1', 'device_name' => 'Pixel'])
         ->assertOk()->assertJsonPath('data.user.user_type', 'staff')->json('data.token');

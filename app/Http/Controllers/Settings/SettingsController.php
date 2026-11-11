@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
-use App\Models\BusinessUnit;
-use App\Services\Finance\PaystackGateway;
-use App\Services\Hr\PayeCalculator;
+use App\Services\Payments\PaystackGateway;
 use App\Services\Settings\Settings;
+use App\Services\Topup\Providers\ProviderManager;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -28,7 +27,6 @@ class SettingsController extends Controller
             'masked' => ['test' => $this->mask($c['test_secret_key'] ?? null), 'live' => $this->mask($c['live_secret_key'] ?? null)],
             'saved' => ['test' => $this->settings->has('paystack.test_secret_key'), 'live' => $this->settings->has('paystack.live_secret_key')],
             'last' => $this->settings->lastChange(Settings::PAYSTACK),
-            'opay' => $this->opayView(),
         ]);
     }
 
@@ -80,67 +78,6 @@ class SettingsController extends Controller
         return back()->with('success', 'Saved Paystack settings removed. The values in .env are used again.');
     }
 
-    /** What the OPay card needs. */
-    protected function opayView(): array
-    {
-        $gateway = app(\App\Services\Finance\OpayGateway::class);
-        $c = $this->settings->opay();
-
-        return [
-            'c' => $c,
-            'enabled' => $gateway->enabled(),
-            'mode' => $gateway->mode(),
-            'masked' => ['test' => $this->mask($c['test_secret_key'] ?? null), 'live' => $this->mask($c['live_secret_key'] ?? null)],
-            'saved' => ['test' => $this->settings->has('opay.test_secret_key'), 'live' => $this->settings->has('opay.live_secret_key')],
-            'last' => $this->settings->lastChange(Settings::OPAY),
-        ];
-    }
-
-    public function saveOpay(Request $request)
-    {
-        $d = $request->validate([
-            'opay_mode' => ['required', 'in:sandbox,live'],
-            'opay_merchant_id' => ['nullable', 'string', 'max:40', 'regex:/^[A-Za-z0-9]+$/'],
-            'opay_test_public_key' => ['nullable', 'string', 'max:200'],
-            'opay_live_public_key' => ['nullable', 'string', 'max:200'],
-            'opay_test_secret_key' => ['nullable', 'string', 'max:200'],
-            'opay_live_secret_key' => ['nullable', 'string', 'max:200'],
-        ], ['opay_merchant_id.regex' => 'The merchant ID is letters and numbers only (it is on your OPay dashboard).'], [
-            'opay_merchant_id' => 'merchant ID',
-        ]);
-
-        $values = [
-            'opay.active' => $request->boolean('opay_active') ? '1' : '0',
-            'opay.mode' => $d['opay_mode'],
-            'opay.merchant_id' => trim((string) ($d['opay_merchant_id'] ?? '')),
-            'opay.test_public_key' => trim((string) ($d['opay_test_public_key'] ?? '')),
-            'opay.live_public_key' => trim((string) ($d['opay_live_public_key'] ?? '')),
-        ];
-        // A blank secret box keeps the saved key; "remove" clears it.
-        foreach (['test', 'live'] as $m) {
-            if ($request->boolean('clear_opay_' . $m . '_secret')) $values['opay.' . $m . '_secret_key'] = null;
-            elseif (filled($d['opay_' . $m . '_secret_key'] ?? null)) $values['opay.' . $m . '_secret_key'] = trim($d['opay_' . $m . '_secret_key']);
-        }
-        $this->settings->put($values, $request->user());
-
-        $gateway = app(\App\Services\Finance\OpayGateway::class);
-        $note = $values['opay.active'] === '1' && !$gateway->enabled()
-            ? ' OPay stays off until the merchant ID and both ' . ($gateway->mode() === 'live' ? 'live' : 'test') . ' keys are saved.' : '';
-
-        return back()->with('success', 'OPay settings saved.' . $note);
-    }
-
-    public function testOpay()
-    {
-        $gateway = app(\App\Services\Finance\OpayGateway::class);
-        $problem = $gateway->check();
-        $which = $gateway->mode() === 'live' ? 'live' : 'test';
-
-        return back()->with($problem ? 'error' : 'success', $problem
-            ? "OPay didn't accept the {$which} keys: " . $problem
-            : "OPay accepted the {$which} merchant ID and secret key.");
-    }
-
     protected function mask(?string $key): ?string
     {
         if (!$key) return null;
@@ -148,205 +85,64 @@ class SettingsController extends Controller
         return substr($key, 0, 8) . str_repeat('•', 8) . substr($key, -4);
     }
 
-    // ── Business units ──────────────────────────────────────────────────
+    // ── VTU and SMS providers ───────────────────────────────────────────
 
-    // ── Integrations ────────────────────────────────────────────────────
-
-    public function integrations()
+    public function providers(ProviderManager $manager)
     {
-        return view('settings.integrations', [
-            'giphySaved' => $this->settings->has('giphy.api_key'),
-            'giphyEnv'   => (bool) config('services.giphy.key'),
-            'giphyHint'  => ($k = $this->settings->giphyKey()) ? '••••' . substr($k, -4) : null,
-        ]);
-    }
-
-    public function saveIntegrations(Request $request)
-    {
-        $data = $request->validate([
-            'giphy_api_key' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9]+$/'],
-            'clear_giphy'   => ['nullable', 'boolean'],
-        ], ['giphy_api_key.regex' => 'A GIPHY key is letters and numbers only.']);
-
-        if ($request->boolean('clear_giphy')) {
-            $this->settings->put(['giphy.api_key' => null], $request->user());
-
-            return back()->with('success', 'GIPHY key removed.');
-        }
-        if (!empty($data['giphy_api_key'])) {
-            $this->settings->put(['giphy.api_key' => $data['giphy_api_key']], $request->user());
-
-            return back()->with('success', 'GIPHY key saved. GIFs are now available in chat.');
+        $cards = [];
+        foreach (array_keys(Settings::PROVIDER_FIELDS) as $key) {
+            $c = $this->settings->provider($key);
+            $p = $manager->get($key);
+            $cards[$key] = [
+                'name'       => $p->name(),
+                'c'          => $c,
+                'configured' => $p->configured(),
+                'source'     => $this->settings->providerSource($key),
+                'masked'     => collect($c)->only(['api_key', 'secret_key'])->map(fn ($v) => $this->mask($v))->all(),
+                'saved'      => collect(['api_key', 'secret_key'])->mapWithKeys(fn ($f) => [$f => $this->settings->has("provider.$key.$f")])->all(),
+            ];
         }
 
-        return back()->with('success', 'Nothing changed.');
+        return view('settings.providers', ['cards' => $cards, 'last' => $this->settings->lastChange(array_merge(...array_map(
+            fn ($k, $fields) => array_map(fn ($f) => "provider.$k.$f", $fields), array_keys(Settings::PROVIDER_FIELDS), Settings::PROVIDER_FIELDS)))]);
     }
 
-    public function units()
+    public function saveProvider(Request $request, string $provider)
     {
-        $counts = [];
-        foreach (['finance_invoices' => 'invoices', 'finance_expenses' => 'expenses', 'crm_deals' => 'deals', 'projects' => 'projects', 'hr_employees' => 'staff', 'academy_courses' => 'courses'] as $table => $label) {
-            foreach (\DB::table($table)->whereNotNull('business_unit_id')->selectRaw('business_unit_id, count(*) as n')->groupBy('business_unit_id')->pluck('n', 'business_unit_id') as $id => $n) {
-                $counts[$id][$label] = $n;
+        abort_unless(isset(Settings::PROVIDER_FIELDS[$provider]), 404);
+
+        $rules = [
+            'vtpass' => ['mode' => ['required', 'in:sandbox,live'], 'api_key' => ['nullable', 'string', 'max:200'], 'public_key' => ['nullable', 'string', 'max:200'], 'secret_key' => ['nullable', 'string', 'max:200']],
+            'termii' => ['api_key' => ['nullable', 'string', 'max:200'], 'sender_id' => ['nullable', 'string', 'max:11', 'regex:/^[A-Za-z0-9 .-]+$/'], 'channel' => ['required', 'in:generic,dnd'], 'base_url' => ['nullable', 'url', 'max:200']],
+        ][$provider];
+        $d = $request->validate($rules, ['sender_id.regex' => 'A sender ID is up to 11 letters and numbers.']);
+
+        $values = [];
+        foreach (Settings::PROVIDER_FIELDS[$provider] as $field) {
+            $key = "provider.$provider.$field";
+            if (in_array($key, Settings::SECRET, true)) {
+                // A blank secret box keeps the saved key; "remove" clears it.
+                if ($request->boolean('clear_' . $field)) $values[$key] = null;
+                elseif (filled($d[$field] ?? null)) $values[$key] = trim($d[$field]);
+            } else {
+                $values[$key] = trim((string) ($d[$field] ?? '')) ?: null;
             }
         }
-
-        return view('settings.units', ['units' => BusinessUnit::ordered()->get(), 'counts' => $counts]);
-    }
-
-    public function storeUnit(Request $request)
-    {
-        $d = $this->unitData($request);
-        BusinessUnit::create($d + ['position' => (int) BusinessUnit::max('position') + 1, 'is_active' => true]);
-
-        return back()->with('success', $d['name'] . ' added.');
-    }
-
-    public function updateUnit(Request $request, BusinessUnit $unit)
-    {
-        $d = $this->unitData($request, $unit);
-        $active = $request->boolean('is_active');
-        if (!$active && $unit->is_active && BusinessUnit::active()->count() === 1) {
-            throw ValidationException::withMessages(['is_active' => 'Keep at least one business unit active.']);
-        }
-        $unit->update($d + ['is_active' => $active, 'position' => max(0, (int) $request->input('position', $unit->position))]);
-
-        return back()->with('success', $unit->name . ' saved.');
-    }
-
-    protected function unitData(Request $request, ?BusinessUnit $unit = null): array
-    {
-        $d = $request->validate([
-            'name' => ['required', 'string', 'max:100', \Illuminate\Validation\Rule::unique('business_units', 'name')->ignore($unit)],
-            'code' => ['required', 'string', 'max:10', 'alpha_dash', \Illuminate\Validation\Rule::unique('business_units', 'code')->ignore($unit)],
-            'color' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/'],
-            'description' => ['nullable', 'string', 'max:255'],
-        ]);
-        $d['code'] = strtoupper($d['code']);
-
-        return $d;
-    }
-
-    // ── Payroll tax ─────────────────────────────────────────────────────
-
-    public function payroll()
-    {
-        $c = $this->settings->payroll();
-        $calc = new PayeCalculator($c);
-        $examples = collect([1_000_000, 3_000_000, 5_000_000, 10_000_000, 25_000_000, 50_000_000])->map(function ($naira) use ($calc) {
-            $tax = $calc->annualTax($naira * 100)[0] / 100;
-
-            return ['income' => $naira, 'tax' => $tax, 'rate' => $naira ? $tax / $naira * 100 : 0];
-        });
-
-        return view('settings.payroll', [
-            'c' => $c,
-            'custom' => $this->settings->has('payroll.rates'),
-            'review' => $this->settings->payrollReview(),
-            'examples' => $examples,
-            'last' => $this->settings->lastChange(['payroll.rates']),
-        ]);
-    }
-
-    public function savePayroll(Request $request)
-    {
-        $d = $request->validate([
-            'bands' => ['required', 'array', 'min:1', 'max:12'],
-            'bands.*.width' => ['nullable', 'numeric', 'min:1', 'max:100000000000'],
-            'bands.*.rate' => ['required', 'numeric', 'min:0', 'max:100'],
-            'pension_employee' => ['required', 'numeric', 'min:0', 'max:100'],
-            'pension_employer' => ['required', 'numeric', 'min:0', 'max:100'],
-            'nhf_rate' => ['required', 'numeric', 'min:0', 'max:100'],
-            'rent_relief_rate' => ['required', 'numeric', 'min:0', 'max:100'],
-            'rent_relief_cap' => ['required', 'numeric', 'min:0', 'max:100000000000'],
-            'working_days_month' => ['required', 'integer', 'min:1', 'max:31'],
-        ]);
-
-        $bands = array_map(fn ($b) => ['width' => $b['width'] ?? null, 'rate' => $b['rate']], array_values($d['bands']));
-        foreach ($bands as $i => $b) {
-            $last = $i === count($bands) - 1;
-            if ($last && filled($b['width'])) throw ValidationException::withMessages(['bands' => 'Leave the last band\'s width empty: it covers everything above.']);
-            if (!$last && blank($b['width'])) throw ValidationException::withMessages(['bands' => 'Every band except the last needs a width.']);
-        }
-
-        $num = fn ($v) => $v + 0;   // "18.0" → 18, "7.5" → 7.5
-        $this->settings->put(['payroll.rates' => [
-            'tax_bands' => array_map(fn ($b) => [filled($b['width']) ? (int) round($b['width']) : null, $num($b['rate'])], $bands),
-            'pension_employee' => $num($d['pension_employee']),
-            'pension_employer' => $num($d['pension_employer']),
-            'nhf_rate' => $num($d['nhf_rate']),
-            'rent_relief_rate' => $num($d['rent_relief_rate']),
-            'rent_relief_cap' => (int) round($d['rent_relief_cap']),
-            'working_days_month' => (int) $d['working_days_month'],
-        ]], $request->user());
-
-        return back()->with('success', 'Payroll rates saved. They apply the next time a payroll is generated; payslips already worked out keep their figures.');
-    }
-
-    /** Record that an accountant checked the current rates. Changing the rates later clears it. */
-    public function reviewPayroll(Request $request)
-    {
-        $d = $request->validate(['reviewer' => ['required', 'string', 'max:120'], 'note' => ['nullable', 'string', 'max:500']]);
-        $this->settings->put(['payroll.review' => [
-            'name' => $d['reviewer'], 'note' => $d['note'] ?? null, 'at' => now()->toDateTimeString(),
-            'by' => $request->user()->name, 'hash' => $this->settings->payrollHash(),
-        ]], $request->user());
-
-        return back()->with('success', 'Recorded that ' . $d['reviewer'] . ' checked these rates.');
-    }
-
-    public function resetPayroll(Request $request)
-    {
-        $this->settings->put(['payroll.rates' => null], $request->user());
-
-        return back()->with('success', 'Payroll rates are back to the built-in Nigeria Tax Act 2025 defaults.');
-    }
-
-    public function mail()
-    {
-        $s = \App\Services\Mail\MailService::server();
-
-        return view('settings.mail', [
-            'server' => $s,
-            'tokenHint' => !empty($s['stalwart_token']) ? '••••' . substr($s['stalwart_token'], -4) : null,
-            'tokenSaved' => $this->settings->has('mail.stalwart_token'),
-        ]);
-    }
-
-    public function saveMail(Request $request)
-    {
-        $data = $request->validate([
-            'domain' => ['nullable', 'string', 'max:191', 'regex:/^[a-z0-9.-]+\.[a-z]{2,}$/i'],
-            'imap_host' => ['nullable', 'string', 'max:191'], 'imap_port' => ['nullable', 'integer', 'between:1,65535'], 'imap_encryption' => ['nullable', 'in:ssl,tls,none'],
-            'smtp_host' => ['nullable', 'string', 'max:191'], 'smtp_port' => ['nullable', 'integer', 'between:1,65535'], 'smtp_encryption' => ['nullable', 'in:ssl,tls,none'],
-            'stalwart_url' => ['nullable', 'url:https,http', 'max:191'], 'stalwart_token' => ['nullable', 'string', 'max:500'], 'clear_token' => ['nullable', 'boolean'],
-        ], ['domain.regex' => 'Enter a domain like qudroid.com.']);
-        $values = [];
-        foreach (['domain', 'imap_host', 'imap_port', 'imap_encryption', 'smtp_host', 'smtp_port', 'smtp_encryption', 'stalwart_url'] as $k) {
-            $values['mail.' . $k] = isset($data[$k]) ? strtolower(trim((string) $data[$k])) : null;
-        }
-        if ($request->boolean('clear_token')) $values['mail.stalwart_token'] = null;
-        elseif (!empty($data['stalwart_token'])) $values['mail.stalwart_token'] = $data['stalwart_token'];
         $this->settings->put($values, $request->user());
 
-        return back()->with('success', 'Mail settings saved.');
+        return back()->with('success', ucfirst($provider) . ' settings saved.');
     }
 
-    /** Ask Stalwart who we are, to check the URL and token. */
-    public function testMail()
+    /** Check the keys by reading our balance with the provider. */
+    public function testProvider(ProviderManager $manager, string $provider)
     {
-        if (!\App\Services\Mail\Stalwart::configured()) return back()->with('error', 'Add the Stalwart URL and API key first.');
-        $s = \App\Services\Mail\MailService::server();
-        try {
-            $r = \Illuminate\Support\Facades\Http::withToken($s['stalwart_token'])->acceptJson()->timeout(10)
-                ->withOptions(['verify' => (bool) config('qudroid.mail.validate_cert', true)])
-                ->get(rtrim($s['stalwart_url'], '/') . '/api/principal', ['limit' => 1]);
-        } catch (\Throwable $e) {
-            return back()->with('error', 'Could not reach Stalwart: ' . \Illuminate\Support\Str::limit($e->getMessage(), 160));
-        }
+        abort_unless(isset(Settings::PROVIDER_FIELDS[$provider]), 404);
+        $p = $manager->get($provider);
+        if (!$p->configured()) return back()->with('error', $p->name() . ': enter the keys first.');
+        $balance = $p->balance();
 
-        return $r->successful() && !isset($r->json()['error'])
-            ? back()->with('success', 'Connected to Stalwart. You can create addresses under Qmail → Mailboxes.')
-            : back()->with('error', 'Stalwart answered ' . $r->status() . ($r->status() === 401 ? ': the API key was not accepted.' : '.'));
+        return $balance === null
+            ? back()->with('error', $p->name() . ' did not accept the keys (or could not be reached).')
+            : back()->with('success', $p->name() . ' accepted the keys. Balance: ' . number_format($balance, 2) . '.');
     }
 }

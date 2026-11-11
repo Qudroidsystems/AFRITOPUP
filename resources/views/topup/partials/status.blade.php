@@ -1,0 +1,1 @@
+<span class="badge bg-{{ $t->status_color }}-subtle text-{{ $t->status_color }} at-status"><i class="ri-checkbox-blank-circle-fill me-1" style="font-size:7px;vertical-align:middle"></i>{{ $t->status_label }}</span>

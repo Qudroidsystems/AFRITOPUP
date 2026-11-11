@@ -1,5 +1,5 @@
 {{--
-    Qlouds page loader, like an Apple device starting up: plain white (black in dark mode), the animated Qlouds
+    AfriTopup page loader, like an Apple device starting up: plain white (black in dark mode), the animated AfriTopup
     logotype (as in the mobile app) at the centre, then a thin progress bar.
 
     The first page of a browser session gets the full start-up (about 1.8s). After that it shows whenever a page
@@ -8,7 +8,7 @@
     and the portal's light / dark setting. Include it straight after <body>; add data-no-loader to a link or form
     that should not show it (downloads, for example).
 --}}
-<div id="ql-loader" role="status" aria-live="polite" aria-label="Loading {{ $brand['name'] ?? 'Qlouds Workspace' }}">
+<div id="ql-loader" role="status" aria-live="polite" aria-label="Loading {{ $brand['name'] ?? 'AfriTopup' }}">
     <style>
         #ql-loader { --ql-bg: #ffffff; --ql-ink: #0F172A;
             position: fixed; inset: 0; z-index: 2147483000; background: var(--ql-bg);
@@ -38,10 +38,10 @@
         }
     </style>
     <div class="ql-lockup">
-        <x-qlouds-logo animate size="46px" :rest="false" />
+        <x-brand-logo animate size="46px" :rest="false" />
     </div>
     <div class="ql-bar"></div>
-    <div class="ql-foot">A <b>{{ $brand['company'] ?? 'Qudroid Systems' }}</b> product</div>
+    <div class="ql-foot">A <b>{{ $brand['company'] ?? 'AfriTopup' }}</b> product</div>
     <script>
         (function () {
             var el = document.getElementById('ql-loader');
