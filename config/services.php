@@ -1,0 +1,83 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Third Party Services
+    |--------------------------------------------------------------------------
+    |
+    | This file is for storing the credentials for third party services such
+    | as Mailgun, Postmark, AWS and more. This file provides the de facto
+    | location for this type of information, allowing packages to have
+    | a conventional file to locate the various service credentials.
+    |
+    */
+
+    'postmark' => [
+        'token' => env('POSTMARK_TOKEN'),
+    ],
+
+    'ses' => [
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    ],
+
+    'resend' => [
+        'key' => env('RESEND_KEY'),
+    ],
+
+    'slack' => [
+        'notifications' => [
+            'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
+            'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
+        ],
+    ],
+
+    'twilio' => [
+    'sid' => env('TWILIO_SID'),
+    'auth_token' => env('TWILIO_AUTH_TOKEN'),
+    'phone_number' => env('TWILIO_PHONE_NUMBER'),
+    ],
+    // GIFs in chat. A key saved under Settings → Integrations wins over this.
+    'giphy' => [
+        'key'    => env('GIPHY_API_KEY'),
+        'rating' => env('GIPHY_RATING', 'pg'),
+    ],
+
+    'paystack' => [
+        'active'          => env('PAYSTACK_ACTIVE', true),
+        'mode'            => env('PAYSTACK_MODE', 'sandbox'),
+        'secret_key'      => env('PAYSTACK_SECRET_KEY'),
+        'public_key'      => env('PAYSTACK_PUBLIC_KEY'),
+        'test_secret_key' => env('PAYSTACK_TEST_SECRET_KEY'),
+        'test_public_key' => env('PAYSTACK_TEST_PUBLIC_KEY'),
+        'live_secret_key' => env('PAYSTACK_LIVE_SECRET_KEY'),
+        'live_public_key' => env('PAYSTACK_LIVE_PUBLIC_KEY'),
+    ],
+
+    // OPay Checkout. Admins usually enter these in Settings → Payments instead.
+    'opay' => [
+        'active'          => env('OPAY_ACTIVE', false),
+        'mode'            => env('OPAY_MODE', 'sandbox'),
+        'merchant_id'     => env('OPAY_MERCHANT_ID'),
+        'test_public_key' => env('OPAY_TEST_PUBLIC_KEY'),
+        'test_secret_key' => env('OPAY_TEST_SECRET_KEY'),
+        'live_public_key' => env('OPAY_LIVE_PUBLIC_KEY'),
+        'live_secret_key' => env('OPAY_LIVE_SECRET_KEY'),
+    ],
+
+    // Push notifications to the Qlouds Workspace mobile app (Firebase Cloud Messaging).
+    'fcm' => [
+        'enabled'     => env('FCM_ENABLED', true),
+        'credentials' => env('FCM_CREDENTIALS', storage_path('app/fcm-service-account.json')),
+        'project_id'  => env('FCM_PROJECT_ID'),
+    ],
+
+    // Default for reminders the mobile app shows (tasks, meetings, classes).
+    'reminders' => [
+        'minutes' => (int) env('REMINDER_MINUTES', 15),
+    ],
+
+];
