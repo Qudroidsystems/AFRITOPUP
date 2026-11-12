@@ -69,6 +69,16 @@ Route::middleware(['auth:sanctum', 'api.active', 'throttle:120,1,api'])->group(f
     Route::get('me/preferences', [PreferenceController::class, 'show'])->name('preferences.show');
     Route::put('me/preferences', [PreferenceController::class, 'update'])->name('preferences.update');
 
+    // Support chat — available before e-mail confirmation, so anyone stuck can ask for help.
+    Route::prefix('support')->name('support.')->controller(\App\Http\Controllers\Api\V1\Support\SupportApiController::class)->group(function () {
+        Route::get('/', 'show')->name('show');
+        Route::get('messages', 'messages')->name('messages');
+        Route::post('messages', 'send')->middleware('throttle:30,1,api.support.send')->name('send');
+        Route::post('typing', 'typing')->middleware('throttle:60,1,api.support.typing')->name('typing');
+        Route::get('summary', 'summary')->name('summary');
+        Route::get('files/{message}', 'file')->name('file');
+    });
+
     // Buying, wallet, beneficiaries … need a confirmed e-mail (customers).
     Route::middleware('email.confirmed')->group(function () {
         foreach (glob(__DIR__ . '/api_v1/*.php') ?: [] as $moduleRoutes) {

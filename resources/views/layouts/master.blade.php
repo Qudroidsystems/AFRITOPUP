@@ -464,9 +464,18 @@
                     @endcan
 
                     {{-- OPERATIONS — running the platform --}}
-                    @if(auth()->user()->can('View transactions') || auth()->user()->can('View wallets') || auth()->user()->can('Manage services'))
+                    @if(auth()->user()->can('View transactions') || auth()->user()->can('View wallets') || auth()->user()->can('Manage services') || auth()->user()->can('Manage support'))
                         <li class="menu-title"><i class="ri-more-fill"></i> <span>OPERATIONS</span></li>
                     @endif
+                    @can('Manage support')
+                        @php $supportWaiting = \App\Models\SupportConversation::where('status', 'open')->where('staff_unread', '>', 0)->count(); @endphp
+                        <li class="nav-item">
+                            <a href="{{ route('admin.support.index') }}" class="nav-link menu-link {{ request()->routeIs('admin.support.*') ? 'active' : '' }}">
+                                <i class="ri-customer-service-2-line"></i> <span>Support chat</span>
+                                <span class="badge rounded-pill bg-success ms-auto" data-support-waiting @if(!$supportWaiting) style="display:none" @endif>{{ $supportWaiting }}</span>
+                            </a>
+                        </li>
+                    @endcan
                     @if(auth()->user()->can('View transactions') || auth()->user()->can('Manage transactions'))
                         <li class="nav-item">
                             <a href="{{ route('admin.transactions.index') }}" class="nav-link menu-link {{ request()->routeIs('admin.transactions.*') ? 'active' : '' }}">
@@ -1147,6 +1156,7 @@
 
         /* ── Operations ── */
         @can('View transactions')
+        {title:'Support chat',              url:'{{ route("admin.support.index") }}',                         icon:'mdi-chat-processing',  category:'Operations',         keywords:['chat','messages','customers','help','support','inbox']},
         {title:'All transactions',          url:'{{ route("admin.transactions.index") }}',                    icon:'mdi-swap-horizontal',  category:'Operations',         keywords:['purchases','refund','requery','failed']},
         @endcan
         @can('View wallets')

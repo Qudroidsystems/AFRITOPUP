@@ -18,7 +18,9 @@
         ['topup.wallet', 'Wallet', 'ri-wallet-3-line', 'ri-wallet-3-fill', ['topup.wallet*']],
         ['topup.transactions', 'History', 'ri-file-list-3-line', 'ri-file-list-3-fill', ['topup.transactions*']],
         $me->can('Use reseller API') ? ['topup.developer', 'API', 'ri-code-s-slash-line', 'ri-code-s-slash-fill', ['topup.developer*', 'topup.sender-ids*']] : null,
+        ['support.index', 'Help', 'ri-customer-service-2-line', 'ri-customer-service-2-fill', ['support.*']],
     ]));
+    $supportUnread = (int) (\App\Models\SupportConversation::where('user_id', $me->id)->value('customer_unread') ?? 0);
     $theme = file_exists(public_path('theme/layouts/assets/css/app.min.css'));
     $initials = collect(explode(' ', trim($me->name)))->filter()->take(2)->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))->join('');
 @endphp
@@ -45,6 +47,7 @@
     <link href="{{ asset('css/cb-ui.css') }}?v={{ @filemtime(public_path('css/cb-ui.css')) }}" rel="stylesheet">
     <link href="{{ asset('site/site.css') }}?v={{ @filemtime(public_path('site/site.css')) }}" rel="stylesheet">
     <link href="{{ asset('site/account.css') }}?v={{ @filemtime(public_path('site/account.css')) }}" rel="stylesheet">
+    <link href="{{ asset('site/chat.css') }}?v={{ @filemtime(public_path('site/chat.css')) }}" rel="stylesheet">
     <style>:root { --s-green: {{ $primary }}; --s-green-rgb: {{ $rgb($primary) }}; --s-gold: {{ $accent }}; --s-gold-rgb: {{ $rgb($accent) }}; --qd-tint: {{ $primary }}; --qd-tint-rgb: {{ $rgb($primary) }}; }</style>
     @stack('styles')
 </head>
@@ -58,7 +61,7 @@
         <nav class="a-nav" aria-label="Account">
             @foreach($nav as [$route, $label, $icon, $iconOn, $match])
                 @php $on = request()->routeIs(...$match); @endphp
-                <a href="{{ route($route) }}" class="{{ $on ? 'is-on' : '' }}" @if($on) aria-current="page" @endif><i class="{{ $on ? $iconOn : $icon }}"></i>{{ $label }}</a>
+                <a href="{{ route($route) }}" class="{{ $on ? 'is-on' : '' }}" @if($on) aria-current="page" @endif><i class="{{ $on ? $iconOn : $icon }}"></i>{{ $label }}@if($route === 'support.index')<span class="a-navdot" data-support-badge @if(!$supportUnread) hidden @endif>{{ $supportUnread }}</span>@endif</a>
             @endforeach
         </nav>
 
@@ -83,7 +86,7 @@
                     <a class="dropdown-item" href="{{ route('topup.wallet') }}#pin"><i class="ri-lock-password-line"></i> Transaction PIN</a>
                     <a class="dropdown-item" href="{{ route('notifications.index') }}"><i class="ri-notification-3-line"></i> Notifications</a>
                     <a class="dropdown-item" href="{{ route('home') }}"><i class="ri-global-line"></i> Visit website</a>
-                    <a class="dropdown-item" href="{{ route('site.contact') }}"><i class="ri-customer-service-2-line"></i> Help &amp; support</a>
+                    <a class="dropdown-item" href="{{ route('support.index') }}"><i class="ri-chat-smile-3-line"></i> Chat with support</a>
                     <div class="dropdown-divider"></div>
                     <form method="POST" action="{{ route('logout') }}">@csrf<button class="dropdown-item text-danger" type="submit"><i class="ri-logout-box-r-line"></i> Log out</button></form>
                 </div>
@@ -115,10 +118,29 @@
     <a href="{{ route('account.profile') }}" class="{{ request()->routeIs('account.profile*') ? 'is-on' : '' }}"><i class="{{ request()->routeIs('account.profile*') ? 'ri-user-3-fill' : 'ri-user-3-line' }}"></i><span>Me</span></a>
 </nav>
 
+@unless(request()->routeIs('support.*'))
+    <a href="{{ route('support.index') }}" class="ch-fab" aria-label="Chat with support"><i class="ri-chat-smile-3-fill"></i><span class="a-dot" data-support-badge @if(!$supportUnread) hidden @endif>{{ $supportUnread }}</span></a>
+@endunless
 <div class="s-toast" id="siteToast" role="status" aria-live="polite"></div>
 <script src="{{ $theme ? asset('theme/layouts/assets/libs/bootstrap/js/bootstrap.bundle.min.js') : asset('site/vendor/bootstrap.bundle.min.js') }}"></script>
 <script>
     window.siteToast = function (msg) { var t = document.getElementById('siteToast'); if (!t) return; t.textContent = msg; t.classList.add('is-on'); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('is-on'); }, 2600); };
+    // Support replies: keep the badge fresh on every page.
+    (function () {
+        if (location.pathname.indexOf('/support') === 0) return;
+        function check() {
+            if (document.visibilityState !== 'visible') return;
+            fetch(@json(route('support.summary')), { headers: { Accept: 'application/json' }, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+                document.querySelectorAll('[data-support-badge]').forEach(function (b) {
+                    var was = parseInt(b.textContent || '0', 10);
+                    b.textContent = j.unread; b.hidden = !j.unread;
+                    if (j.unread > was && b.closest('.ch-fab')) window.siteToast && siteToast('New reply from support');
+                });
+            }).catch(function () {});
+        }
+        setInterval(check, 30000);
+        document.addEventListener('visibilitychange', check);
+    })();
     (function () { var top = document.getElementById('acctTop'); function s() { top.classList.toggle('is-scrolled', window.scrollY > 4); } window.addEventListener('scroll', s, { passive: true }); s(); })();
 </script>
 @stack('scripts')

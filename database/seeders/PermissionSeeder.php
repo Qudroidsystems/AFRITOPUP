@@ -30,6 +30,9 @@ class PermissionSeeder extends Seeder
             'View wallets'   => 'See wallet balances, statements and fundings.',
             'Manage wallets' => 'Credit or debit wallets by hand and put wallets on hold.',
         ],
+        'Support' => [
+            'Manage support' => 'Answer customers in the support chat, assign chats and mark them solved.',
+        ],
         'Catalogue' => [
             'Manage services' => 'Manage services, plans and prices, providers, price tiers, countries, schools and SMS sender IDs.',
         ],

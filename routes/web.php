@@ -59,6 +59,28 @@ Route::get('/refresh-csrf', function () {
     abort(404);
 })->name('refresh.csrf');
 
+// ── Support chat ─────────────────────────────────────────────────────
+// Customers can reach support even before confirming their e-mail.
+Route::middleware('auth')->prefix('support')->name('support.')->controller(\App\Http\Controllers\Support\CustomerChatController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/messages', 'messages')->name('messages');
+    Route::post('/messages', 'send')->middleware('throttle:30,1,support.send')->name('send');
+    Route::post('/typing', 'typing')->middleware('throttle:60,1,support.typing')->name('typing');
+    Route::get('/summary', 'summary')->name('summary');
+    Route::get('/files/{message}', 'attachment')->name('attachment');
+});
+Route::middleware(['auth', 'can:Manage support'])->prefix('admin/support')->name('admin.support.')->controller(\App\Http\Controllers\Support\SupportInboxController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/list', 'list')->name('list');
+    Route::get('/{conversation}', 'show')->name('show');
+    Route::get('/{conversation}/messages', 'messages')->name('messages');
+    Route::post('/{conversation}/messages', 'send')->middleware('throttle:60,1,support.staff-send')->name('send');
+    Route::post('/{conversation}/typing', 'typing')->name('typing');
+    Route::post('/{conversation}/close', 'close')->name('close');
+    Route::post('/{conversation}/reopen', 'reopen')->name('reopen');
+    Route::post('/{conversation}/assign', 'assign')->name('assign');
+});
+
 // ── Confirm your e-mail (signed-in customers who haven't yet) ──────────
 Route::controller(\App\Http\Controllers\Auth\EmailVerificationController::class)->group(function () {
     Route::get('/email/verify', 'notice')->middleware('auth')->name('verification.notice');

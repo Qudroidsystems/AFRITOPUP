@@ -165,3 +165,5 @@ body.acct .btn-soft-success:hover { background: var(--s-green); color: #fff; }
     .a-quick a { padding: 14px 4px; font-size: .8rem; border-radius: 16px; }
     .a-card { padding: 16px; border-radius: 20px; }
 }
+
+.a-navdot { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #E5484D; color: #fff; font-size: 10.5px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; margin-left: 2px; }
