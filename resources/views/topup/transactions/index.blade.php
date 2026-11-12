@@ -3,7 +3,9 @@
 @section('content')
 <div class="main-content"><div class="page-content"><div class="container-fluid">
     @include('topup.partials.styles')
-    <x-cb.hero title="My Transactions" icon="ri-file-list-3-line" subtitle="Every purchase you have made, with receipts, tokens and PINs." />
+    <x-cb.hero title="My Transactions" icon="ri-file-list-3-line" subtitle="Every purchase you have made, with receipts, tokens and PINs.">
+        <x-slot:actions><a class="cb-hero-btn" href="{{ route('account.statement') }}"><i class="ri-file-list-3-line me-1"></i>Statement</a></x-slot:actions>
+    </x-cb.hero>
     @include('partials.flash')
 
     <x-cb.card :flush="true">

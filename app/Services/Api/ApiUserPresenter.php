@@ -20,6 +20,7 @@ class ApiUserPresenter
             'first_name'           => $user->first_name,
             'email'                => $user->email,
             'email_verified'       => $user->hasVerifiedEmail(),
+            'email_receipts'       => method_exists($user, 'wantsEmailReceipts') ? $user->wantsEmailReceipts() : false,
             'needs_email_verification' => method_exists($user, 'needsEmailVerification') ? $user->needsEmailVerification() : false,
             'username'             => $user->username,
             'phone_number'         => $user->phone_number,

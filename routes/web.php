@@ -121,6 +121,15 @@ Route::middleware(['auth', 'email.confirmed'])->group(function () {
     // ── Customer area: profile & security ───────────────────────────────
     Route::get('/account/profile', [\App\Http\Controllers\Account\AccountController::class, 'profile'])->name('account.profile');
 
+    // ── Statements & PDF receipts ───────────────────────────────────────
+    Route::controller(\App\Http\Controllers\Account\StatementController::class)->group(function () {
+        Route::get('/statement', 'index')->name('account.statement');
+        Route::get('/statement/download', 'download')->middleware('throttle:20,1,statement.dl')->name('account.statement.download');
+        Route::post('/statement/email', 'email')->middleware('throttle:5,10,statement.email')->name('account.statement.email');
+        Route::get('/receipts/{reference}.pdf', 'receipt')->name('account.receipt.pdf');
+        Route::post('/account/receipts', 'receiptsPreference')->name('account.receipts');
+    });
+
     // ── My profile ──────────────────────────────────────────────────────
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/settings/{id}', [ProfileController::class, 'show'])->whereNumber('id')->name('settings');

@@ -49,6 +49,7 @@
 
             <div class="d-flex gap-2 mt-3 flex-wrap justify-content-center d-print-none">
                 <button class="btn btn-light" onclick="window.print()"><i class="ri-printer-line me-1"></i>Print</button>
+                <a class="btn btn-light" href="{{ route('account.receipt.pdf', $t->reference) }}"><i class="ri-file-pdf-2-line me-1"></i>PDF</a>
                 <a class="btn btn-success" href="{{ route('topup.buy.form', ['category' => $t->category, 'service' => $t->service?->code]) }}"><i class="ri-repeat-line me-1"></i>Buy again</a>
                 @if(auth()->id() === $t->user_id)<a class="btn btn-light" href="{{ route('support.index', ['transaction' => $t->reference]) }}"><i class="ri-chat-smile-3-line me-1"></i>Report a problem</a>@endif
                 @can('View transactions')<a class="btn btn-soft-primary" href="{{ route('admin.transactions.show', $t) }}">Admin view</a>@endcan

@@ -74,6 +74,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
             'notify_digest'        => 'boolean',
             'notify_digest_at'     => 'datetime',
             'kyc_level'            => 'integer',
+            'email_receipts'       => 'boolean',
         ];
     }
 
@@ -183,6 +184,15 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
         $url = route('password.reset', ['token' => $token, 'email' => $this->email]);
 
         \Illuminate\Support\Facades\Mail::to($this->email, $this->name)->send(new \App\Mail\AccountCodeMail($this, \App\Services\Auth\EmailCodes::RESET, $code, $url));
+    }
+
+    /** E-mail a receipt after each purchase / top-up? Default on, except resellers (they get webhooks). */
+    public function wantsEmailReceipts(): bool
+    {
+        if (!$this->email) return false;
+        if ($this->email_receipts !== null) return (bool) $this->email_receipts;
+
+        return $this->user_type !== self::TYPE_RESELLER;
     }
 
     /** Customers must confirm their e-mail before buying; staff accounts are created by admins. */

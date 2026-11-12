@@ -61,6 +61,7 @@ class DemoSeeder extends Seeder
         }
 
         $users = [];
+        \App\Services\Receipts\ReceiptMailer::$muted = true;   // no receipt e-mails for demo data
 
         foreach (self::ACCOUNTS as [$email, $name, $type, $phone, $balance]) {
             $user = User::firstOrNew(['email' => $email]);
@@ -121,6 +122,7 @@ class DemoSeeder extends Seeder
         $this->command?->newLine();
         $this->command?->info('Sign in with any account above. Password: ' . self::PASSWORD . ' · PIN: ' . self::PIN);
         $this->command?->info('Web admin: admin@afritopup.test / ' . self::PASSWORD);
+        \App\Services\Receipts\ReceiptMailer::$muted = false;
     }
 
     /** Credit the NGN wallet up to $balance (a manual credit, recorded like an admin would). */

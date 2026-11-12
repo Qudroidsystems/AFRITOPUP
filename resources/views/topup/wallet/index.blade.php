@@ -4,7 +4,9 @@
 <div class="main-content"><div class="page-content"><div class="container-fluid">
     @include('topup.partials.styles')
     @php $m = fn ($v) => \App\Support\Money::format($v, $wallet->currency); @endphp
-    <x-cb.hero title="My Wallet" icon="ri-wallet-3-line" subtitle="Fund once, buy anything. Every naira in and out is listed below." />
+    <x-cb.hero title="My Wallet" icon="ri-wallet-3-line" subtitle="Fund once, buy anything. Every naira in and out is listed below.">
+        <x-slot:actions><a class="cb-hero-btn" href="{{ route('account.statement') }}"><i class="ri-file-list-3-line me-1"></i>Statement</a></x-slot:actions>
+    </x-cb.hero>
     @include('partials.flash')
 
     @if($wallet->is_locked)

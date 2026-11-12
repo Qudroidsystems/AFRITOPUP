@@ -33,11 +33,16 @@ class AppServiceProvider extends ServiceProvider
             return method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin() ? true : null;
         });
 
-        // After a purchase: remember the recipient (beneficiaries).
+        // After a purchase: remember the recipient (beneficiaries) and e-mail the receipt.
         \Illuminate\Support\Facades\Event::listen(\App\Events\PurchaseCompleted::class, function ($e) {
             if ($e->transaction->status === \App\Models\Transaction::SUCCESSFUL) {
                 try { \App\Models\Beneficiary::remember($e->transaction); } catch (\Throwable $ex) { report($ex); }
             }
+            rescue(fn () => app(\App\Services\Receipts\ReceiptMailer::class)->purchase($e->transaction));
+        });
+        // Wallet funded: e-mail a receipt.
+        \Illuminate\Support\Facades\Event::listen(\App\Events\WalletFunded::class, function ($e) {
+            rescue(fn () => app(\App\Services\Receipts\ReceiptMailer::class)->funding($e->funding));
         });
 
         // Branding for every view (layout, login, e-mails).

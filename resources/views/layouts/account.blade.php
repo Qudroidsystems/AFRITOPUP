@@ -83,6 +83,7 @@
                         <span class="a-chip">{{ $me->user_type_label }}</span>
                     </div>
                     <a class="dropdown-item" href="{{ route('account.profile') }}"><i class="ri-user-3-line"></i> Profile &amp; security</a>
+                    <a class="dropdown-item" href="{{ route('account.statement') }}"><i class="ri-file-list-3-line"></i> Statement</a>
                     <a class="dropdown-item" href="{{ route('topup.wallet') }}#pin"><i class="ri-lock-password-line"></i> Transaction PIN</a>
                     <a class="dropdown-item" href="{{ route('notifications.index') }}"><i class="ri-notification-3-line"></i> Notifications</a>
                     <a class="dropdown-item" href="{{ route('home') }}"><i class="ri-global-line"></i> Visit website</a>

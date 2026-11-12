@@ -77,6 +77,16 @@
                 </form>
             </section>
 
+            {{-- receipts --}}
+            <section class="a-card d-flex flex-wrap align-items-center gap-3" id="receipts">
+                <span class="s-ico s-ico--lg"><i class="ri-mail-check-line"></i></span>
+                <div class="flex-grow-1"><h2 class="h5 mb-1">E-mail receipts</h2><div class="small" style="color: var(--s-muted)">We e-mail a receipt (with a PDF copy) for every payment, refund and wallet top-up.</div></div>
+                <form method="POST" action="{{ route('account.receipts') }}">@csrf
+                    <input type="hidden" name="email_receipts" value="{{ $user->wantsEmailReceipts() ? 0 : 1 }}">
+                    <button class="s-btn {{ $user->wantsEmailReceipts() ? 's-btn--ghost' : '' }}" type="submit">{{ $user->wantsEmailReceipts() ? 'Turn off' : 'Turn on' }}</button>
+                </form>
+            </section>
+
             {{-- PIN --}}
             <section class="a-card d-flex flex-wrap align-items-center gap-3" id="pin">
                 <span class="s-ico s-ico--lg" style="--c:#F59E0B"><i class="ri-lock-password-line"></i></span>

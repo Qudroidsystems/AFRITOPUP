@@ -25,6 +25,12 @@ Route::get('wallet', [WalletApiController::class, 'show'])->name('wallet.show');
 Route::get('wallet/account', [WalletApiController::class, 'virtualAccount'])->name('wallet.account');
 Route::post('wallet/account', [WalletApiController::class, 'createVirtualAccount'])->middleware('throttle:5,1,api.wallet.account')->name('wallet.account.create');
 Route::get('wallet/statement', [WalletApiController::class, 'statement'])->name('wallet.statement');
+// Statements for a date range: summary (JSON), PDF / CSV download, or e-mail.
+Route::get('statement', [\App\Http\Controllers\Api\V1\Topup\StatementApiController::class, 'summary'])->name('statement');
+Route::get('statement/download', [\App\Http\Controllers\Api\V1\Topup\StatementApiController::class, 'download'])->middleware('throttle:20,1,api.statement.dl')->name('statement.download');
+Route::post('statement/email', [\App\Http\Controllers\Api\V1\Topup\StatementApiController::class, 'email'])->middleware('throttle:5,10,api.statement.email')->name('statement.email');
+Route::get('transactions/{reference}/receipt', [\App\Http\Controllers\Api\V1\Topup\StatementApiController::class, 'receipt'])->name('transactions.receipt');
+Route::put('me/email-receipts', [\App\Http\Controllers\Api\V1\Topup\StatementApiController::class, 'receipts'])->name('me.receipts');
 Route::get('wallet/fund/fee', [WalletApiController::class, 'fee'])->name('wallet.fee');
 Route::post('wallet/fund', [WalletApiController::class, 'fund'])->middleware('throttle:10,1,api.wallet.fund')->name('wallet.fund');
 Route::get('wallet/fund/{reference}', [WalletApiController::class, 'fundStatus'])->name('wallet.fund.status');
