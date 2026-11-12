@@ -15,17 +15,24 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('wallets', function (Blueprint $t) {
-            $t->string('type', 10)->default('main')->after('currency');
-            $t->dropUnique(['user_id', 'currency']);
-            $t->unique(['user_id', 'currency', 'type']);
-        });
+        // Safe to re-run after a partial failure (MySQL can't roll back schema changes).
+        if (!Schema::hasColumn('wallets', 'type')) {
+            Schema::table('wallets', fn (Blueprint $t) => $t->string('type', 10)->default('main')->after('currency'));
+        }
+        // Add the new unique index BEFORE dropping the old one: on MySQL the old
+        // index also serves the user_id foreign key, which needs an index starting with user_id.
+        if (!Schema::hasIndex('wallets', 'wallets_user_id_currency_type_unique')) {
+            Schema::table('wallets', fn (Blueprint $t) => $t->unique(['user_id', 'currency', 'type']));
+        }
+        if (Schema::hasIndex('wallets', 'wallets_user_id_currency_unique')) {
+            Schema::table('wallets', fn (Blueprint $t) => $t->dropUnique(['user_id', 'currency']));
+        }
 
-        Schema::table('users', function (Blueprint $t) {
-            $t->unsignedTinyInteger('kyc_level')->default(0)->after('paystack_customer_code');
-        });
+        if (!Schema::hasColumn('users', 'kyc_level')) {
+            Schema::table('users', fn (Blueprint $t) => $t->unsignedTinyInteger('kyc_level')->default(0)->after('paystack_customer_code'));
+        }
 
-        Schema::create('referral_rewards', function (Blueprint $t) {
+        if (!Schema::hasTable('referral_rewards')) Schema::create('referral_rewards', function (Blueprint $t) {
             $t->id();
             $t->foreignId('user_id')->constrained()->cascadeOnDelete();            // who earns
             $t->foreignId('from_user_id')->nullable()->constrained('users')->nullOnDelete();   // whose activity earned it
@@ -39,7 +46,7 @@ return new class extends Migration
             $t->unique(['user_id', 'type', 'source_type', 'source_id']);
         });
 
-        Schema::create('account_upgrades', function (Blueprint $t) {
+        if (!Schema::hasTable('account_upgrades')) Schema::create('account_upgrades', function (Blueprint $t) {
             $t->id();
             $t->foreignId('user_id')->constrained()->cascadeOnDelete();
             $t->string('requested_type', 10);              // agent | reseller
@@ -54,7 +61,7 @@ return new class extends Migration
             $t->timestamps();
         });
 
-        Schema::create('kyc_submissions', function (Blueprint $t) {
+        if (!Schema::hasTable('kyc_submissions')) Schema::create('kyc_submissions', function (Blueprint $t) {
             $t->id();
             $t->foreignId('user_id')->constrained()->cascadeOnDelete();
             $t->string('id_type', 20);                     // nin | bvn | passport | drivers_licence | voters_card
@@ -76,11 +83,13 @@ return new class extends Migration
         Schema::dropIfExists('kyc_submissions');
         Schema::dropIfExists('account_upgrades');
         Schema::dropIfExists('referral_rewards');
-        Schema::table('users', fn (Blueprint $t) => $t->dropColumn('kyc_level'));
-        Schema::table('wallets', function (Blueprint $t) {
-            $t->dropUnique(['user_id', 'currency', 'type']);
-            $t->dropColumn('type');
-            $t->unique(['user_id', 'currency']);
-        });
+        if (Schema::hasColumn('users', 'kyc_level')) Schema::table('users', fn (Blueprint $t) => $t->dropColumn('kyc_level'));
+        if (!Schema::hasIndex('wallets', 'wallets_user_id_currency_unique')) {
+            Schema::table('wallets', fn (Blueprint $t) => $t->unique(['user_id', 'currency']));
+        }
+        if (Schema::hasIndex('wallets', 'wallets_user_id_currency_type_unique')) {
+            Schema::table('wallets', fn (Blueprint $t) => $t->dropUnique(['user_id', 'currency', 'type']));
+        }
+        if (Schema::hasColumn('wallets', 'type')) Schema::table('wallets', fn (Blueprint $t) => $t->dropColumn('type'));
     }
 };
