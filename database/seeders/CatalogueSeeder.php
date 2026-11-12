@@ -92,6 +92,7 @@ class CatalogueSeeder extends Seeder
         }
 
         $this->samplePlans();
+        $this->otherCountries($provider === 'sandbox' ? 'sandbox' : 'reloadly');
         $this->discounts();
     }
 
@@ -118,6 +119,45 @@ class CatalogueSeeder extends Seeder
             foreach ($rows as $i => [$code, $name, $price, $validity]) {
                 Product::create(['service_id' => $service->id, 'code' => $code, 'name' => $name, 'cost' => $price, 'price' => $price,
                     'validity' => $validity, 'position' => $i, 'is_active' => true, 'meta' => ['sample' => true]]);
+            }
+        }
+    }
+
+    /**
+     * Ghana and Kenya, so the markets can be tried end to end before going live
+     * (the countries stay hidden until opened under Countries). For live
+     * operators, use "Import networks from Reloadly" instead.
+     */
+    protected function otherCountries(string $provider): void
+    {
+        $markets = [
+            'GH' => [
+                ['airtime', 'mtn-gh', 'MTN Ghana Airtime', 'MTN', '#FFCC00', 1, 500],
+                ['airtime', 'telecel-gh', 'Telecel Ghana Airtime', 'Telecel', '#E60000', 1, 500],
+                ['airtime', 'airteltigo-gh', 'AirtelTigo Airtime', 'AirtelTigo', '#0033A0', 1, 500],
+                ['data', 'mtn-gh-data', 'MTN Ghana Data', 'MTN', '#FFCC00', null, null],
+            ],
+            'KE' => [
+                ['airtime', 'safaricom-ke', 'Safaricom Airtime', 'Safaricom', '#3DB54A', 10, 10000],
+                ['airtime', 'airtel-ke', 'Airtel Kenya Airtime', 'Airtel', '#E40000', 10, 10000],
+                ['data', 'safaricom-ke-data', 'Safaricom Data', 'Safaricom', '#3DB54A', null, null],
+            ],
+        ];
+        $plans = [
+            'mtn-gh-data' => [['5', 'MTN 1GB', 5], ['10', 'MTN 2.5GB', 10], ['20', 'MTN 6GB', 20]],
+            'safaricom-ke-data' => [['50', 'Safaricom 1GB – 24 hours', 50], ['100', 'Safaricom 1.5GB – 3 days', 100], ['250', 'Safaricom 2GB – 7 days', 250]],
+        ];
+        foreach ($markets as $country => $rows) {
+            foreach ($rows as $i => [$cat, $code, $name, $short, $color, $min, $max]) {
+                $s = Service::firstOrCreate(['country_code' => $country, 'code' => $code], [
+                    'category' => $cat, 'name' => $name, 'short_name' => $short, 'color' => $color, 'provider' => $provider,
+                    'min_amount' => $min, 'max_amount' => $max, 'is_active' => true, 'position' => $i,
+                ]);
+                if (isset($plans[$code]) && !$s->products()->exists()) {
+                    foreach ($plans[$code] as $j => [$pc, $pn, $price]) {
+                        Product::create(['service_id' => $s->id, 'code' => $pc, 'name' => $pn, 'cost' => $price, 'price' => $price, 'position' => $j, 'is_active' => true, 'meta' => ['sample' => true]]);
+                    }
+                }
             }
         }
     }

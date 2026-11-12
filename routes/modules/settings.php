@@ -11,6 +11,6 @@ Route::prefix('admin/settings')->name('portal-settings.')->middleware('permissio
     Route::post('/payments/env', [SettingsController::class, 'useEnv'])->name('payments.env');
 
     Route::get('/providers', [SettingsController::class, 'providers'])->name('providers');
-    Route::post('/providers/{provider}', [SettingsController::class, 'saveProvider'])->where('provider', 'vtpass|termii')->name('providers.save');
-    Route::post('/providers/{provider}/test', [SettingsController::class, 'testProvider'])->where('provider', 'vtpass|termii')->middleware('throttle:10,1,settings.providers.test')->name('providers.test');
+    Route::post('/providers/{provider}', [SettingsController::class, 'saveProvider'])->where('provider', 'vtpass|termii|reloadly')->name('providers.save');
+    Route::post('/providers/{provider}/test', [SettingsController::class, 'testProvider'])->where('provider', 'vtpass|termii|reloadly')->middleware('throttle:10,1,settings.providers.test')->name('providers.test');
 });

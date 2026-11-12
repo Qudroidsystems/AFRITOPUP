@@ -11,7 +11,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Wallet extends Model
 {
-    protected $fillable = ['user_id', 'currency', 'balance', 'is_locked'];
+    public const MAIN = 'main';
+    public const EARNINGS = 'earnings';
+
+    protected $fillable = ['user_id', 'currency', 'type', 'balance', 'is_locked'];
 
     protected $casts = ['balance' => 'decimal:2', 'is_locked' => 'boolean'];
 
@@ -23,6 +26,11 @@ class Wallet extends Model
     public function entries()
     {
         return $this->hasMany(WalletEntry::class);
+    }
+
+    public function isEarnings(): bool
+    {
+        return $this->type === self::EARNINGS;
     }
 
     public function getFormattedBalanceAttribute(): string

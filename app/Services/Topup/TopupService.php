@@ -152,7 +152,10 @@ class TopupService
             $t->save();
         }
 
-        if ($t->status !== $was && $t->isFinal()) $this->announce($t);
+        if ($t->status !== $was && $t->isFinal()) {
+            $this->announce($t);
+            event(new \App\Events\PurchaseCompleted($t, $was));
+        }
 
         return $t->refresh();
     }
@@ -164,8 +167,10 @@ class TopupService
             throw new TopupException('Only pending, processing or successful purchases can be refunded.');
         }
         $t->forceFill(['message' => mb_substr('Refunded: ' . $reason, 0, 255)])->save();
+        $was = $t->status;
         $this->reverse($t, Transaction::REFUNDED, 'Refund: ' . $this->describe($t) . ' — ' . $reason, $by);
         $this->announce($t);
+        event(new \App\Events\PurchaseCompleted($t, $was));
 
         return $t->refresh();
     }
@@ -182,6 +187,7 @@ class TopupService
             'meta'         => array_merge((array) $t->meta, ['delivered_by' => $by->id]),
         ])->save();
         $this->announce($t);
+        event(new \App\Events\PurchaseCompleted($t, Transaction::PROCESSING));
 
         return $t->refresh();
     }

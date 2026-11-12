@@ -98,8 +98,8 @@ class SettingsController extends Controller
                 'c'          => $c,
                 'configured' => $p->configured(),
                 'source'     => $this->settings->providerSource($key),
-                'masked'     => collect($c)->only(['api_key', 'secret_key'])->map(fn ($v) => $this->mask($v))->all(),
-                'saved'      => collect(['api_key', 'secret_key'])->mapWithKeys(fn ($f) => [$f => $this->settings->has("provider.$key.$f")])->all(),
+                'masked'     => collect($c)->only(['api_key', 'secret_key', 'client_secret'])->map(fn ($v) => $this->mask($v))->all(),
+                'saved'      => collect(['api_key', 'secret_key', 'client_secret'])->mapWithKeys(fn ($f) => [$f => $this->settings->has("provider.$key.$f")])->all(),
             ];
         }
 
@@ -114,6 +114,7 @@ class SettingsController extends Controller
         $rules = [
             'vtpass' => ['mode' => ['required', 'in:sandbox,live'], 'api_key' => ['nullable', 'string', 'max:200'], 'public_key' => ['nullable', 'string', 'max:200'], 'secret_key' => ['nullable', 'string', 'max:200']],
             'termii' => ['api_key' => ['nullable', 'string', 'max:200'], 'sender_id' => ['nullable', 'string', 'max:11', 'regex:/^[A-Za-z0-9 .-]+$/'], 'channel' => ['required', 'in:generic,dnd'], 'base_url' => ['nullable', 'url', 'max:200']],
+            'reloadly' => ['mode' => ['required', 'in:sandbox,live'], 'client_id' => ['nullable', 'string', 'max:200'], 'client_secret' => ['nullable', 'string', 'max:200']],
         ][$provider];
         $d = $request->validate($rules, ['sender_id.regex' => 'A sender ID is up to 11 letters and numbers.']);
 

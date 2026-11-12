@@ -13,6 +13,7 @@ class ProviderManager
         'sandbox' => SandboxProvider::class,
         'vtpass'  => VtpassProvider::class,
         'termii'  => TermiiProvider::class,
+        'reloadly' => ReloadlyProvider::class,
         'manual'  => ManualProvider::class,
     ];
 
@@ -47,6 +48,7 @@ class ProviderManager
         $added = $updated = 0;
         $list = $this->for($service)->products($service);
         foreach ($list as $i => $row) {
+            $row['code'] = (string) $row['code'];
             $product = Product::firstOrNew(['service_id' => $service->id, 'code' => $row['code']]);
             $isNew = !$product->exists;
             $product->fill([

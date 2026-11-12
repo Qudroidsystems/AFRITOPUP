@@ -8,7 +8,16 @@
             <span class="cb-meta-pill">{{ $country->flag }} {{ $country->name }}</span>
             <span class="cb-meta-pill"><i class="ri-wallet-3-line me-1"></i>{{ $wallet->formatted_balance }}</span>
         </x-slot:pills>
-        <x-slot:actions><a href="{{ route('topup.wallet') }}#fund" class="cb-hero-btn"><i class="ri-add-line"></i>Fund wallet</a></x-slot:actions>
+        <x-slot:actions>
+            @if($countries->count() > 1)
+                <form method="POST" action="{{ route('topup.buy.country') }}" class="d-inline">@csrf
+                    <select name="country_code" class="form-select form-select-sm d-inline-block w-auto" onchange="this.form.submit()" aria-label="Country">
+                        @foreach($countries as $c)<option value="{{ $c->code }}" @selected($c->code === $country->code)>{{ $c->flag }} {{ $c->name }} ({{ $c->currency }})</option>@endforeach
+                    </select>
+                </form>
+            @endif
+            <a href="{{ route('topup.wallet') }}#fund" class="cb-hero-btn"><i class="ri-add-line"></i>Fund wallet</a>
+        </x-slot:actions>
     </x-cb.hero>
     @include('partials.flash')
 

@@ -34,6 +34,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/services/{service}/products', [CatalogueController::class, 'saveProducts'])->name('services.products');
 
     Route::get('/countries', [CatalogueController::class, 'countries'])->name('countries.index');
+    Route::post('/countries/{country}/import', [CatalogueController::class, 'importOperators'])->middleware('throttle:5,1,admin.import')->name('countries.import');
     Route::post('/countries/{country}/toggle', [CatalogueController::class, 'toggleCountry'])->name('countries.toggle');
     Route::get('/tiers', [CatalogueController::class, 'tiers'])->name('tiers.index');
     Route::post('/tiers', [CatalogueController::class, 'saveTier'])->name('tiers.store');

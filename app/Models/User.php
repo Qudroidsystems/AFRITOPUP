@@ -54,6 +54,7 @@ class User extends Authenticatable
         'transaction_pin',
         'google_id',
         'apple_id',
+        'paystack_customer_code',
     ];
 
     protected function casts(): array
@@ -72,6 +73,7 @@ class User extends Authenticatable
             'muted_notifications'  => 'array',
             'notify_digest'        => 'boolean',
             'notify_digest_at'     => 'datetime',
+            'kyc_level'            => 'integer',
         ];
     }
 
@@ -119,12 +121,56 @@ class User extends Authenticatable
         return $this->hasMany(Wallet::class);
     }
 
-    /** The wallet in the user's currency (or the one given), created on first use. */
+    /** The spending wallet in the user's currency (or the one given), created on first use. */
     public function wallet(?string $currency = null): Wallet
     {
         $currency = strtoupper($currency ?: $this->currency());
 
-        return $this->wallets()->firstOrCreate(['currency' => $currency], ['balance' => 0]);
+        return $this->wallets()->firstOrCreate(['currency' => $currency, 'type' => Wallet::MAIN], ['balance' => 0]);
+    }
+
+    /** Referral bonuses and commission, moved to the main wallet on request. */
+    public function earningsWallet(?string $currency = null): Wallet
+    {
+        $currency = strtoupper($currency ?: $this->currency());
+
+        return $this->wallets()->firstOrCreate(['currency' => $currency, 'type' => Wallet::EARNINGS], ['balance' => 0]);
+    }
+
+    public function referrer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'referred_by');
+    }
+
+    public function referrals(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(User::class, 'referred_by');
+    }
+
+    public function rewards(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ReferralReward::class);
+    }
+
+    public function kycSubmissions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(KycSubmission::class);
+    }
+
+    public function upgradeRequests(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AccountUpgrade::class);
+    }
+
+    /** A referral code, made on first use for accounts created before codes existed. */
+    public function referralCode(): string
+    {
+        if (!$this->referral_code) {
+            do { $code = strtoupper(\Illuminate\Support\Str::random(8)); } while (static::where('referral_code', $code)->exists());
+            $this->forceFill(['referral_code' => $code])->save();
+        }
+
+        return $this->referral_code;
     }
 
     public function currency(): string
@@ -147,6 +193,16 @@ class User extends Authenticatable
     public function apiKeys(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ApiKey::class);
+    }
+
+    public function virtualAccounts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(VirtualAccount::class);
+    }
+
+    public function beneficiaries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Beneficiary::class);
     }
 
     public function senderIds(): \Illuminate\Database\Eloquent\Relations\HasMany

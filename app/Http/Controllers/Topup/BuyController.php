@@ -30,6 +30,18 @@ class BuyController extends Controller
         return Country::byCode($code) ?? Country::active()->ordered()->firstOrFail();
     }
 
+    /** Switch the country you buy in (each country has its own wallet in its own currency). */
+    public function switchCountry(Request $request)
+    {
+        $data = $request->validate(['country_code' => 'required|string|size:2']);
+        $country = Country::active()->where('code', strtoupper($data['country_code']))->first();
+        if (!$country) return back()->with('error', 'That country is not available yet.');
+        $request->user()->forceFill(['country_code' => $country->code])->save();
+        $request->user()->wallet($country->currency);
+
+        return redirect()->route('topup.buy')->with('success', 'Now buying in ' . $country->name . ' (' . $country->currency . ' wallet).');
+    }
+
     public function index(Request $request)
     {
         $country = $this->country($request);
@@ -38,6 +50,7 @@ class BuyController extends Controller
         return view('topup.buy.index', [
             'pagetitle'  => 'Buy & Pay',
             'country'    => $country,
+            'countries'  => Country::active()->ordered()->get(),
             'categories' => collect(config('afritopup.categories'))->filter(fn ($c, $k) => $services->has($k)),
             'services'   => $services,
             'wallet'     => $request->user()->wallet($country->currency),

@@ -128,6 +128,7 @@
                             <input class="form-control form-control-lg" name="recipient" id="recipient" value="{{ old('recipient', request('recipient', $category === 'airtime' || $category === 'data' ? auth()->user()->phone_number : '')) }}" inputmode="numeric" maxlength="30">
                             <button class="btn btn-soft-primary d-none" type="button" id="verifyBtn" data-verify="recipient">Verify</button>
                         </div>
+                        <div class="d-flex flex-wrap gap-2 mt-2" id="savedRecipients"></div>
                         <div class="at-verify mt-2 d-none" id="verifyResult"></div>
                     </div>
 
@@ -316,6 +317,22 @@
         if (!/^\d{4}$/.test($('pin').value)) { e.preventDefault(); $('pin').classList.add('is-invalid'); $('pin').focus(); return; }
         $('payBtn').disabled = true; $('payBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing…';
     });
+
+    // Saved recipients (remembered after each successful purchase): one tap fills the number.
+    fetch(@json(route('topup.beneficiaries', ['category' => $category])), { headers: { Accept: 'application/json' } })
+        .then(r => r.json()).then(j => {
+            const box = $('savedRecipients');
+            (j.beneficiaries || []).slice(0, 8).forEach(b => {
+                const btn = document.createElement('button');
+                btn.type = 'button'; btn.className = 'btn btn-sm btn-light rounded-pill';
+                btn.innerHTML = '<i class="ri-user-star-line me-1"></i>' + escapeHtml(b.label ? b.label + ' · ' + b.recipient : b.recipient);
+                btn.addEventListener('click', () => {
+                    $('recipient').value = b.recipient;
+                    if (b.service) { const r = document.querySelector('input[name=service_id][value="' + b.service.id + '"]'); if (r && !r.checked) { r.checked = true; r.dispatchEvent(new Event('change')); } }
+                });
+                box.appendChild(btn);
+            });
+        }).catch(() => {});
 
     loadService().then(() => { if (oldProduct) pickPlan(oldProduct); });
 })();

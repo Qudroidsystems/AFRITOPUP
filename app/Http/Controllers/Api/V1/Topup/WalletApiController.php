@@ -76,6 +76,34 @@ class WalletApiController extends ApiController
             'balance' => (float) $f->wallet->fresh()->balance, 'balance_label' => $f->wallet->fresh()->formatted_balance]);
     }
 
+    /** The customer's own account number (null until they ask for one). */
+    public function virtualAccount(Request $request)
+    {
+        $va = $request->user()->virtualAccounts()->where('is_active', true)->first();
+
+        return $this->ok($va ? $va->present() + ['fee' => $this->feeLine()] : null);
+    }
+
+    public function createVirtualAccount(Request $request)
+    {
+        try {
+            $va = $this->funding->virtualAccount($request->user());
+        } catch (TopupException $e) {
+            return $this->fail($e->getMessage(), $e->status, $e->reason);
+        }
+
+        return $this->ok($va->present() + ['fee' => $this->feeLine()], 'Your account number is ready.', 201);
+    }
+
+    protected function feeLine(): string
+    {
+        $c = (array) config('afritopup.funding');
+        if ((float) ($c['transfer_fee_percent'] ?? 0) <= 0 && (float) ($c['transfer_fee_flat'] ?? 0) <= 0) return 'No fee';
+        $pct = rtrim(rtrim(number_format((float) $c['transfer_fee_percent'], 2), '0'), '.');
+
+        return $pct . '% per transfer' . ((float) ($c['transfer_fee_cap'] ?? 0) > 0 ? ', at most ' . Money::format($c['transfer_fee_cap']) : '');
+    }
+
     public function fee(Request $request)
     {
         return $this->ok(['fee' => (float) $this->funding->fee((float) $request->query('amount', 0))]);

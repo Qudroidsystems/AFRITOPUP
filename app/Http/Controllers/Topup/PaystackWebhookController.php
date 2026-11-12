@@ -9,7 +9,7 @@ use App\Services\Topup\FundingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-/** Paystack → charge.success for wallet fundings. The signature is checked; the payment is then verified with Paystack. */
+/** Paystack → charge.success for card top-ups and bank transfers into customers' account numbers. The signature is checked; the payment is then verified with Paystack. */
 class PaystackWebhookController extends Controller
 {
     public function __invoke(Request $request, PaystackGateway $paystack, FundingService $funding)
@@ -22,8 +22,10 @@ class PaystackWebhookController extends Controller
 
         if ($request->input('event') === 'charge.success') {
             $ref = (string) $request->input('data.reference');
-            if ($ref !== '' && WalletFunding::where('reference', $ref)->exists()) {
-                $funding->confirm($ref);   // verify with Paystack; never trust the webhook body alone
+            if ($request->input('data.channel') === 'dedicated_nuban') {
+                $funding->creditTransfer((array) $request->input('data'));   // a transfer into someone's account number
+            } elseif ($ref !== '' && WalletFunding::where('reference', $ref)->exists()) {
+                $funding->confirm($ref);   // a card top-up we started; verify with Paystack, never trust the body alone
             }
         }
 

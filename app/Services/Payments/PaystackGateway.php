@@ -99,4 +99,44 @@ class PaystackGateway
 
         return $res->json('message') ?: 'Paystack answered HTTP ' . $res->status() . '.';
     }
+
+    // ── Dedicated virtual accounts (bank-transfer funding) ──────────────
+
+    /** Create (or fetch) the Paystack customer for a user. Returns the customer_code. */
+    public function customer(string $email, string $firstName, string $lastName, ?string $phone): string
+    {
+        $res = Http::withToken($this->secret())->acceptJson()->timeout(20)->post($this->base . '/customer', array_filter([
+            'email' => $email, 'first_name' => $firstName, 'last_name' => $lastName, 'phone' => $phone,
+        ]));
+        if (!$res->successful() || !$res->json('data.customer_code')) {
+            throw new RuntimeException('Paystack could not set up the customer: ' . ($res->json('message') ?? 'HTTP ' . $res->status()));
+        }
+
+        return (string) $res->json('data.customer_code');
+    }
+
+    /**
+     * Give a customer their own account number. In test mode Paystack only offers "test-bank".
+     * @return array{account_number: string, account_name: string, bank_name: string, bank_slug: ?string, id: ?string, currency: string}
+     */
+    public function dedicatedAccount(string $customerCode, ?string $preferredBank = null): array
+    {
+        $bank = $this->mode() === 'live' ? ($preferredBank ?: 'wema-bank') : 'test-bank';
+        $res = Http::withToken($this->secret())->acceptJson()->timeout(30)->post($this->base . '/dedicated_account', [
+            'customer' => $customerCode, 'preferred_bank' => $bank,
+        ]);
+        if (!$res->successful() || !$res->json('data.account_number')) {
+            throw new RuntimeException('Paystack could not create the account number: ' . ($res->json('message') ?? 'HTTP ' . $res->status()));
+        }
+        $d = (array) $res->json('data');
+
+        return [
+            'account_number' => (string) $d['account_number'],
+            'account_name'   => (string) ($d['account_name'] ?? ''),
+            'bank_name'      => (string) data_get($d, 'bank.name', 'Bank'),
+            'bank_slug'      => data_get($d, 'bank.slug'),
+            'id'             => isset($d['id']) ? (string) $d['id'] : null,
+            'currency'       => strtoupper((string) ($d['currency'] ?? 'NGN')),
+        ];
+    }
 }

@@ -22,7 +22,27 @@
                 </div>
             </div>
 
-            <x-cb.card title="Fund wallet" icon="ri-add-circle-line" id="fund">
+            <x-cb.card title="Fund by bank transfer" icon="ri-bank-line" id="transfer">
+                @if($account)
+                    <p class="small text-muted mb-2">Transfer any amount from any bank app to your own account number. Your wallet is credited automatically within minutes.</p>
+                    <div class="border rounded-3 p-3 mb-2" style="background:#f4faf7">
+                        <div class="small text-muted">{{ $account->bank_name }}</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fs-3 fw-bold at-mono" id="vaNumber">{{ $account->account_number }}</span>
+                            <button class="btn btn-sm btn-light" type="button" onclick="navigator.clipboard.writeText('{{ $account->account_number }}'); this.textContent='Copied'"><i class="ri-file-copy-line"></i></button>
+                        </div>
+                        <div class="small fw-semibold">{{ $account->account_name }}</div>
+                    </div>
+                    @if($cfg['transfer_fee_percent'] > 0 || $cfg['transfer_fee_flat'] > 0)
+                        <div class="small text-muted">Fee: {{ rtrim(rtrim(number_format($cfg['transfer_fee_percent'], 2), '0'), '.') }}% per transfer @if($cfg['transfer_fee_cap'] > 0) (at most {{ $m($cfg['transfer_fee_cap']) }})@endif.</div>
+                    @endif
+                @else
+                    <p class="small text-muted">Get your own account number. Transfers to it from any bank credit your wallet automatically — no card needed.</p>
+                    <form method="POST" action="{{ route('topup.wallet.account') }}">@csrf<button class="btn btn-soft-success w-100"><i class="ri-bank-line me-1"></i>Get my account number</button></form>
+                @endif
+            </x-cb.card>
+
+            <x-cb.card title="Fund with card" icon="ri-add-circle-line" id="fund">
                 <form method="POST" action="{{ route('topup.wallet.fund') }}" id="fundForm">
                     @csrf
                     <label class="form-label fw-semibold" for="fundAmount">Amount to add</label>

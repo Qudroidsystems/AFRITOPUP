@@ -20,5 +20,11 @@ class DatabaseSeeder extends Seeder
             CountrySeeder::class,
             CatalogueSeeder::class,
         ]);
+
+        // Funded test accounts (customer / agent / reseller) on development machines.
+        // Elsewhere (not production): php artisan db:seed --class=DemoSeeder
+        if (app()->environment('local')) {
+            $this->call(DemoSeeder::class);
+        }
     }
 }

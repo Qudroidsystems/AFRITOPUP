@@ -126,9 +126,108 @@ class FundingService
 
         $funding->refresh();
         if ($credited) {
+            event(new \App\Events\WalletFunded($funding));
             PortalNotifier::toUsers([$funding->user_id], 'Wallet funded', Money::format($funding->amount, $funding->currency) . ' has been added to your wallet.',
                 \Illuminate\Support\Facades\Route::has('topup.wallet') ? route('topup.wallet') : null, 'wallet', 'funding:' . $funding->reference);
         }
+
+        return $funding;
+    }
+
+    // ── Bank transfer (dedicated account) ───────────────────────────────
+
+    /** Fee taken from a bank transfer before it is credited (percent + flat, capped). */
+    public function transferFee(string|float $amount): string
+    {
+        $c = (array) config('afritopup.funding');
+        $minor = Money::minor($amount);
+        $fee = intdiv($minor * (int) round(((float) ($c['transfer_fee_percent'] ?? 0)) * 100) + 5000, 10000) + Money::minor($c['transfer_fee_flat'] ?? 0);
+        $cap = Money::minor($c['transfer_fee_cap'] ?? 0);
+        if ($cap > 0) $fee = min($fee, $cap);
+
+        return Money::major(max(0, min($fee, $minor)));
+    }
+
+    /** The user's account number, created with Paystack on first request. */
+    public function virtualAccount(User $user): \App\Models\VirtualAccount
+    {
+        if ($va = $user->virtualAccounts()->where('is_active', true)->first()) return $va;
+        if (!$this->paystack->enabled()) throw new TopupException('Bank-transfer funding is not available right now.', 'gateway_unavailable', 503);
+        if (!$user->phone_number) throw new TopupException('Add your phone number to your profile first.', 'phone_required');
+
+        try {
+            if (!$user->paystack_customer_code) {
+                $parts = preg_split('/\s+/', trim($user->name)) ?: ['Customer'];
+                $code = $this->paystack->customer($user->email, $parts[0], count($parts) > 1 ? end($parts) : $parts[0], $user->phone_number);
+                $user->forceFill(['paystack_customer_code' => $code])->save();
+            }
+            $a = $this->paystack->dedicatedAccount($user->paystack_customer_code, config('afritopup.funding.transfer_bank'));
+        } catch (\RuntimeException $e) {
+            Log::warning('Dedicated account failed', ['user' => $user->id, 'error' => $e->getMessage()]);
+            throw new TopupException('We could not create your account number yet. ' . $e->getMessage(), 'gateway_error', 502);
+        }
+
+        return \App\Models\VirtualAccount::updateOrCreate(
+            ['provider' => 'paystack', 'account_number' => $a['account_number']],
+            ['user_id' => $user->id, 'currency' => $a['currency'], 'bank_name' => $a['bank_name'], 'bank_slug' => $a['bank_slug'],
+                'account_name' => $a['account_name'], 'provider_reference' => $a['id'], 'is_active' => true],
+        );
+    }
+
+    /**
+     * A transfer arrived in someone's account number (Paystack webhook, channel "dedicated_nuban").
+     * Re-checked with Paystack, then credited once: our reference is derived from Paystack's,
+     * so a repeated webhook hits the unique index instead of crediting twice.
+     */
+    public function creditTransfer(array $webhookData): ?WalletFunding
+    {
+        $ref = (string) ($webhookData['reference'] ?? '');
+        if ($ref === '') return null;
+        $ours = 'TRF-' . strtoupper(substr(hash('sha256', $ref), 0, 20));
+        if ($existing = WalletFunding::where('reference', $ours)->first()) return $existing;
+
+        try {
+            $data = $this->paystack->verify($ref);
+        } catch (\Throwable $e) {
+            Log::warning('Paystack verify failed for transfer', ['ref' => $ref, 'error' => $e->getMessage()]);
+
+            return null;
+        }
+        if (($data['status'] ?? '') !== 'success') return null;
+
+        $account = (string) (data_get($data, 'authorization.receiver_bank_account_number') ?: data_get($webhookData, 'authorization.receiver_bank_account_number') ?: data_get($data, 'metadata.receiver_account_number', ''));
+        $va = $account !== '' ? \App\Models\VirtualAccount::where('account_number', $account)->first() : null;
+        $user = $va?->user ?? User::where('paystack_customer_code', (string) data_get($data, 'customer.customer_code', '#'))->first();
+        if (!$user) {
+            Log::error('Transfer to an unknown account number', ['ref' => $ref, 'account' => $account]);
+
+            return null;
+        }
+
+        $paid = Money::major((int) ($data['amount'] ?? 0));
+        $fee = $this->transferFee($paid);
+        $credit = Money::major(Money::minor($paid) - Money::minor($fee));
+        $wallet = $user->wallet(strtoupper((string) ($data['currency'] ?? 'NGN')));
+
+        try {
+            $funding = DB::transaction(function () use ($ours, $user, $wallet, $paid, $fee, $credit, $ref, $data) {
+                $f = WalletFunding::create([
+                    'reference' => $ours, 'user_id' => $user->id, 'wallet_id' => $wallet->id, 'gateway' => 'transfer',
+                    'amount' => $credit, 'fee' => $fee, 'charged' => $paid, 'currency' => $wallet->currency, 'status' => 'successful',
+                    'gateway_reference' => $ref, 'gateway_response' => $this->trim($data), 'channel' => 'transfer', 'paid_at' => now(),
+                    'note' => trim('From ' . data_get($data, 'authorization.sender_name', '') . ' ' . data_get($data, 'authorization.sender_bank', '')),
+                ]);
+                if (Money::minor($credit) > 0) $this->wallets->credit($wallet, $credit, $ours, 'Bank transfer', $f);
+
+                return $f;
+            });
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            return WalletFunding::where('reference', $ours)->first();   // the same webhook, twice at once
+        }
+
+        PortalNotifier::toUsers([$user->id], 'Wallet funded', Money::format($credit, $wallet->currency) . ' received by bank transfer.',
+            \Illuminate\Support\Facades\Route::has('topup.wallet') ? route('topup.wallet') : null, 'wallet', 'funding:' . $ours);
+        event(new \App\Events\WalletFunded($funding));
 
         return $funding;
     }

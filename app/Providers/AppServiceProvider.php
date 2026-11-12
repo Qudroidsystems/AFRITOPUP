@@ -33,6 +33,13 @@ class AppServiceProvider extends ServiceProvider
             return method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin() ? true : null;
         });
 
+        // After a purchase: remember the recipient (beneficiaries).
+        \Illuminate\Support\Facades\Event::listen(\App\Events\PurchaseCompleted::class, function ($e) {
+            if ($e->transaction->status === \App\Models\Transaction::SUCCESSFUL) {
+                try { \App\Models\Beneficiary::remember($e->transaction); } catch (\Throwable $ex) { report($ex); }
+            }
+        });
+
         // Branding for every view (layout, login, e-mails).
         View::share('brand', config('afritopup'));
     }

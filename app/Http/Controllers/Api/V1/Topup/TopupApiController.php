@@ -37,11 +37,24 @@ class TopupApiController extends ApiController
 
         return $this->ok([
             'country'    => $country->only(['code', 'name', 'currency', 'dial_code', 'flag']),
+            'countries'  => Country::active()->ordered()->get(['code', 'name', 'currency', 'dial_code', 'flag']),
             'categories' => collect(config('afritopup.categories'))->filter(fn ($c, $k) => $services->has($k))->map(fn ($c, $k) => [
                 'key' => $k, 'name' => $c['name'], 'color' => $c['color'], 'icon' => $c['icon'],
                 'services' => $services[$k]->map(fn (Service $s) => $this->service($s))->values(),
             ])->values(),
         ]);
+    }
+
+    /** Switch the country the app buys in. Its wallet (in its own currency) is created if needed. */
+    public function setCountry(Request $request)
+    {
+        $data = $request->validate(['country_code' => 'required|string|size:2']);
+        $country = Country::active()->where('code', strtoupper($data['country_code']))->first();
+        if (!$country) return $this->fail('That country is not available yet.', 422, 'country_unavailable');
+        $request->user()->forceFill(['country_code' => $country->code])->save();
+        $w = $request->user()->wallet($country->currency);
+
+        return $this->ok(['country' => $country->only(['code', 'name', 'currency', 'dial_code', 'flag']), 'balance' => (float) $w->balance], 'Now buying in ' . $country->name . '.');
     }
 
     public function products(Request $request, Service $service)
@@ -135,6 +148,29 @@ class TopupApiController extends ApiController
         $s = SmsSenderId::firstOrCreate(['user_id' => $request->user()->id, 'sender_id' => trim($d['sender_id'])], ['purpose' => $d['purpose'], 'status' => 'pending']);
 
         return $this->ok($s->only(['id', 'sender_id', 'purpose', 'status']), 'Request sent.', 201);
+    }
+
+    public function beneficiaries(Request $request)
+    {
+        return $this->ok($request->user()->beneficiaries()->with('service:id,code,name,short_name,color')
+            ->when($request->query('category'), fn ($q, $c) => $q->where('category', $c))
+            ->orderByDesc('last_used_at')->limit(30)->get()->map->present()->values());
+    }
+
+    public function renameBeneficiary(Request $request, \App\Models\Beneficiary $beneficiary)
+    {
+        abort_unless($beneficiary->user_id === $request->user()->id, 404);
+        $beneficiary->update($request->validate(['label' => 'nullable|string|max:80']));
+
+        return $this->ok($beneficiary->present());
+    }
+
+    public function deleteBeneficiary(Request $request, \App\Models\Beneficiary $beneficiary)
+    {
+        abort_unless($beneficiary->user_id === $request->user()->id, 404);
+        $beneficiary->delete();
+
+        return $this->ok(null, 'Removed.');
     }
 
     protected function service(Service $s): array

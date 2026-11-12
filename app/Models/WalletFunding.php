@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 /** Money into a wallet by card / transfer (Paystack) or a manual credit by staff. */
 class WalletFunding extends Model
 {
-    public const GATEWAYS = ['paystack' => 'Paystack', 'manual' => 'Manual credit'];
+    public const GATEWAYS = ['paystack' => 'Card / Paystack', 'transfer' => 'Bank transfer', 'manual' => 'Manual credit'];
 
     protected $fillable = ['reference', 'user_id', 'wallet_id', 'gateway', 'amount', 'fee', 'charged', 'currency', 'status',
         'gateway_reference', 'gateway_response', 'channel', 'note', 'created_by', 'paid_at'];

@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Schema;
 class Settings
 {
     public const SECRET = ['paystack.test_secret_key', 'paystack.live_secret_key',
-        'provider.vtpass.api_key', 'provider.vtpass.secret_key', 'provider.termii.api_key'];
+        'provider.vtpass.api_key', 'provider.vtpass.secret_key', 'provider.termii.api_key', 'provider.reloadly.client_secret'];
 
     protected const CACHE = 'portal-settings';
 
@@ -127,6 +127,7 @@ class Settings
     public const PROVIDER_FIELDS = [
         'vtpass' => ['mode', 'api_key', 'public_key', 'secret_key'],
         'termii' => ['api_key', 'sender_id', 'channel', 'base_url'],
+        'reloadly' => ['mode', 'client_id', 'client_secret'],
     ];
 
     /** config('afritopup.providers.{key}') with saved values on top. */

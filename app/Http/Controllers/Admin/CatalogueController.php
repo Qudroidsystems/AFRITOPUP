@@ -116,6 +116,43 @@ class CatalogueController extends Controller
         return back()->with('success', 'Plans saved.');
     }
 
+    /** Create (or update) a service for every Reloadly operator in a country: airtime and data, with their plans. */
+    public function importOperators(Country $country)
+    {
+        $reloadly = $this->providers->get('reloadly');
+        if (!$reloadly->configured()) return back()->with('error', 'Enter the Reloadly keys under Settings → VTU & SMS providers first.');
+
+        try {
+            $ops = $reloadly->operators($country->code);
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Reloadly could not list the networks: ' . $e->getMessage());
+        }
+
+        $made = $plans = 0;
+        $pos = (int) Service::in($country->code)->max('position');
+        foreach ($ops as $op) {
+            $fixed = ($op['denominationType'] ?? '') === 'FIXED';
+            $category = (!empty($op['data']) || !empty($op['bundle'])) ? 'data' : 'airtime';
+            $code = \Illuminate\Support\Str::slug(($op['name'] ?? 'operator') . '-' . $op['operatorId']);
+            $service = Service::updateOrCreate(['country_code' => $country->code, 'code' => \Illuminate\Support\Str::limit($code, 60, '')], [
+                'category'      => $category,
+                'name'          => \Illuminate\Support\Str::limit((string) $op['name'], 100, ''),
+                'short_name'    => \Illuminate\Support\Str::limit(trim(preg_replace('/\b(' . preg_quote($country->name, '/') . '|Data|Bundles?)\b/i', '', (string) $op['name'])) ?: (string) $op['name'], 40, ''),
+                'logo'          => data_get($op, 'logoUrls.0'),
+                'provider'      => 'reloadly',
+                'provider_code' => (string) $op['operatorId'],
+                'min_amount'    => $fixed ? null : ($op['localMinAmount'] ?? $op['minAmount'] ?? null),
+                'max_amount'    => $fixed ? null : ($op['localMaxAmount'] ?? $op['maxAmount'] ?? null),
+                'options'       => ['product' => $fixed, 'amount' => !$fixed, 'verify' => false, 'recipient_label' => 'Phone number'],
+                'position'      => ++$pos,
+            ]);
+            $made++;
+            if ($fixed) $plans += $this->providers->sync($service)['total'];
+        }
+
+        return back()->with('success', "Imported {$made} networks from Reloadly ({$plans} plans). Switch on the ones you want to sell, check prices, then open {$country->name} under Countries.");
+    }
+
     public function countries()
     {
         return view('admin.catalogue.countries', ['pagetitle' => 'Countries', 'countries' => Country::withCount('services')->ordered()->get()]);

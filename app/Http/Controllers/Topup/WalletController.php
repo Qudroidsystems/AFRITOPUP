@@ -29,7 +29,20 @@ class WalletController extends Controller
             'fundings'  => $user->fundings()->latest('id')->limit(5)->get(),
             'hasPin'    => $user->hasTransactionPin(),
             'cfg'       => config('afritopup.funding'),
+            'account'   => $user->virtualAccounts()->where('is_active', true)->first(),
         ]);
+    }
+
+    /** Create the customer's own account number for bank-transfer funding. */
+    public function virtualAccount(Request $request)
+    {
+        try {
+            $this->funding->virtualAccount($request->user());
+        } catch (TopupException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Your account number is ready. Transfers to it fund your wallet automatically.');
     }
 
     public function fund(Request $request)

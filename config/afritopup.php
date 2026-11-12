@@ -101,6 +101,13 @@ return [
         'fee_percent' => (float) env('AFRITOPUP_FUND_FEE_PERCENT', 1.5),
         'fee_flat'    => (float) env('AFRITOPUP_FUND_FEE_FLAT', 0),
         'fee_cap'     => (float) env('AFRITOPUP_FUND_FEE_CAP', 2000),
+
+        // Bank transfer into the customer's own account number (Paystack dedicated account):
+        // the fee is taken from the amount received (Paystack charges 1%, capped at ₦300).
+        'transfer_fee_percent' => (float) env('AFRITOPUP_TRANSFER_FEE_PERCENT', 1),
+        'transfer_fee_flat'    => (float) env('AFRITOPUP_TRANSFER_FEE_FLAT', 0),
+        'transfer_fee_cap'     => (float) env('AFRITOPUP_TRANSFER_FEE_CAP', 300),
+        'transfer_bank'        => env('AFRITOPUP_TRANSFER_BANK', 'wema-bank'),   // wema-bank | titan-paystack
     ],
 
     /*
@@ -150,6 +157,7 @@ return [
     |             For development and demos only.
     |   vtpass  – VTpass (airtime, data, cable, electricity, exam pins).
     |   termii  – Termii (bulk and business SMS).
+    |   reloadly – Reloadly (airtime and data in Ghana, Kenya and 150+ countries).
     |   manual  – fulfilled by staff (e.g. school fees paid out to a school);
     |             stays processing until marked delivered.
     */
@@ -167,6 +175,12 @@ return [
             'base_url'  => env('TERMII_BASE_URL', 'https://api.ng.termii.com'),
             'sender_id' => env('TERMII_SENDER_ID', 'AfriTopup'),
             'channel'   => env('TERMII_CHANNEL', 'generic'),        // generic | dnd
+        ],
+        'reloadly' => [
+            'name'          => 'Reloadly',
+            'mode'          => env('RELOADLY_MODE', 'sandbox'),      // sandbox | live
+            'client_id'     => env('RELOADLY_CLIENT_ID'),
+            'client_secret' => env('RELOADLY_CLIENT_SECRET'),
         ],
         'sandbox' => ['name' => 'Sandbox (test)'],
         'manual'  => ['name' => 'Manual (staff)'],
