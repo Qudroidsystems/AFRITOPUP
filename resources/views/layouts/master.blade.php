@@ -1132,6 +1132,7 @@
         @endif
         @can('Manage settings')
         {title:'Payment gateways (Paystack)', url:'{{ route("portal-settings.payments") }}',                  icon:'mdi-credit-card-settings-outline', category:'Administration', keywords:['paystack','keys','api','webhook','payments','settings']},
+        {title:'Website & app links',       url:'{{ route("portal-settings.website") }}',                     icon:'mdi-web',              category:'Administration',     keywords:['google play','app store','social','facebook','whatsapp','links','website','support']},
         {title:'VTU & SMS providers',       url:'{{ route("portal-settings.providers") }}',                   icon:'mdi-power-plug',       category:'Administration',     keywords:['vtpass','termii','keys','provider','api','settings']},
         @endcan
 

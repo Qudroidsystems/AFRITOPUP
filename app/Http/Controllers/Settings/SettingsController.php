@@ -146,4 +146,57 @@ class SettingsController extends Controller
             ? back()->with('error', $p->name() . ' did not accept the keys (or could not be reached).')
             : back()->with('success', $p->name() . ' accepted the keys. Balance: ' . number_format($balance, 2) . '.');
     }
+
+    // ── Website & app links ─────────────────────────────────────────────
+
+    public function website()
+    {
+        $values = collect(Settings::SITE_FIELDS)->mapWithKeys(fn ($f) => [$f => config("afritopup.$f")])->all();
+
+        return view('settings.website', [
+            'pagetitle' => 'Website & app',
+            'v'         => $values,
+            'saved'     => collect(Settings::SITE_FIELDS)->filter(fn ($f) => $this->settings->has("site.$f"))->values()->all(),
+            'last'      => $this->settings->lastChange(collect(Settings::SITE_FIELDS)->map(fn ($f) => "site.$f")->all()),
+        ]);
+    }
+
+    public function saveWebsite(Request $request)
+    {
+        $url = ['nullable', 'url:https', 'max:500'];
+        $data = $request->validate([
+            'android'   => array_merge($url, ['regex:#^https://(play\.google\.com|play\.app\.goo\.gl)/#i']),
+            'ios'       => array_merge($url, ['regex:#^https://(apps|itunes)\.apple\.com/#i']),
+            'facebook'  => $url, 'x' => $url, 'instagram' => $url, 'linkedin' => $url, 'youtube' => $url, 'tiktok' => $url,
+            'whatsapp'  => ['nullable', 'string', 'max:500'],
+            'support_email' => 'nullable|email|max:190',
+            'support_phone' => 'nullable|string|max:40',
+            'address'   => 'nullable|string|max:255',
+        ], [
+            'android.regex' => 'Use the Google Play link, e.g. https://play.google.com/store/apps/details?id=com.afritopup.app',
+            'ios.regex'     => 'Use the App Store link, e.g. https://apps.apple.com/app/afritopup/id1234567890',
+            '*.url'         => 'Enter a full https:// link.',
+        ]);
+
+        // WhatsApp: a phone number becomes a wa.me link.
+        $wa = trim((string) ($data['whatsapp'] ?? ''));
+        if ($wa !== '' && !str_starts_with($wa, 'http')) {
+            $digits = preg_replace('/\D/', '', $wa);
+            if (str_starts_with($digits, '0')) $digits = '234' . substr($digits, 1);
+            $wa = 'https://wa.me/' . $digits;
+        }
+
+        $map = [
+            'app_links.android' => $data['android'] ?? null, 'app_links.ios' => $data['ios'] ?? null,
+            'social_links.facebook' => $data['facebook'] ?? null, 'social_links.x' => $data['x'] ?? null,
+            'social_links.instagram' => $data['instagram'] ?? null, 'social_links.linkedin' => $data['linkedin'] ?? null,
+            'social_links.youtube' => $data['youtube'] ?? null, 'social_links.tiktok' => $data['tiktok'] ?? null,
+            'social_links.whatsapp' => $wa ?: null,
+            'support_email' => $data['support_email'] ?? null, 'support_phone' => $data['support_phone'] ?? null, 'address' => $data['address'] ?? null,
+        ];
+        $this->settings->put(collect($map)->mapWithKeys(fn ($v, $k) => ["site.$k" => $v])->all(), $request->user());
+        \Illuminate\Support\Facades\Cache::forget('site.catalogue.NG');
+
+        return back()->with('success', 'Website & app links saved — they are live on the website now.');
+    }
 }

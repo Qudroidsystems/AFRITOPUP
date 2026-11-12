@@ -41,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Branding for every view (layout, login, e-mails).
+        app(\App\Services\Settings\Settings::class)->applySiteToConfig();
         View::share('brand', config('afritopup'));
 
         // Which page shell: customers, agents and resellers get the customer

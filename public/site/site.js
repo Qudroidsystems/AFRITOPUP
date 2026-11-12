@@ -63,6 +63,21 @@
         $$('[data-count]').forEach((el) => (el.textContent = el.dataset.count));
     }
 
+    /* ---------- "get the app" bar on phones (dismissed for 2 weeks) ---------- */
+    const appBar = $('#appBar');
+    if (appBar) {
+        let closedAt = 0;
+        try { closedAt = parseInt(localStorage.getItem('at-appbar-closed') || '0', 10); } catch (e) {}
+        const standalone = window.matchMedia('(display-mode: standalone)').matches;
+        if (!standalone && Date.now() - closedAt > 14 * 864e5) {
+            setTimeout(() => { appBar.classList.add('is-on'); document.body.classList.add('has-appbar'); }, 2500);
+        }
+        $('[data-appbar-close]', appBar).addEventListener('click', () => {
+            appBar.classList.remove('is-on'); document.body.classList.remove('has-appbar');
+            try { localStorage.setItem('at-appbar-closed', String(Date.now())); } catch (e) {}
+        });
+    }
+
     /* ---------- rotating words in the hero ---------- */
     $$('.s-rotator').forEach((r) => {
         const words = $$('span', r);

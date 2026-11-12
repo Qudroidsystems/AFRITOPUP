@@ -121,6 +121,14 @@
                 <div class="a-code"><b>{{ $code }}</b><button type="button" class="s-btn s-btn--sm" data-copy-text="{{ Route::has('register') ? route('register', ['ref' => $code]) : $code }}"><i class="ri-share-forward-line"></i> Copy link</button></div>
             </div>
 
+            <div class="a-card mb-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="s-ico s-ico--lg"><i class="ri-smartphone-line"></i></span>
+                    <span><b style="color: var(--s-ink)">Get the {{ $brand['name'] ?? 'AfriTopup' }} app</b><small class="d-block" style="color: var(--s-muted)">Same account and wallet — with fingerprint login and alerts.</small></span>
+                </div>
+                @include('site.partials.app-badges', ['size' => 'sm'])
+            </div>
+
             @if($me->isCustomer())
                 <a href="{{ route('site.page', 'business') }}" class="a-card d-flex align-items-center gap-3 text-decoration-none" style="color: inherit">
                     <span class="s-ico s-ico--lg" style="--c:#7C3AED"><i class="ri-store-2-line"></i></span>

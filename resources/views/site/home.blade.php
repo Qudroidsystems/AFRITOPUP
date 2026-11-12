@@ -36,6 +36,10 @@
                     <span><i class="ri-shield-keyhole-line"></i> PIN-protected wallet</span>
                     <span><i class="ri-refund-2-line"></i> Auto-refund on failure</span>
                 </div>
+                <div class="s-hero-apps">
+                    <span>Also on mobile</span>
+                    @include('site.partials.app-badges', ['size' => 'sm', 'light' => true])
+                </div>
             </div>
             <div class="col-lg-6 col-xl-5 offset-xl-1" data-reveal="zoom" style="--d:.15s">
                 @include('site.partials.quickpay', ['catalogue' => $catalogue])
@@ -290,7 +294,7 @@
 </section>
 
 {{-- ================= APP ================= --}}
-<section class="s-section pt-0">
+<section class="s-section pt-0" id="app" style="scroll-margin-top: 90px">
     <div class="container">
         <div class="s-app" data-reveal>
             <div class="row align-items-center g-4">
@@ -298,9 +302,12 @@
                     <span class="s-eyebrow s-eyebrow--gold">Mobile app</span>
                     <h2 class="s-title">Take {{ $name }} everywhere</h2>
                     <p class="s-lead mb-4">The same account and wallet on Android and iPhone — with Face ID / fingerprint, push notifications and one-tap repeat purchases.</p>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a class="s-store" href="{{ config('afritopup.app_links.android') ?: '#' }}"><i class="ri-google-play-fill"></i><span><small>Get it on</small><b>Google Play</b></span></a>
-                        <a class="s-store" href="{{ config('afritopup.app_links.ios') ?: '#' }}"><i class="ri-apple-fill"></i><span><small>Download on the</small><b>App Store</b></span></a>
+                    <div class="d-flex flex-wrap align-items-center gap-4">
+                        @include('site.partials.app-badges')
+                        <div class="s-qr d-none d-lg-inline-flex">
+                            {!! \App\Support\Qr::svg(route('site.app'), 112) !!}
+                            <span><b>Scan to download</b><small>Opens the right store<br>for your phone</small></span>
+                        </div>
                     </div>
                 </div>
                 <div class="col-lg-5 text-center">

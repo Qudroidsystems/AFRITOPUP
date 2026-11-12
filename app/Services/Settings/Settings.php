@@ -97,6 +97,27 @@ class Settings
         }
     }
 
+    // ── Website & app (Settings → Website & app) ────────────────────────
+    /** config('afritopup.<field>') that admins can set; saved as "site.<field>". */
+    public const SITE_FIELDS = [
+        'app_links.android', 'app_links.ios',
+        'social_links.facebook', 'social_links.x', 'social_links.instagram', 'social_links.linkedin',
+        'social_links.youtube', 'social_links.tiktok', 'social_links.whatsapp',
+        'support_email', 'support_phone', 'address',
+    ];
+
+    /** Put saved website settings over config('afritopup'), so every page, e-mail and the app see them. */
+    public function applySiteToConfig(): void
+    {
+        try {
+            foreach (self::SITE_FIELDS as $field) {
+                if ($this->has("site.$field")) config(["afritopup.$field" => $this->get("site.$field")]);
+            }
+        } catch (\Throwable $e) {
+            // Settings table not migrated yet.
+        }
+    }
+
     // ── Paystack ────────────────────────────────────────────────────────
 
     public const PAYSTACK = ['paystack.active', 'paystack.mode', 'paystack.test_public_key', 'paystack.test_secret_key', 'paystack.live_public_key', 'paystack.live_secret_key'];

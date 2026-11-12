@@ -27,6 +27,7 @@ Route::controller(\App\Http\Controllers\Site\SiteController::class)->group(funct
     Route::get('/', 'home')->name('home');
     Route::get('/pay/{category}', 'service')->where('category', '[a-z]+')->name('site.service');
     Route::get('/pricing', 'pricing')->name('site.pricing');
+    Route::get('/app', 'app')->name('site.app');
     Route::get('/contact', 'contact')->name('site.contact');
     Route::post('/contact', 'sendContact')->middleware('throttle:5,10,site.contact')->name('site.contact.send');
     Route::get('/site/services/{service}/plans', 'plans')->name('site.plans');

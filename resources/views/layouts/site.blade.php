@@ -70,6 +70,7 @@
                 <li><a href="{{ route('site.page', 'business') }}" class="{{ request()->is('business') ? 'active' : '' }}">Business</a></li>
                 <li><a href="{{ route('site.page', 'developers') }}" class="{{ request()->is('developers') ? 'active' : '' }}">Developers</a></li>
                 <li><a href="{{ route('site.page', 'faq') }}" class="{{ request()->is('faq') ? 'active' : '' }}">Help</a></li>
+                <li><a href="{{ route('home') }}#app"><i class="ri-smartphone-line"></i> Get the app</a></li>
             </ul>
 
             <div class="s-nav-cta">
@@ -109,6 +110,8 @@
         <a class="s-drawer-link" href="{{ route('site.page', 'developers') }}"><i class="ri-code-s-slash-line"></i> Developers</a>
         <a class="s-drawer-link" href="{{ route('site.page', 'faq') }}"><i class="ri-question-line"></i> Help centre</a>
         <a class="s-drawer-link" href="{{ route('site.contact') }}"><i class="ri-customer-service-2-line"></i> Contact us</a>
+        <div class="s-drawer-label">Get the app</div>
+        <div class="px-2">@include('site.partials.app-badges', ['size' => 'sm'])</div>
         <div class="mt-auto pt-4 d-grid gap-2">
             @auth
                 <a href="{{ route('dashboard') }}" class="s-btn s-btn--block">Go to my account <i class="ri-arrow-right-line"></i></a>
@@ -163,10 +166,7 @@
             </div>
             <div class="col-6 col-md-3 col-lg-2">
                 <h6>Get the app</h6>
-                <div class="d-grid gap-2">
-                    <a class="s-store" href="{{ $apps['android'] ?? '#' }}" @if(!empty($apps['android'])) target="_blank" rel="noopener" @endif><i class="ri-google-play-fill"></i><span><small>Get it on</small><b>Google Play</b></span></a>
-                    <a class="s-store" href="{{ $apps['ios'] ?? '#' }}" @if(!empty($apps['ios'])) target="_blank" rel="noopener" @endif><i class="ri-apple-fill"></i><span><small>Download on the</small><b>App Store</b></span></a>
-                </div>
+                @include('site.partials.app-badges', ['size' => 'sm', 'light' => true, 'stack' => true])
             </div>
         </div>
         <div class="s-footer-bottom">
@@ -180,6 +180,14 @@
 </footer>
 
 <button class="s-top" id="toTop" type="button" aria-label="Back to top"><i class="ri-arrow-up-line"></i></button>
+@if(array_filter(config('afritopup.app_links', [])))
+    <div class="s-appbar" id="appBar" role="complementary" aria-label="Get the app">
+        <button type="button" class="s-appbar-x" data-appbar-close aria-label="Close"><i class="ri-close-line"></i></button>
+        <x-brand-logo mark size="30px" />
+        <span><b>{{ $siteName }} app</b><small>Faster payments, fingerprint login</small></span>
+        <a href="{{ route('site.app') }}" class="s-btn s-btn--gold s-btn--sm">Get the app</a>
+    </div>
+@endif
 <div class="s-toast" id="siteToast" role="status" aria-live="polite"></div>
 
 <script src="{{ asset('site/vendor/bootstrap.bundle.min.js') }}" defer></script>

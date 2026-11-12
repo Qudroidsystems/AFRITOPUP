@@ -136,6 +136,23 @@ class SiteController extends Controller
         return back()->with('contact_sent', true);
     }
 
+    /**
+     * One link for the app (QR code, shares): Android phones go to Google Play,
+     * iPhones and iPads to the App Store, everyone else to the app section.
+     */
+    public function app(Request $request): RedirectResponse
+    {
+        $ua = strtolower((string) $request->userAgent());
+        $links = config('afritopup.app_links', []);
+        $ios = str_contains($ua, 'iphone') || str_contains($ua, 'ipad') || str_contains($ua, 'ipod');
+        $android = str_contains($ua, 'android');
+
+        if ($ios && !empty($links['ios'])) return redirect()->away($links['ios']);
+        if ($android && !empty($links['android'])) return redirect()->away($links['android']);
+
+        return redirect()->to(route('home') . '#app');
+    }
+
     /** Plans for one service (quick-pay widget). */
     public function plans(Service $service): JsonResponse
     {
