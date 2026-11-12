@@ -28,6 +28,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.active' => \App\Http\Middleware\EnsureApiUserActive::class,
             // Reseller API (routes/reseller.php)
             'api.key' => \App\Http\Middleware\AuthenticateApiKey::class,
+            // Customers confirm their e-mail before buying (web + app)
+            'email.confirmed' => \App\Http\Middleware\EnsureEmailConfirmed::class,
         ]);
 
         // Temporary passwords must be changed first; every change is logged.

@@ -24,6 +24,9 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
+        // Customers, agents and resellers get the customer-area home.
+        if (!$user->isStaff()) return $this->customer($request);
+
         $overview = null;
         if ($user->can('View dashboard')) {
             $today = now()->startOfDay();
@@ -70,6 +73,32 @@ class DashboardController extends Controller
             'overview'      => $overview,
             'buyer'         => $buyer,
             'unread'        => Schema::hasTable('notifications') ? $user->unreadNotifications()->count() : 0,
+        ]);
+    }
+
+    /** The customer area's home: wallet, quick pay, saved recipients, recent purchases, referrals. */
+    protected function customer(Request $request)
+    {
+        $user = $request->user();
+        $country = \App\Models\Country::byCode($user->country_code ?: config('afritopup.default_country', 'NG'));
+        $currency = $country?->currency ?? 'NGN';
+        $ok = $user->transactions()->where('status', Transaction::SUCCESSFUL);
+
+        return view('account.dashboard', [
+            'pagetitle'   => 'Home',
+            'wallet'      => $user->wallet($currency),
+            'earnings'    => $user->earningsWallet($currency),
+            'account'     => $user->virtualAccounts()->where('is_active', true)->first(),
+            'categories'  => collect(config('afritopup.categories'))->filter(fn ($c, $k) => Service::active()->in($country?->code ?? 'NG')->where('category', $k)->exists()),
+            'recent'      => $user->transactions()->with('service')->latest('id')->limit(6)->get(),
+            'saved'       => $user->beneficiaries()->with('service')->orderByDesc('last_used_at')->limit(6)->get(),
+            'spentMonth'  => (clone $ok)->where('created_at', '>=', now()->startOfMonth())->sum('total'),
+            'countMonth'  => (clone $ok)->where('created_at', '>=', now()->startOfMonth())->count(),
+            'hasPin'      => $user->hasTransactionPin(),
+            'referrals'   => $user->referrals()->count(),
+            'code'        => $user->referralCode(),
+            'currency'    => $currency,
+            'country'     => $country,
         ]);
     }
 }

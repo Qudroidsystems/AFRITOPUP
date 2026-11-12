@@ -63,6 +63,12 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\Models\User
      */
+    /** Back to what they were doing (e.g. an order from the website's quick-pay box). */
+    protected function registered(\Illuminate\Http\Request $request, $user)
+    {
+        return redirect()->intended($this->redirectPath());
+    }
+
     /** Customers sign themselves up; they get the Customer role and a wallet straight away. */
     protected function create(array $data)
     {

@@ -22,7 +22,17 @@ use Illuminate\Support\Facades\Session;
 | inside the signed-in group below.
 */
 
-Route::get('/', fn () => auth()->check() ? redirect()->route('dashboard') : redirect()->route('login'))->name('home');
+// ── Public website ──────────────────────────────────────────────────
+Route::controller(\App\Http\Controllers\Site\SiteController::class)->group(function () {
+    Route::get('/', 'home')->name('home');
+    Route::get('/pay/{category}', 'service')->where('category', '[a-z]+')->name('site.service');
+    Route::get('/pricing', 'pricing')->name('site.pricing');
+    Route::get('/contact', 'contact')->name('site.contact');
+    Route::post('/contact', 'sendContact')->middleware('throttle:5,10,site.contact')->name('site.contact.send');
+    Route::get('/site/services/{service}/plans', 'plans')->name('site.plans');
+    Route::post('/quick-pay', 'quickPay')->middleware('throttle:30,1,site.quickpay')->name('site.quickpay');
+    Route::get('/{page}', 'page')->where('page', 'about|business|developers|faq|terms|privacy')->name('site.page');
+});
 
 Auth::routes([
     'register' => (bool) config('afritopup.allow_registration'),
@@ -48,7 +58,16 @@ Route::get('/refresh-csrf', function () {
     abort(404);
 })->name('refresh.csrf');
 
-Route::middleware('auth')->group(function () {
+// ── Confirm your e-mail (signed-in customers who haven't yet) ──────────
+Route::controller(\App\Http\Controllers\Auth\EmailVerificationController::class)->group(function () {
+    Route::get('/email/verify', 'notice')->middleware('auth')->name('verification.notice');
+    Route::post('/email/verify', 'verifyCode')->middleware(['auth', 'throttle:15,10,web.verify'])->name('verification.code');
+    Route::post('/email/verification-notification', 'resend')->middleware(['auth', 'throttle:6,10,web.verify-send'])->name('verification.send');
+    // The link in the e-mail works even when signed out (signed + expires).
+    Route::get('/email/verify/{id}/{hash}', 'verifyLink')->middleware(['signed', 'throttle:20,1,web.verify-link'])->name('verification.verify');
+});
+
+Route::middleware(['auth', 'email.confirmed'])->group(function () {
 
     // ── Temporary password → choose your own ────────────────────────────
     Route::get('/password/change', [PasswordChangeController::class, 'show'])->name('password.change');
@@ -75,6 +94,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('roles/removeuserrole/{userid}/{roleid}', [RoleController::class, 'removeuserrole'])->name('roles.removeuserrole');
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
+
+    // ── Customer area: profile & security ───────────────────────────────
+    Route::get('/account/profile', [\App\Http\Controllers\Account\AccountController::class, 'profile'])->name('account.profile');
 
     // ── My profile ──────────────────────────────────────────────────────
     Route::prefix('profile')->name('profile.')->group(function () {

@@ -90,8 +90,8 @@
         }
 
         @keyframes fieldPulse {
-            0%, 100% { border-color: #e2e8f0; box-shadow: 0 0 0 0 rgba(79, 142, 247, 0); }
-            50% { border-color: #4f8ef7; box-shadow: 0 0 0 4px rgba(79, 142, 247, 0.15); }
+            0%, 100% { border-color: #e2e8f0; box-shadow: 0 0 0 0 rgba(11, 132, 87, 0); }
+            50% { border-color: #0B8457; box-shadow: 0 0 0 4px rgba(11, 132, 87, 0.15); }
         }
 
         @keyframes successCheck {
@@ -163,9 +163,9 @@
         }
 
         .apple-input:focus {
-            border-color: #4f8ef7 !important;
+            border-color: #0B8457 !important;
             background: #ffffff !important;
-            box-shadow: 0 0 0 4px rgba(79, 142, 247, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+            box-shadow: 0 0 0 4px rgba(11, 132, 87, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
             outline: none !important;
         }
 
@@ -176,7 +176,7 @@
 
         /* Apple-style button */
         .apple-button {
-            background: #4f8ef7 !important;
+            background: #0B8457 !important;
             border: none !important;
             border-radius: 12px !important;
             padding: 14px 20px !important;
@@ -188,9 +188,9 @@
         }
 
         .apple-button:hover {
-            background: #3b7ae3 !important;
+            background: #07583A !important;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(79, 142, 247, 0.35);
+            box-shadow: 0 4px 12px rgba(11, 132, 87, 0.35);
         }
 
         .apple-button:active {
@@ -223,8 +223,8 @@
         }
 
         .form-check-input:checked {
-            background-color: #4f8ef7 !important;
-            border-color: #4f8ef7 !important;
+            background-color: #0B8457 !important;
+            border-color: #0B8457 !important;
         }
 
         /* Error message styling */
@@ -437,7 +437,7 @@
 
         .login-success.success { background: linear-gradient(135deg, #10b981, #059669); }
         .login-success.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .login-success.info { background: linear-gradient(135deg, #4f8ef7, #3b7ae3); }
+        .login-success.info { background: linear-gradient(135deg, #0B8457, #07583A); }
         .login-success.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
 
         .login-success .toast-icon {
@@ -504,7 +504,12 @@
 
         /* Icon badge above a heading (forgot password) */
         .auth-badge { width: 56px; height: 56px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center;
-            font-size: 26px; color: #4f8ef7; background: rgba(79, 142, 247, 0.1); margin-bottom: 12px; animation: fadeInScale 0.5s ease; }
+            font-size: 26px; color: #0B8457; background: rgba(11, 132, 87, 0.1); margin-bottom: 12px; animation: fadeInScale 0.5s ease; }
+    </style>
+    <style>
+        /* AfriTopup green for links and focus on the sign-in pages */
+        .text-primary, a.text-primary, .btn-link { color: #0B8457 !important; }
+        .form-check-input:checked { background-color: #0B8457; border-color: #0B8457; }
     </style>
     @stack('styles')
 </head>
@@ -565,8 +570,11 @@
                                 <div class="card mb-0 border-0 shadow-none mb-0" style="background: transparent;">
                                     <div class="card-body p-sm-5 m-lg-4" id="authCardBody">
                                         <div class="logo-container">
-                                            <x-brand-logo animate size="52px" :rest="false" />
+                                            <a href="{{ route('home') }}" aria-label="Back to the website"><x-brand-logo animate size="52px" :rest="false" /></a>
                                         </div>
+                                        @if(session('status') && !request()->routeIs('password.*'))
+                                            <div class="alert alert-success border-0 rounded-3 small text-center mt-3 mb-0" role="status"><i class="ri-shopping-bag-3-line me-1"></i>{{ session('status') }}</div>
+                                        @endif
 
                                         <div class="text-center mt-2">
                                             @yield('badge')

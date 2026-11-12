@@ -42,5 +42,16 @@ class AppServiceProvider extends ServiceProvider
 
         // Branding for every view (layout, login, e-mails).
         View::share('brand', config('afritopup'));
+
+        // Which page shell: customers, agents and resellers get the customer
+        // area (layouts.account); staff get the admin panel (layouts.master).
+        View::composer('*', function ($view) {
+            $attrs = request()->attributes;
+            if (!$attrs->has('view.shell')) {
+                $u = auth()->user();
+                $attrs->set('view.shell', $u && !$u->isStaff() ? 'layouts.account' : 'layouts.master');
+            }
+            $view->with('shell', $attrs->get('view.shell'));
+        });
     }
 }

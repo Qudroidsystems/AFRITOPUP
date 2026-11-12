@@ -85,6 +85,7 @@ class AuthController extends ApiController
         ]);
         try { $user->assignRole('Customer'); } catch (\Throwable $e) {}
         $user->wallet();
+        event(new \Illuminate\Auth\Events\Registered($user));   // e-mails the 6-digit confirmation code
 
         $token = $user->createToken(($data['device_name'] ?? null) ?: 'Mobile app', ['*']);
         $this->rememberDevice($user->id, $token->accessToken->id, $data);
@@ -93,7 +94,7 @@ class AuthController extends ApiController
             'token'      => $token->plainTextToken,
             'token_type' => 'Bearer',
             'user'       => ApiUserPresenter::present($user->fresh()),
-        ], 'Welcome to ' . config('afritopup.name') . '!', 201);
+        ], 'Welcome to ' . config('afritopup.name') . '! Enter the 6-digit code we sent to ' . $user->email . '.', 201);
     }
 
     /**
@@ -199,7 +200,65 @@ class AuthController extends ApiController
             report($e);
         }
 
-        return $this->ok(null, 'If that address belongs to an account, a reset link has been sent to it.');
+        return $this->ok(['code_length' => 6], 'If that address belongs to an account, we\'ve e-mailed a 6-digit code to it.');
+    }
+
+    /** Send another confirmation code (one a minute). */
+    public function resendVerification(Request $request, \App\Services\Auth\EmailCodes $codes)
+    {
+        $user = $request->user();
+        if ($user->hasVerifiedEmail()) return $this->ok(['email_verified' => true], 'Your e-mail is already confirmed.');
+        if ($wait = $codes->wait($user, \App\Services\Auth\EmailCodes::VERIFY)) {
+            return $this->fail("Please wait {$wait} seconds before asking for another code.", 429, 'too_soon', ['retry_after' => $wait]);
+        }
+        $user->sendEmailVerificationNotification();
+
+        return $this->ok(['retry_after' => \App\Services\Auth\EmailCodes::COOLDOWN], 'A new code is on its way to ' . $user->email . '.');
+    }
+
+    /** Confirm the e-mail with the 6-digit code. */
+    public function verifyEmail(Request $request, \App\Services\Auth\EmailCodes $codes)
+    {
+        $request->validate(['code' => 'required|string|max:12']);
+        $user = $request->user();
+
+        if (!$user->hasVerifiedEmail()) {
+            if (!$codes->check($user, \App\Services\Auth\EmailCodes::VERIFY, $request->input('code'), $error)) {
+                return $this->fail(\App\Services\Auth\EmailCodes::message($error, 'verify'), 422, 'code_' . $error);
+            }
+            if ($user->markEmailAsVerified()) event(new \Illuminate\Auth\Events\Verified($user));
+        }
+
+        return $this->ok(['user' => ApiUserPresenter::present($user->fresh())], 'Your e-mail is confirmed.');
+    }
+
+    /**
+     * Reset a forgotten password with the 6-digit code from the e-mail.
+     * Signs out every device, as the old password may be known to someone else.
+     */
+    public function resetPassword(Request $request, \App\Services\Auth\EmailCodes $codes)
+    {
+        $data = $request->validate([
+            'email'    => 'required|email|max:191',
+            'code'     => 'required|string|max:12',
+            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
+        ]);
+
+        $user = User::where('email', strtolower(trim($data['email'])))->first();
+        $error = 'invalid';
+        if (!$user || !$codes->check($user, \App\Services\Auth\EmailCodes::RESET, $data['code'], $error)) {
+            return $this->fail(\App\Services\Auth\EmailCodes::message($error, 'reset'), 422, 'code_' . $error);
+        }
+
+        $user->forceFill(['password' => Hash::make($data['password']), 'must_change_password' => false, 'remember_token' => \Illuminate\Support\Str::random(60)]);
+        // They proved they own the inbox.
+        if (!$user->hasVerifiedEmail()) $user->email_verified_at = now();
+        $user->save();
+        $user->tokens()->delete();
+        DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+        event(new \Illuminate\Auth\Events\PasswordReset($user));
+
+        return $this->ok(null, 'Your password has been reset. Please sign in.');
     }
 
     // ── helpers ─────────────────────────────────────────────────────────

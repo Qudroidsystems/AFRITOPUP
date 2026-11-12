@@ -1,5 +1,5 @@
 {{-- resources/views/notifications/index.blade.php --}}
-@extends('layouts.master')
+@extends($shell ?? 'layouts.master')
 
 @section('content')
 <div class="main-content">

@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends($shell ?? 'layouts.master')
 
 @section('content')
 <div class="main-content"><div class="page-content"><div class="container-fluid">

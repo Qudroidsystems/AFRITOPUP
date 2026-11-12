@@ -16,7 +16,7 @@ use Spatie\Permission\Traits\HasRoles;
  * permissions (spatie/laravel-permission) say what they may do; the price
  * tier says what discount they buy at.
  */
-class User extends Authenticatable
+class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVerifyEmail
 {
     use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
@@ -160,6 +160,35 @@ class User extends Authenticatable
     public function upgradeRequests(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(AccountUpgrade::class);
+    }
+
+    /**
+     * "Confirm your e-mail": a 6-digit code (app or typed) and a one-click link (web).
+     * Sent on sign-up (Registered event) and on request; limited to one a minute.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $code = app(\App\Services\Auth\EmailCodes::class)->issue($this, \App\Services\Auth\EmailCodes::VERIFY);
+        $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('verification.verify', now()->addDay(),
+            ['id' => $this->getKey(), 'hash' => sha1($this->getEmailForVerification())]);
+
+        // A mail outage must not break sign-up; the customer can ask for a new code.
+        rescue(fn () => \Illuminate\Support\Facades\Mail::to($this->email, $this->name)->send(new \App\Mail\AccountCodeMail($this, \App\Services\Auth\EmailCodes::VERIFY, $code, $url)));
+    }
+
+    /** "Reset your password": the web reset link and a 6-digit code for the app, in one e-mail. */
+    public function sendPasswordResetNotification($token): void
+    {
+        $code = app(\App\Services\Auth\EmailCodes::class)->issue($this, \App\Services\Auth\EmailCodes::RESET);
+        $url = route('password.reset', ['token' => $token, 'email' => $this->email]);
+
+        \Illuminate\Support\Facades\Mail::to($this->email, $this->name)->send(new \App\Mail\AccountCodeMail($this, \App\Services\Auth\EmailCodes::RESET, $code, $url));
+    }
+
+    /** Customers must confirm their e-mail before buying; staff accounts are created by admins. */
+    public function needsEmailVerification(): bool
+    {
+        return config('afritopup.require_email_verification', true) && !$this->isStaff() && !$this->hasVerifiedEmail();
     }
 
     /** A referral code, made on first use for accounts created before codes existed. */

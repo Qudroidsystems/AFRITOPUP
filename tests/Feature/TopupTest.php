@@ -171,8 +171,15 @@ test('paystack funding credits the wallet once, after verification', function ()
 });
 
 test('the mobile app can sign up, set a PIN and buy', function () {
+    \Illuminate\Support\Facades\Mail::fake();
     $token = $this->postJson('/api/v1/auth/register', ['name' => 'Bola Ade', 'email' => 'bola@example.com', 'phone_number' => '08099998888', 'password' => 'Password1'])
-        ->assertCreated()->assertJsonPath('data.user.wallet.balance', 0)->json('data.token');
+        ->assertCreated()->assertJsonPath('data.user.wallet.balance', 0)->assertJsonPath('data.user.email_verified', false)->json('data.token');
+
+    // Buying waits for the e-mailed code.
+    $this->withToken($token)->getJson('/api/v1/catalog')->assertForbidden()->assertJsonPath('code', 'email_unverified');
+    $code = null;
+    \Illuminate\Support\Facades\Mail::assertSent(\App\Mail\AccountCodeMail::class, function ($m) use (&$code) { $code = $m->code; return $m->purpose === 'verify'; });
+    $this->withToken($token)->postJson('/api/v1/auth/email/verify', ['code' => $code])->assertOk()->assertJsonPath('data.user.email_verified', true);
 
     $this->withToken($token)->getJson('/api/v1/catalog')->assertOk()->assertJsonPath('data.country.code', 'NG');
     $this->withToken($token)->postJson('/api/v1/wallet/pin', ['password' => 'Password1', 'pin' => '7391'])->assertOk();

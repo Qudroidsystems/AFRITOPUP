@@ -8,7 +8,14 @@ namespace App\Support;
  */
 class Money
 {
-    public const SYMBOLS = ['NGN' => '₦', 'USD' => '$', 'GBP' => '£', 'EUR' => '€'];
+    public const SYMBOLS = ['NGN' => '₦', 'USD' => '$', 'GBP' => '£', 'EUR' => '€', 'GHS' => 'GH₵', 'KES' => 'KSh ', 'ZAR' => 'R', 'UGX' => 'USh ', 'TZS' => 'TSh ', 'XOF' => 'CFA ', 'RWF' => 'FRw '];
+
+    public static function symbol(?string $currency): string
+    {
+        $currency = strtoupper((string) $currency);
+
+        return self::SYMBOLS[$currency] ?? $currency . ' ';
+    }
 
     public static function format($amount, ?string $currency = null): string
     {

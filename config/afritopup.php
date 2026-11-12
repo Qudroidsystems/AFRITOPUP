@@ -26,8 +26,23 @@ return [
     'address'       => env('AFRITOPUP_ADDRESS'),          // shown on receipts
 
     // Brand colour for the layout accents and the mobile app theme.
-    'primary_color' => env('AFRITOPUP_PRIMARY_COLOR', '#0B8457'),
-    'accent_color'  => env('AFRITOPUP_ACCENT_COLOR', '#F5A623'),
+    // Website footer / app download buttons (leave blank to hide a social link).
+    'app_links' => [
+        'android' => env('AFRITOPUP_ANDROID_URL'),
+        'ios'     => env('AFRITOPUP_IOS_URL'),
+    ],
+    'social_links' => [
+        'facebook'  => env('AFRITOPUP_FACEBOOK_URL'),
+        'x'         => env('AFRITOPUP_X_URL'),
+        'instagram' => env('AFRITOPUP_INSTAGRAM_URL'),
+        'linkedin'  => env('AFRITOPUP_LINKEDIN_URL'),
+        'youtube'   => env('AFRITOPUP_YOUTUBE_URL'),
+        'tiktok'    => env('AFRITOPUP_TIKTOK_URL'),
+        'whatsapp'  => env('AFRITOPUP_WHATSAPP_URL'),
+    ],
+
+    'primary_color' => env('AFRITOPUP_PRIMARY_COLOR') ?: '#0B8457',
+    'accent_color'  => env('AFRITOPUP_ACCENT_COLOR') ?: '#F5A623',
 
     // Paths under public/.
     'logo'       => env('AFRITOPUP_LOGO', 'images/brand/afritopup-logo-dark.svg'),
@@ -36,6 +51,9 @@ return [
     'favicon'    => env('AFRITOPUP_FAVICON', 'images/brand/afritopup-mark.svg'),
 
     // Customers create their own accounts (web and app). Staff are invited.
+    // Customers confirm their e-mail (6-digit code or link) before they can buy.
+    'require_email_verification' => (bool) env('AFRITOPUP_REQUIRE_EMAIL_VERIFICATION', true),
+
     'allow_registration' => (bool) env('AFRITOPUP_ALLOW_REGISTRATION', true),
 
     /*

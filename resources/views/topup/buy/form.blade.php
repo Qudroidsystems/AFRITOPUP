@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends($shell ?? 'layouts.master')
 
 {{--
     One form for every category. The server decides what each service needs
@@ -41,7 +41,7 @@
                         <label class="form-label fw-semibold">Meter type</label>
                         <div class="at-pick">
                             @foreach(['prepaid' => 'Prepaid', 'postpaid' => 'Postpaid'] as $v => $l)
-                                <input type="radio" name="meter_type" id="mt{{ $v }}" value="{{ $v }}" @checked(old('meter_type', 'prepaid') === $v)><label for="mt{{ $v }}">{{ $l }}</label>
+                                <input type="radio" name="meter_type" id="mt{{ $v }}" value="{{ $v }}" @checked(old('meter_type', request('meter_type', 'prepaid')) === $v)><label for="mt{{ $v }}">{{ $l }}</label>
                             @endforeach
                         </div>
                     </div>
@@ -107,7 +107,7 @@
                     {{-- Plans --}}
                     <div class="mb-3 d-none" id="plansBox">
                         <label class="form-label fw-semibold d-flex justify-content-between"><span>Choose a plan</span><input type="search" class="form-control form-control-sm w-auto" id="planSearch" placeholder="Search plans"></label>
-                        <input type="hidden" name="product_id" id="product_id" value="{{ old('product_id') }}">
+                        <input type="hidden" name="product_id" id="product_id" value="{{ old('product_id', request('product')) }}">
                         <div class="at-plans" id="plans"><div class="text-muted small">Loading plans…</div></div>
                     </div>
 
@@ -136,7 +136,7 @@
                     <div class="mb-3 d-none" id="amountBox">
                         <label class="form-label fw-semibold" for="amount">Amount</label>
                         <div class="input-group input-group-lg"><span class="input-group-text">{{ \App\Support\Money::SYMBOLS[$country->currency] ?? $country->currency }}</span>
-                            <input class="form-control" type="number" name="amount" id="amount" value="{{ old('amount') }}" min="0" step="1" inputmode="numeric"></div>
+                            <input class="form-control" type="number" name="amount" id="amount" value="{{ old('amount', request('amount')) }}" min="0" step="1" inputmode="numeric"></div>
                         <div class="d-flex gap-2 mt-2 flex-wrap" id="quickAmounts"></div>
                         <div class="form-text" id="amountHint"></div>
                     </div>
@@ -189,7 +189,7 @@
     const fmt = (n) => CUR + Number(n || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const show = (el, on) => el && el.classList.toggle('d-none', !on);
 
-    let svc = null, products = [], oldProduct = @json(old('product_id')), quoteTimer = null;
+    let svc = null, products = [], oldProduct = @json(old('product_id', request('product'))), quoteTimer = null;
 
     function selected() { return document.querySelector('input[name=service_id]:checked'); }
 

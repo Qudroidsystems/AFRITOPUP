@@ -31,6 +31,7 @@ Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('social', [AuthController::class, 'social'])->middleware('throttle:20,1,api-social')->name('social');
     Route::post('register', [AuthController::class, 'register'])->middleware('throttle:5,10,api-register')->name('register');
     Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:5,10,api-forgot')->name('forgot');
+    Route::post('reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:10,10,api-reset')->name('reset');
 });
 
 // ── Signed in ───────────────────────────────────────────────────────────
@@ -38,6 +39,8 @@ Route::middleware(['auth:sanctum', 'api.active', 'throttle:120,1,api'])->group(f
 
     Route::prefix('auth')->name('auth.')->group(function () {
         Route::get('me', [AuthController::class, 'me'])->name('me');
+        Route::post('email/resend', [AuthController::class, 'resendVerification'])->middleware('throttle:6,10,api-verify-send')->name('email.resend');
+        Route::post('email/verify', [AuthController::class, 'verifyEmail'])->middleware('throttle:15,10,api-verify')->name('email.verify');
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
         Route::post('logout-all', [AuthController::class, 'logoutAll'])->name('logout-all');
         Route::put('password', [AuthController::class, 'changePassword'])->name('password');
@@ -66,9 +69,12 @@ Route::middleware(['auth:sanctum', 'api.active', 'throttle:120,1,api'])->group(f
     Route::get('me/preferences', [PreferenceController::class, 'show'])->name('preferences.show');
     Route::put('me/preferences', [PreferenceController::class, 'update'])->name('preferences.update');
 
-    foreach (glob(__DIR__ . '/api_v1/*.php') ?: [] as $moduleRoutes) {
-        require $moduleRoutes;
-    }
+    // Buying, wallet, beneficiaries … need a confirmed e-mail (customers).
+    Route::middleware('email.confirmed')->group(function () {
+        foreach (glob(__DIR__ . '/api_v1/*.php') ?: [] as $moduleRoutes) {
+            require $moduleRoutes;
+        }
+    });
 });
 
 Route::fallback(fn () => response()->json(['success' => false, 'code' => 'not_found', 'message' => 'Endpoint not found.'], 404));
