@@ -87,7 +87,7 @@ class ReloadlyProvider implements Provider
         $operatorId = (int) ($t->service->provider_code ?? 0);
         if (!$operatorId) return ProviderResult::failed('This service is not set up yet.');
 
-        $amount = $t->product ? (float) $t->product->code : (float) ($t->cost ?? $t->amount);
+        $amount = $t->product ? (float) $t->product->codeFor('reloadly') : (float) ($t->cost ?? $t->amount);
         try {
             $res = $this->http()->asJson()->post($this->base() . '/topups', [
                 'operatorId'       => $operatorId,

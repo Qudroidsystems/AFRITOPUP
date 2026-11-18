@@ -55,7 +55,7 @@
   "recipients": ["2348031234567", "2348051234567"], "message": "Your order is on its way." }</pre>
                 <p>Response (<code>201</code> for a new purchase, <code>200</code> for a repeated reference):</p>
 <pre>{ "success": true, "data": {
-    "reference": "AFT-20261111-8F3K2Q9X", "client_reference": "ORD-10048",
+    "reference": "PRC-20261111-8F3K2Q9X", "client_reference": "ORD-10048",
     "category": "electricity", "status": "successful", "message": "Delivered.",
     "amount": 5000, "discount": 50, "fee": 0, "total": 4950, "currency": "NGN",
     "token": "1234-5678-9012-3456-7890", "customer_name": "ADEBAYO JOHN", ... } }</pre>
@@ -68,7 +68,7 @@
             <x-cb.card title="Webhooks" icon="ri-links-line">
                 <p>When a purchase finishes (<code>transaction.successful</code>, <code>transaction.failed</code>, <code>transaction.refunded</code>) we POST it to your key's webhook URL:</p>
 <pre>POST https://your-server/webhook
-X-AfriTopup-Signature: &lt;HMAC-SHA256 of the raw body with your webhook secret&gt;
+X-Pericharge-Signature: &lt;HMAC-SHA256 of the raw body with your webhook secret&gt;
 
 { "event": "transaction.successful", "data": { ...same as the purchase response... } }</pre>
                 <p class="mb-0">Reply with any 2xx status. We retry for about 40 minutes if you don't. Each key's webhook secret is on the API keys page, under <em>Edit</em>.</p>

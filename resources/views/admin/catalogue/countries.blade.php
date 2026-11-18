@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="main-content"><div class="page-content"><div class="container-fluid">
-    <x-cb.hero title="Countries" icon="ri-earth-line" subtitle="Markets AfriTopup sells in. A country appears to customers once it is switched on and has services." />
+    <x-cb.hero title="Countries" icon="ri-earth-line" subtitle="Markets Pericharge sells in. A country appears to customers once it is switched on and has services." />
     @include('partials.flash')
     <x-cb.card :flush="true">
         <div class="table-responsive"><table class="cb-table stack">

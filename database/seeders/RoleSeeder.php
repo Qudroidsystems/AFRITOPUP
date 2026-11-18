@@ -18,7 +18,7 @@ class RoleSeeder extends Seeder
         'Super Administrator' => ['#0B8457', ['*']],
 
         'Administrator' => ['#0f172a', [
-            'View dashboard', 'View transactions', 'Manage transactions', 'View wallets', 'Manage wallets', 'Manage services',
+            'View dashboard', 'View reports', 'View transactions', 'Manage transactions', 'View wallets', 'Manage wallets', 'Manage services',
             'View user', 'Create user', 'Update user', 'View role', 'View activity log', 'View online staff', 'Manage support',
         ]],
 
@@ -27,7 +27,7 @@ class RoleSeeder extends Seeder
         ]],
 
         'Finance Officer' => ['#10B981', [
-            'View dashboard', 'View transactions', 'View wallets', 'Manage wallets', 'View user',
+            'View dashboard', 'View reports', 'View transactions', 'View wallets', 'Manage wallets', 'View user',
         ]],
 
         // People who buy

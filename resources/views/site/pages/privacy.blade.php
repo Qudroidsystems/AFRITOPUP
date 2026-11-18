@@ -1,7 +1,7 @@
 @extends('layouts.site')
 @section('header', 'light')
-@section('title', 'Privacy policy | ' . ($brand['name'] ?? 'AfriTopup'))
-@php $name = $brand['name'] ?? 'AfriTopup'; $co = $brand['company'] ?? $name; @endphp
+@section('title', 'Privacy policy | ' . ($brand['name'] ?? 'Pericharge'))
+@php $name = $brand['name'] ?? 'Pericharge'; $co = $brand['company'] ?? $name; @endphp
 
 @section('content')
 @include('site.partials.page-hero', ['crumb' => 'Privacy', 'eyebrow' => 'Legal', 'title' => 'Privacy policy', 'lead' => 'Last updated ' . now()->format('j F Y') . '. How ' . $name . ' collects, uses and protects your information.'])

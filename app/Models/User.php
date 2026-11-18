@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * One account per person: customers, agents, resellers and AfriTopup staff
+ * One account per person: customers, agents, resellers and Pericharge staff
  * all sign in here. `user_type` says what kind of account it is; roles and
  * permissions (spatie/laravel-permission) say what they may do; the price
  * tier says what discount they buy at.

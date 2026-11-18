@@ -5,10 +5,10 @@
     and links only to our own domain. Keep copy plain — no "FREE!!!", no shorteners.
 --}}
 @php
-    $name = $brand['name'] ?? config('afritopup.name', 'AfriTopup');
+    $name = $brand['name'] ?? config('afritopup.name', 'Pericharge');
     $green = ($brand['primary_color'] ?? null) ?: '#0B8457';
     $gold = ($brand['accent_color'] ?? null) ?: '#F5A623';
-    preg_match('/^(.[^A-Z]*)(.*)$/u', $name, $p);
+    $p = array_merge([''], \App\Support\Brand::wordmark($name));
 @endphp
 <!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -36,7 +36,8 @@
             <tr><td style="padding:20px 10px 0;font-family:Arial,Helvetica,sans-serif;color:#6B7C75;font-size:12px;line-height:1.6;text-align:center;">
                 {{ $footerNote ?? 'You are receiving this e-mail because of activity on your ' . $name . ' account.' }}<br>
                 Need help? Reply to this e-mail or contact <a href="mailto:{{ $brand['support_email'] ?? config('mail.from.address') }}" style="color:{{ $green }};">{{ $brand['support_email'] ?? config('mail.from.address') }}</a>.<br>
-                &copy; {{ now()->year }} {{ $brand['company'] ?? $name }}@if(!empty($brand['address'])) &middot; {{ $brand['address'] }}@endif
+                &copy; {{ now()->year }} {{ $brand['company'] ?? $name }}@if(!empty($brand['address'])) &middot; {{ $brand['address'] }}@endif<br>
+                {{ \App\Support\Brand::productOf() }}
             </td></tr>
         </table>
     </td></tr>

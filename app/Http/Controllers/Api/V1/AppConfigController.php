@@ -15,6 +15,9 @@ class AppConfigController extends ApiController
         return $this->ok([
             'name'          => $b['name'],
             'company'       => $b['company'],
+            'owner'         => $b['owner'] ?? $b['company'],
+            'product_of'    => \App\Support\Brand::productOf(),
+            'wordmark'      => \App\Support\Brand::wordmark(),
             'tagline'       => $b['tagline'],
             'logo_url'      => !empty($b['logo']) ? asset($b['logo']) : null,
             'logo_light_url'=> !empty($b['logo_light']) ? asset($b['logo_light']) : null,

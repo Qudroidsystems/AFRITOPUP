@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Http;
 
 /**
  * Tells a reseller's server that one of their purchases finished.
- * POST {webhook_url} with JSON {event, data}; header X-AfriTopup-Signature =
+ * POST {webhook_url} with JSON {event, data}; header X-Pericharge-Signature =
  * HMAC-SHA256 of the raw body with the key's webhook secret.
  */
 class SendResellerWebhook implements ShouldQueue
@@ -39,7 +39,8 @@ class SendResellerWebhook implements ShouldQueue
         $body = json_encode(['event' => 'transaction.' . $t->status, 'data' => $t->present()], JSON_UNESCAPED_SLASHES);
         $res = Http::withHeaders([
             'Content-Type'          => 'application/json',
-            'X-AfriTopup-Signature' => hash_hmac('sha256', $body, (string) $key->webhook_secret),
+            'X-Pericharge-Signature' => $sig = hash_hmac('sha256', $body, (string) $key->webhook_secret),
+            'X-AfriTopup-Signature'  => $sig,   // old name, kept for integrations built before the rename
         ])->timeout(15)->withBody($body, 'application/json')->post($key->webhook_url);
 
         if (!$res->successful()) $this->release($this->backoff()[min($this->attempts() - 1, 3)] ?? 600);

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-/** A market AfriTopup operates in (or will). Inactive countries are hidden from customers. */
+/** A market Pericharge operates in (or will). Inactive countries are hidden from customers. */
 class Country extends Model
 {
     protected $fillable = ['code', 'name', 'currency', 'dial_code', 'phone_pattern', 'flag', 'is_active', 'position'];

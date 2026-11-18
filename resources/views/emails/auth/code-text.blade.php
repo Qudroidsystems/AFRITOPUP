@@ -15,5 +15,6 @@ Your code: {{ $codeDisplay }}
 We will never ask for this code by phone, SMS or chat.
 
 --
-{{ $brand['company'] ?? $brand['name'] ?? 'AfriTopup' }}
+{{ $brand['company'] ?? $brand['name'] ?? 'Pericharge' }}
+{{ \App\Support\Brand::productOf() }}
 Need help? Reply to this e-mail or contact {{ $brand['support_email'] ?? config('mail.from.address') }}

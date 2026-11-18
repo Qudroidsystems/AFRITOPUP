@@ -1,4 +1,4 @@
-/* AfriTopup website — small, dependency-free helpers + the quick-pay widget. */
+/* Pericharge website — small, dependency-free helpers + the quick-pay widget. */
 (function () {
     'use strict';
 

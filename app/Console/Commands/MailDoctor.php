@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Mail;
 /**
  * php artisan mail:doctor [--to=you@example.com] [--selector=resend]
  *
- * Checks the things that decide whether AfriTopup's e-mails land in the inbox
+ * Checks the things that decide whether Pericharge's e-mails land in the inbox
  * or in spam: the mailer, the sender domain's SPF, DKIM and DMARC records,
  * MX, and that links point at the same domain. Optionally sends a test e-mail.
  */
@@ -47,11 +47,11 @@ class MailDoctor extends Command
 
         // 2. Sender address
         if (!$domain) {
-            $this->bad('MAIL_FROM_ADDRESS is empty.', 'Set e.g. MAIL_FROM_ADDRESS="no-reply@afritopup.com".');
+            $this->bad('MAIL_FROM_ADDRESS is empty.', 'Set e.g. MAIL_FROM_ADDRESS="no-reply@pericharge.com".');
             return $this->finish();
         }
         if (in_array($domain, ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com', 'ymail.com'], true)) {
-            $this->bad("Sending as @$domain — Gmail/Yahoo reject or spam-folder mail \"from\" their domains sent by other servers (DMARC).", 'Send from your own domain, e.g. no-reply@afritopup.com.');
+            $this->bad("Sending as @$domain — Gmail/Yahoo reject or spam-folder mail \"from\" their domains sent by other servers (DMARC).", 'Send from your own domain, e.g. no-reply@pericharge.com.');
         } else {
             $this->good("From: " . config('mail.from.name') . " <$from>");
         }

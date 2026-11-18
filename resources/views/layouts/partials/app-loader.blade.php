@@ -1,5 +1,5 @@
 {{--
-    AfriTopup page loader, like an Apple device starting up: plain white (black in dark mode), the animated AfriTopup
+    Pericharge page loader, like an Apple device starting up: plain white (black in dark mode), the animated Pericharge
     logotype (as in the mobile app) at the centre, then a thin progress bar.
 
     The first page of a browser session gets the full start-up (about 1.8s). After that it shows whenever a page
@@ -8,7 +8,7 @@
     and the portal's light / dark setting. Include it straight after <body>; add data-no-loader to a link or form
     that should not show it (downloads, for example).
 --}}
-<div id="ql-loader" role="status" aria-live="polite" aria-label="Loading {{ $brand['name'] ?? 'AfriTopup' }}">
+<div id="ql-loader" role="status" aria-live="polite" aria-label="Loading {{ $brand['name'] ?? 'Pericharge' }}">
     <style>
         #ql-loader { --ql-bg: #ffffff; --ql-ink: #0F172A;
             position: fixed; inset: 0; z-index: 2147483000; background: var(--ql-bg);
@@ -41,7 +41,7 @@
         <x-brand-logo animate size="46px" :rest="false" />
     </div>
     <div class="ql-bar"></div>
-    <div class="ql-foot">Developed by <b>{{ $brand['developer'] ?? 'Qudroid Systems' }}</b></div>
+    <div class="ql-foot">{{ $brand['name'] ?? 'Pericharge' }} is a product of <b>{{ $brand['owner'] ?? 'Peridote Global Limited' }}</b></div>
     <script>
         (function () {
             var el = document.getElementById('ql-loader');
@@ -54,6 +54,16 @@
                 sessionStorage.setItem('ql-started', '1');
             } catch (e) {}
             if (!firstOfSession) el.classList.add('ql-quick');
+
+            // Arriving from a link or form on the previous page, whose loader was already showing:
+            // don't run a second loader here — just reveal this page.
+            var handoff = false;
+            try {
+                var navAt = +sessionStorage.getItem('ql-nav') || 0;
+                sessionStorage.removeItem('ql-nav');
+                handoff = navAt && Date.now() - navAt < 30000;
+            } catch (e) {}
+            if (handoff) { el.classList.add('ql-done'); el.style.transition = 'none'; }
 
             // Match the portal's light / dark setting.
             try {
@@ -81,16 +91,23 @@
                 void el.offsetWidth;
                 el.classList.add('ql-quick');
                 shownAt = Date.now();
+                try { sessionStorage.setItem('ql-nav', String(shownAt)); } catch (e) {}
                 clearTimeout(safety);
                 safety = setTimeout(hide, 10000); // e.g. a link that turned out to be a download
             }
 
-            function onLoad() { loaded = true; hide(); }
-            if (document.readyState === 'complete') onLoad(); else window.addEventListener('load', onLoad);
-            safety = setTimeout(hide, 8000); // never hold the page hostage to a slow image or script
+            function onLoad() { loaded = true; if (!handoff) hide(); }
+            if (!handoff) {
+                if (document.readyState === 'complete') onLoad(); else window.addEventListener('load', onLoad);
+                safety = setTimeout(hide, 8000); // never hold the page hostage to a slow image or script
+            } else {
+                requestAnimationFrame(function () { el.style.transition = ''; });
+            }
 
             // Coming back with the browser's back button shows the cached page: no loader.
-            window.addEventListener('pageshow', function (e) { if (e.persisted) { clearTimeout(safety); el.classList.add('ql-done'); } });
+            window.addEventListener('pageshow', function (e) {
+                if (e.persisted) { clearTimeout(safety); el.classList.add('ql-done'); try { sessionStorage.removeItem('ql-nav'); } catch (err) {} }
+            });
 
             // Links to another page of the portal.
             document.addEventListener('click', function (e) {

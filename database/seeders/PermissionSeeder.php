@@ -7,7 +7,7 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
- * Every permission in AfriTopup, grouped (`title` is the group the role editor
+ * Every permission in Pericharge, grouped (`title` is the group the role editor
  * shows). Safe to run again: it adds what is missing and refreshes the groups
  * and descriptions, and never removes anything.
  */
@@ -17,6 +17,7 @@ class PermissionSeeder extends Seeder
     public const PERMISSIONS = [
         'Dashboard' => [
             'View dashboard' => 'See the platform overview: sales, fundings, wallet float, provider balances and failures.',
+            'View reports'   => 'See reports and analytics: sales, cost, profit, success rates, vendors, channels and top customers, and export them.',
         ],
         'Buying' => [
             'Buy services'     => 'Fund a wallet and buy airtime, data, cable TV, electricity, SMS and education payments.',

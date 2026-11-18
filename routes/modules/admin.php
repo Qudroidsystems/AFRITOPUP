@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Route;
 
 // Running the platform. Each controller checks its own permissions. Loaded inside the signed-in group.
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export/{what}', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->where('what', '[a-z]+')->name('reports.export');
+
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::get('/transactions/export', [TransactionController::class, 'export'])->name('transactions.export');
     Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');

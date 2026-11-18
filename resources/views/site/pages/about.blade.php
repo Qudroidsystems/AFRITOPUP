@@ -1,7 +1,7 @@
 @extends('layouts.site')
 @section('header', 'light')
-@section('title', 'About us | ' . ($brand['name'] ?? 'AfriTopup'))
-@php $name = $brand['name'] ?? 'AfriTopup'; @endphp
+@section('title', 'About us | ' . ($brand['name'] ?? 'Pericharge'))
+@php $name = $brand['name'] ?? 'Pericharge'; @endphp
 
 @section('content')
 @include('site.partials.page-hero', ['crumb' => 'About', 

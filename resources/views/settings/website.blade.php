@@ -58,7 +58,7 @@
                     <p class="text-muted small">Shown on the contact and help pages, receipts and in e-mails.</p>
                     <div class="row g-3">
                         <div class="col-md-6"><label class="form-label fw-semibold" for="support_email">Support e-mail</label>
-                            <input id="support_email" name="support_email" type="email" class="form-control @error('support_email') is-invalid @enderror" value="{{ $f('support_email') }}" placeholder="support@afritopup.com">
+                            <input id="support_email" name="support_email" type="email" class="form-control @error('support_email') is-invalid @enderror" value="{{ $f('support_email') }}" placeholder="support@pericharge.com">
                             @error('support_email')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
                         <div class="col-md-6"><label class="form-label fw-semibold" for="support_phone">Support phone</label>
                             <input id="support_phone" name="support_phone" class="form-control" value="{{ $f('support_phone') }}" placeholder="+234 803 123 4567"></div>

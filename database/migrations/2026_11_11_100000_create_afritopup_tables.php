@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * AfriTopup: countries, wallets and their ledger, the services catalogue
+ * Pericharge: countries, wallets and their ledger, the services catalogue
  * (billers and their plans), price tiers, purchases (transactions), wallet
  * fundings, reseller API keys, SMS sender IDs and partner schools.
  *
@@ -215,7 +215,7 @@ return new class extends Migration
             $t->unique(['user_id', 'sender_id']);
         });
 
-        // Schools that receive fees through AfriTopup (settled by staff).
+        // Schools that receive fees through Pericharge (settled by staff).
         Schema::create('schools', function (Blueprint $t) {
             $t->id();
             $t->string('country_code', 2)->index();

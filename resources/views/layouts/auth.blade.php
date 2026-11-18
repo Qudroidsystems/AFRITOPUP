@@ -1,17 +1,17 @@
 {{--
     Shared shell for the sign-in, sign-up and password pages: the dark panel with the orbiting
-    module icons on the left, the animated AfriTopup logo and the page's form on the right.
+    module icons on the left, the animated Pericharge logo and the page's form on the right.
     Pages set: title, heading, subheading, content, and optionally footer and scripts.
 --}}
-@php($authName = $brand['name'] ?? 'AfriTopup')
+@php($authName = $brand['name'] ?? 'Pericharge')
 <!doctype html>
 <html lang="en" data-layout="vertical" data-sidebar="dark" data-sidebar-size="lg" data-preloader="disable" data-theme="default" data-topbar="light" data-bs-theme="light">
 <head>
     <meta charset="utf-8">
     <title>@yield('title') | {{ $authName }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="{{ $brand['company'] ?? 'AfriTopup' }} portal" name="description">
-    <meta content="{{ $brand['company'] ?? 'AfriTopup' }}" name="author">
+    <meta content="{{ $brand['company'] ?? 'Pericharge' }} portal" name="description">
+    <meta content="{{ $brand['company'] ?? 'Pericharge' }}" name="author">
     <link rel="shortcut icon" href="{{ asset($brand['favicon']) }}">
     <link rel="icon" href="{{ asset($brand['favicon']) }}">
     <link rel="apple-touch-icon" href="{{ asset($brand['logo_small']) }}">
@@ -30,7 +30,7 @@
     <link href="{{ asset('theme/layouts/assets/css/app.min.css')}}" rel="stylesheet" type="text/css">
     <!-- custom Css-->
     <link href="{{ asset('theme/layouts/assets/css/custom.min.css')}}" rel="stylesheet" type="text/css">
-    <!-- AfriTopup logo -->
+    <!-- Pericharge logo -->
     <link href="{{ asset('css/brand-logo.css') }}?v={{ @filemtime(public_path('css/brand-logo.css')) }}" rel="stylesheet" type="text/css">
 
     <style>
@@ -507,7 +507,7 @@
             font-size: 26px; color: #0B8457; background: rgba(11, 132, 87, 0.1); margin-bottom: 12px; animation: fadeInScale 0.5s ease; }
     </style>
     <style>
-        /* AfriTopup green for links and focus on the sign-in pages */
+        /* Pericharge green for links and focus on the sign-in pages */
         .text-primary, a.text-primary, .btn-link { color: #0B8457 !important; }
         .form-check-input:checked { background-color: #0B8457; border-color: #0B8457; }
     </style>
@@ -555,8 +555,9 @@
 
                                         <div class="text-center">
                                             <p class="text-white opacity-75 mb-0 mt-3">
-                                                {{ now()->year }} &copy; {{ $brand['company'] ?? 'AfriTopup' }} &middot; {{ $authName }}
+                                                {{ now()->year }} &copy; {{ $brand['company'] ?? 'Peridote Global Limited' }}
                                             </p>
+                                            <p class="text-white opacity-75 small mb-0 mt-1">{{ \App\Support\Brand::productOf() }}</p>
                                             @if(!empty($brand['developer']))
                                                 <p class="text-white opacity-50 small mb-0 mt-1">Developed by <a href="{{ $brand['developer_url'] ?? '#' }}" target="_blank" rel="noopener" class="text-white fw-semibold">{{ $brand['developer'] }}</a></p>
                                             @endif
@@ -591,8 +592,9 @@
                                                 @yield('footer')
                                             </div>
                                         @endif
+                                        <p class="text-center text-muted small mt-4 mb-0 d-sm-none">{{ \App\Support\Brand::productOf() }}</p>
                                         @if(!empty($brand['developer']))
-                                            <p class="text-center text-muted small mt-4 mb-0 d-sm-none">Developed by <a href="{{ $brand['developer_url'] ?? '#' }}" target="_blank" rel="noopener" class="fw-semibold">{{ $brand['developer'] }}</a></p>
+                                            <p class="text-center text-muted small mt-1 mb-0 d-sm-none">Developed by <a href="{{ $brand['developer_url'] ?? '#' }}" target="_blank" rel="noopener" class="fw-semibold">{{ $brand['developer'] }}</a></p>
                                         @endif
                                     </div><!-- end card body -->
                                 </div><!-- end card -->

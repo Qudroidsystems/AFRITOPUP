@@ -8,7 +8,7 @@
         <div class="col-xl-8">
             <x-cb.card title="Your sender names" icon="ri-list-check" :flush="true">
                 @if($senders->isEmpty())
-                    <div class="empty-state"><i class="ri-message-2-line"></i><h6>None yet</h6><p>Until one is approved, your messages go out as {{ config('afritopup.providers.termii.sender_id', 'AfriTopup') }}.</p></div>
+                    <div class="empty-state"><i class="ri-message-2-line"></i><h6>None yet</h6><p>Until one is approved, your messages go out as {{ config('afritopup.providers.termii.sender_id', 'Pericharge') }}.</p></div>
                 @else
                     <div class="table-responsive"><table class="cb-table stack"><tbody>
                         @foreach($senders as $s)

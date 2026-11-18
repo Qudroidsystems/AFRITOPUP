@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AfriTopup — customer area shell (layouts/account.blade.php)
+   Pericharge — customer area shell (layouts/account.blade.php)
    Sits on top of the portal's Bootstrap/app CSS + cb-ui so every existing
    page (buy, wallet, history, receipts) keeps working, re-skinned.
    ========================================================================== */

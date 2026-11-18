@@ -16,7 +16,7 @@
             <a href="{{ route('admin.services.index', ['country' => $c->code]) }}" class="btn btn-sm {{ $c->code === $country ? 'btn-primary' : 'btn-light' }}">{{ $c->flag }} {{ $c->name }}@unless($c->is_active) <span class="opacity-75">(hidden)</span>@endunless</a>
         @endforeach
         <span class="ms-auto small text-muted">
-            @foreach($balances as $k => $b) {{ ucfirst($k) }}: <strong>{{ $b === null ? 'not connected' : \App\Support\Money::format($b) }}</strong>@if(!$loop->last) · @endif @endforeach
+            @foreach($balances as $k => $b) {{ $k }}: <strong>{{ $b === null ? 'not connected' : \App\Support\Money::format($b) }}</strong>@if(!$loop->last) · @endif @endforeach
         </span>
     </div>
 

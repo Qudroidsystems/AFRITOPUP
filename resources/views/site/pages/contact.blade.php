@@ -1,6 +1,6 @@
 @extends('layouts.site')
 @section('header', 'light')
-@section('title', 'Contact us | ' . ($brand['name'] ?? 'AfriTopup'))
+@section('title', 'Contact us | ' . ($brand['name'] ?? 'Pericharge'))
 @php $me = auth()->user(); @endphp
 
 @section('content')

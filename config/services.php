@@ -58,7 +58,7 @@ return [
     ],
 
 
-    // Push notifications to the AfriTopup mobile app (Firebase Cloud Messaging).
+    // Push notifications to the Pericharge mobile app (Firebase Cloud Messaging).
     'fcm' => [
         'enabled'     => env('FCM_ENABLED', true),
         'credentials' => env('FCM_CREDENTIALS', storage_path('app/fcm-service-account.json')),

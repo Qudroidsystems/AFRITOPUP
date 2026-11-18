@@ -15,7 +15,7 @@
                 'action'      => route('site.quickpay'),
                 'csrf'        => csrf_token(),
                 'signedIn'    => auth()->check(),
-                'brand'       => $brand['name'] ?? 'AfriTopup',
+                'brand'       => $brand['name'] ?? 'Pericharge',
                 'registerUrl' => Route::has('register') ? route('register') : route('login'),
             ];
         @endphp

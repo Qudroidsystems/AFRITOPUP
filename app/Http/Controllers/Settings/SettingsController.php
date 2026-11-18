@@ -87,8 +87,20 @@ class SettingsController extends Controller
 
     // ── VTU and SMS providers ───────────────────────────────────────────
 
-    public function providers(ProviderManager $manager)
+    public function providers(Request $request, ProviderManager $manager)
     {
+        $country = strtoupper((string) $request->query('country', config('afritopup.default_country', 'NG')));
+        $routing = $manager->routing($country);
+        $categories = collect(config('afritopup.categories'))->map(fn ($c, $k) => [
+            'name'    => $c['name'],
+            'current' => $routing[$k] ?? [],
+            'options' => collect($manager->options($k))->map(fn ($name, $key) => ['name' => $name, 'ready' => in_array($key, ['sandbox', 'manual'], true) || $manager->get($key)->configured()])->all(),
+        ])->all();
+        $custom = collect($this->settings->customVendors())->map(fn ($v, $slug) => array_merge($v, [
+            'slug' => $slug, 'key' => 'custom-' . $slug,
+            'configured' => $manager->get('custom-' . $slug)->configured(),
+            'masked' => $this->mask($this->settings->get("provider.custom-$slug.token")),
+        ]))->all();
         $cards = [];
         foreach (array_keys(Settings::PROVIDER_FIELDS) as $key) {
             $c = $this->settings->provider($key);
@@ -103,7 +115,9 @@ class SettingsController extends Controller
             ];
         }
 
-        return view('settings.providers', ['cards' => $cards, 'last' => $this->settings->lastChange(array_merge(...array_map(
+        return view('settings.providers', ['cards' => $cards, 'categories' => $categories, 'country' => $country,
+            'countries' => \App\Models\Country::ordered()->get(), 'custom' => $custom, 'defaultIds' => \App\Services\Topup\Providers\CustomVtuProvider::DEFAULT_IDS,
+            'names' => $manager->options(), 'last' => $this->settings->lastChange(array_merge(...array_map(
             fn ($k, $fields) => array_map(fn ($f) => "provider.$k.$f", $fields), array_keys(Settings::PROVIDER_FIELDS), Settings::PROVIDER_FIELDS)))]);
     }
 
@@ -115,6 +129,7 @@ class SettingsController extends Controller
             'vtpass' => ['mode' => ['required', 'in:sandbox,live'], 'api_key' => ['nullable', 'string', 'max:200'], 'public_key' => ['nullable', 'string', 'max:200'], 'secret_key' => ['nullable', 'string', 'max:200']],
             'termii' => ['api_key' => ['nullable', 'string', 'max:200'], 'sender_id' => ['nullable', 'string', 'max:11', 'regex:/^[A-Za-z0-9 .-]+$/'], 'channel' => ['required', 'in:generic,dnd'], 'base_url' => ['nullable', 'url', 'max:200']],
             'reloadly' => ['mode' => ['required', 'in:sandbox,live'], 'client_id' => ['nullable', 'string', 'max:200'], 'client_secret' => ['nullable', 'string', 'max:200']],
+            'clubkonnect' => ['user_id' => ['nullable', 'string', 'max:100'], 'api_key' => ['nullable', 'string', 'max:200']],
         ][$provider];
         $d = $request->validate($rules, ['sender_id.regex' => 'A sender ID is up to 11 letters and numbers.']);
 
@@ -130,14 +145,15 @@ class SettingsController extends Controller
             }
         }
         $this->settings->put($values, $request->user());
+        \Illuminate\Support\Facades\Cache::forget('provider-balances:v2');
 
-        return back()->with('success', ucfirst($provider) . ' settings saved.');
+        return back()->with('success', app(ProviderManager::class)->get($provider)->name() . ' settings saved.');
     }
 
     /** Check the keys by reading our balance with the provider. */
     public function testProvider(ProviderManager $manager, string $provider)
     {
-        abort_unless(isset(Settings::PROVIDER_FIELDS[$provider]), 404);
+        abort_unless($manager->exists($provider) && !in_array($provider, ['sandbox', 'manual'], true), 404);
         $p = $manager->get($provider);
         if (!$p->configured()) return back()->with('error', $p->name() . ': enter the keys first.');
         $balance = $p->balance();
@@ -145,6 +161,78 @@ class SettingsController extends Controller
         return $balance === null
             ? back()->with('error', $p->name() . ' did not accept the keys (or could not be reached).')
             : back()->with('success', $p->name() . ' accepted the keys. Balance: ' . number_format($balance, 2) . '.');
+    }
+
+    /** Vendor routing: move every service of a category to another vendor, importing its plans. */
+    public function switchVendor(Request $request, ProviderManager $manager)
+    {
+        $d = $request->validate([
+            'category' => ['required', \Illuminate\Validation\Rule::in(array_keys(config('afritopup.categories')))],
+            'country'  => 'required|exists:countries,code',
+            'vendor'   => ['required', \Illuminate\Validation\Rule::in($manager->keys())],
+            'markup'   => 'nullable|numeric|min:0|max:100',
+        ]);
+        $vendor = $manager->get($d['vendor']);
+        if (!in_array($d['vendor'], ['sandbox', 'manual'], true) && !$vendor->configured()) {
+            return back()->with('error', $vendor->name() . ': enter its keys first, then switch.');
+        }
+        try {
+            $r = $manager->switchVendor($d['category'], $d['country'], $d['vendor'], $request->boolean('sync', true),
+                (float) ($d['markup'] ?? 0), $request->boolean('activate'));
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+        $cat = config('afritopup.categories.' . $d['category'] . '.name', $d['category']);
+
+        $msg = "{$cat}: {$r['moved']} service(s) moved to {$vendor->name()}.";
+        if ($r['synced']) $msg .= " Plans imported for {$r['synced']} service(s): {$r['added']} new" . ($request->boolean('activate') ? '' : ' (switched off until you price them)') . ", {$r['retired']} not offered by this vendor switched off.";
+        if ($r['errors']) $msg .= ' Could not load plans for: ' . collect($r['errors'])->map(fn ($e, $s) => "$s ($e)")->implode('; ') . '.';
+        rescue(fn () => \App\Services\Activity\ActivityLogger::log($request->user()->id, 'vendor.switched', $msg, $request,
+            ['category' => $d['category'], 'country' => $d['country'], 'vendor' => $d['vendor']]), null, false);
+
+        return back()->with($r['errors'] ? 'error' : 'success', $msg);
+    }
+
+    /** Add or edit a custom vendor (any site on the common VTU API). */
+    public function saveCustomVendor(Request $request)
+    {
+        $d = $request->validate([
+            'slug'     => ['nullable', 'regex:/^[a-z0-9-]{2,20}$/'],
+            'name'     => 'required|string|max:60',
+            'base_url' => 'required|url|max:200',
+            'token'    => 'nullable|string|max:300',
+            'ids'      => 'array',
+            'ids.*.*'  => 'nullable|string|max:20',
+        ], ['slug.regex' => 'Use 2–20 lowercase letters, numbers or dashes.']);
+
+        $slug = ($d['slug'] ?? null) ?: \Illuminate\Support\Str::slug($d['name']);
+        $slug = substr(preg_replace('/[^a-z0-9-]/', '', $slug), 0, 20) ?: 'vendor';
+        $isNew = !array_key_exists($slug, $this->settings->customVendors());
+        if ($isNew && !filled($d['token'] ?? null)) {
+            throw ValidationException::withMessages(['token' => 'Paste the API token from the vendor\'s website.']);
+        }
+        $ids = [];
+        foreach (['network', 'cable', 'disco'] as $type) {
+            $ids[$type] = collect((array) ($d['ids'][$type] ?? []))->map(fn ($v) => trim((string) $v))->filter(fn ($v) => $v !== '')->all();
+        }
+        $this->settings->saveCustomVendor($slug, ['name' => trim($d['name']), 'base_url' => rtrim(trim($d['base_url']), '/'), 'ids' => $ids],
+            $d['token'] ?? null, $request->boolean('clear_token'), $request->user());
+        \Illuminate\Support\Facades\Cache::forget('provider-balances:v2');
+
+        return redirect()->route('portal-settings.providers')->with('success', trim($d['name']) . ($isNew ? ' added. Use “Test keys”, then switch services to it under Vendor routing.' : ' saved.'));
+    }
+
+    public function deleteCustomVendor(Request $request, string $slug)
+    {
+        $key = 'custom-' . $slug;
+        $inUse = \App\Models\Service::where('provider', $key)->count();
+        if ($inUse) return back()->with('error', "This vendor still serves {$inUse} service(s). Switch them to another vendor first.");
+        $open = \App\Models\Transaction::where('provider', $key)->whereIn('status', [\App\Models\Transaction::PENDING, \App\Models\Transaction::PROCESSING])->count();
+        if ($open) return back()->with('error', "{$open} purchase(s) with this vendor are still processing. Remove it once they are settled.");
+        $this->settings->removeCustomVendor($slug, $request->user());
+        \Illuminate\Support\Facades\Cache::forget('provider-balances:v2');
+
+        return back()->with('success', 'Vendor removed.');
     }
 
     // ── Website & app links ─────────────────────────────────────────────

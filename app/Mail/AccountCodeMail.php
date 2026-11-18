@@ -25,7 +25,7 @@ class AccountCodeMail extends Mailable
 
     public function envelope(): Envelope
     {
-        $name = config('afritopup.name', 'AfriTopup');
+        $name = config('afritopup.name', 'Pericharge');
         $support = config('afritopup.support_email');
 
         return new Envelope(
@@ -43,7 +43,7 @@ class AccountCodeMail extends Mailable
 
     public function content(): Content
     {
-        $name = config('afritopup.name', 'AfriTopup');
+        $name = config('afritopup.name', 'Pericharge');
         $reset = $this->purpose === EmailCodes::RESET;
         $data = [
             'subject'     => $this->envelope()->subject,

@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
 @php
-    $name = $brand['name'] ?? 'AfriTopup';
+    $name = $brand['name'] ?? 'Pericharge';
     $byKey = collect($catalogue['categories'])->keyBy('key');
     $active = $countries->pluck('code')->all();
     $soon = collect(['GH' => ['Ghana', '🇬🇭'], 'KE' => ['Kenya', '🇰🇪'], 'UG' => ['Uganda', '🇺🇬'], 'TZ' => ['Tanzania', '🇹🇿'], 'ZA' => ['South Africa', '🇿🇦'], 'RW' => ['Rwanda', '🇷🇼'], 'CM' => ['Cameroon', '🇨🇲'], 'CI' => ["Côte d'Ivoire", '🇨🇮']])->except($active);

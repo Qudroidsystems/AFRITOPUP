@@ -116,7 +116,7 @@
 
             <div class="a-promo mb-4">
                 <span class="s-eyebrow s-eyebrow--gold"><i class="ri-gift-line"></i> Invite &amp; earn</span>
-                <h2 class="h5 mt-3 mb-1">Share {{ $brand['name'] ?? 'AfriTopup' }} with friends</h2>
+                <h2 class="h5 mt-3 mb-1">Share {{ $brand['name'] ?? 'Pericharge' }} with friends</h2>
                 <p class="small mb-0" style="color: var(--s-muted)">Earn rewards when people you invite start paying. {{ $referrals ? 'You\'ve invited ' . $referrals . ' ' . \Illuminate\Support\Str::plural('person', $referrals) . ' so far.' : '' }}</p>
                 <div class="a-code"><b>{{ $code }}</b><button type="button" class="s-btn s-btn--sm" data-copy-text="{{ Route::has('register') ? route('register', ['ref' => $code]) : $code }}"><i class="ri-share-forward-line"></i> Copy link</button></div>
             </div>
@@ -124,7 +124,7 @@
             <div class="a-card mb-4">
                 <div class="d-flex align-items-center gap-3 mb-3">
                     <span class="s-ico s-ico--lg"><i class="ri-smartphone-line"></i></span>
-                    <span><b style="color: var(--s-ink)">Get the {{ $brand['name'] ?? 'AfriTopup' }} app</b><small class="d-block" style="color: var(--s-muted)">Same account and wallet — with fingerprint login and alerts.</small></span>
+                    <span><b style="color: var(--s-ink)">Get the {{ $brand['name'] ?? 'Pericharge' }} app</b><small class="d-block" style="color: var(--s-muted)">Same account and wallet — with fingerprint login and alerts.</small></span>
                 </div>
                 @include('site.partials.app-badges', ['size' => 'sm'])
             </div>

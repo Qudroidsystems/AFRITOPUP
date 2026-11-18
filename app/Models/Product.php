@@ -21,4 +21,30 @@ class Product extends Model
     {
         return $q->where('is_active', true);
     }
+
+    /**
+     * The plan's code at a vendor. Each vendor names the same plan differently (VTpass "mtn-10mb-100",
+     * ClubKonnect "500.0" …); the codes are kept in meta.vendor_codes, with `code` as the fallback.
+     */
+    public function codeFor(?string $vendor): string
+    {
+        $codes = (array) data_get($this->meta, 'vendor_codes', []);
+
+        return (string) ($vendor && isset($codes[$vendor]) && $codes[$vendor] !== '' ? $codes[$vendor] : $this->code);
+    }
+
+    /** Does this plan have its own code at the vendor (set by importing plans, or typed on the plan)? */
+    public function hasCodeFor(string $vendor): bool
+    {
+        return filled(data_get($this->meta, 'vendor_codes.' . $vendor));
+    }
+
+    public function setCodeFor(string $vendor, ?string $code): void
+    {
+        $meta = (array) $this->meta;
+        if ($code === null || $code === '') unset($meta['vendor_codes'][$vendor]);
+        else $meta['vendor_codes'][$vendor] = $code;
+        if (empty($meta['vendor_codes'])) unset($meta['vendor_codes']);
+        $this->meta = $meta ?: null;
+    }
 }

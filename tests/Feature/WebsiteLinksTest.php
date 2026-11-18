@@ -25,7 +25,7 @@ it('lets the admin set store, social and contact links, and the website uses the
     $this->actingAs($this->admin)->get(route('portal-settings.website'))->assertOk()->assertSee('Google Play link');
     $this->actingAs($this->admin)->post(route('portal-settings.website.save'), [
         'android' => $play, 'ios' => $ios, 'instagram' => 'https://instagram.com/afritopup', 'whatsapp' => '0803 123 4567',
-        'support_email' => 'help@afritopup.com', 'support_phone' => '+234 803 123 4567',
+        'support_email' => 'help@pericharge.com', 'support_phone' => '+234 803 123 4567',
     ])->assertSessionHas('success');
 
     // A fresh request reads the saved settings.
@@ -34,7 +34,7 @@ it('lets the admin set store, social and contact links, and the website uses the
     \Illuminate\Support\Facades\View::share('brand', config('afritopup'));
 
     $this->get('/')->assertSee($play, false)->assertSee($ios, false)->assertSee('https://instagram.com/afritopup', false)->assertSee('id="appBar"', false);
-    $this->get('/contact')->assertSee('help@afritopup.com')->assertSee('https://wa.me/2348031234567', false);
+    $this->get('/contact')->assertSee('help@pericharge.com')->assertSee('https://wa.me/2348031234567', false);
 
     $this->get(route('site.app'), ['User-Agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)'])->assertRedirect($ios);
     $this->get(route('site.app'), ['User-Agent' => 'Mozilla/5.0 (Linux; Android 14; Pixel 8)'])->assertRedirect($play);

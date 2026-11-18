@@ -2,7 +2,7 @@
 
 /*
 |--------------------------------------------------------------------------
-| AfriTopup — brand, accounts and the services catalogue
+| Pericharge — brand, accounts and the services catalogue
 |--------------------------------------------------------------------------
 | One place for the names, logos and contact details the platform shows.
 | The web layout, the sign-in page, e-mails and the mobile app
@@ -14,14 +14,18 @@
 
 return [
 
-    'name'          => env('AFRITOPUP_NAME', 'AfriTopup'),
-    'company'       => env('AFRITOPUP_COMPANY', 'AfriTopup'),
+    'name'          => env('AFRITOPUP_NAME', 'Pericharge'),
+    'company'       => env('AFRITOPUP_COMPANY', 'Peridote Global Limited'),
+    // Footer line on every page, e-mail and receipt: "Pericharge is a product of Peridote Global Limited".
+    'owner'         => env('AFRITOPUP_OWNER', 'Peridote Global Limited'),
+    // How the logotype splits the name into its two colours (blank = split at the second capital).
+    'wordmark'      => array_values(array_filter([env('AFRITOPUP_WORDMARK_A', 'Peri'), env('AFRITOPUP_WORDMARK_B', 'charge')], 'strlen')),
     // Credit shown in the footer, on the sign-in page and in the app.
     'developer'     => env('AFRITOPUP_DEVELOPER', 'Qudroid Systems'),
     'developer_url' => env('AFRITOPUP_DEVELOPER_URL', 'https://qudroids.com'),
     'tagline'       => env('AFRITOPUP_TAGLINE', 'Your One-Stop Digital Payment and Recharge Platform.'),
-    'website'       => env('AFRITOPUP_WEBSITE', 'https://afritopup.com'),
-    'support_email' => env('AFRITOPUP_SUPPORT_EMAIL', 'support@afritopup.com'),
+    'website'       => env('AFRITOPUP_WEBSITE', 'https://pericharge.com'),
+    'support_email' => env('AFRITOPUP_SUPPORT_EMAIL', 'support@pericharge.com'),
     'support_phone' => env('AFRITOPUP_SUPPORT_PHONE'),
     'address'       => env('AFRITOPUP_ADDRESS'),          // shown on receipts
 
@@ -82,7 +86,7 @@ return [
     */
     'super_admin' => [
         'name'     => env('AFRITOPUP_ADMIN_NAME', 'Super Administrator'),
-        'email'    => env('AFRITOPUP_ADMIN_EMAIL', 'admin@afritopup.com'),
+        'email'    => env('AFRITOPUP_ADMIN_EMAIL', 'admin@pericharge.com'),
         'password' => env('AFRITOPUP_ADMIN_PASSWORD', 'ChangeMe@123'),
     ],
 
@@ -105,7 +109,7 @@ return [
     'default_country'  => env('AFRITOPUP_DEFAULT_COUNTRY', 'NG'),
     'default_currency' => env('AFRITOPUP_DEFAULT_CURRENCY', 'NGN'),
 
-    // Transaction references look like AFT-20261111-8F3K2Q9X.
+    // Transaction references look like PRC-20261111-8F3K2Q9X.
     'reference_prefix' => env('AFRITOPUP_REFERENCE_PREFIX', 'AFT'),
 
     /*
@@ -174,6 +178,10 @@ return [
     |             recipient ends in 0000 (fails) or 1111 (stays processing).
     |             For development and demos only.
     |   vtpass  – VTpass (airtime, data, cable, electricity, exam pins).
+    |   clubkonnect – ClubKonnect / Nellobytes (airtime, data, cable, electricity, WAEC).
+    |   custom-* – any vendor on the common VTU API (Husmodata-style), added in the admin.
+    | Switch every service of a category to another vendor at once under
+    | Settings → VTU vendors → Vendor routing.
     |   termii  – Termii (bulk and business SMS).
     |   reloadly – Reloadly (airtime and data in Ghana, Kenya and 150+ countries).
     |   manual  – fulfilled by staff (e.g. school fees paid out to a school);
@@ -191,7 +199,7 @@ return [
             'name'      => 'Termii',
             'api_key'   => env('TERMII_API_KEY'),
             'base_url'  => env('TERMII_BASE_URL', 'https://api.ng.termii.com'),
-            'sender_id' => env('TERMII_SENDER_ID', 'AfriTopup'),
+            'sender_id' => env('TERMII_SENDER_ID', 'Pericharge'),
             'channel'   => env('TERMII_CHANNEL', 'generic'),        // generic | dnd
         ],
         'reloadly' => [
@@ -200,6 +208,13 @@ return [
             'client_id'     => env('RELOADLY_CLIENT_ID'),
             'client_secret' => env('RELOADLY_CLIENT_SECRET'),
         ],
+        'clubkonnect' => [
+            'name'    => 'ClubKonnect (Nellobytes)',
+            'user_id' => env('CLUBKONNECT_USER_ID'),
+            'api_key' => env('CLUBKONNECT_API_KEY'),
+        ],
+        // Custom vendors (any site on the common "Husmodata-style" VTU API) are added
+        // under Settings → VTU vendors; they are not configured here.
         'sandbox' => ['name' => 'Sandbox (test)'],
         'manual'  => ['name' => 'Manual (staff)'],
     ],
@@ -216,6 +231,7 @@ return [
         'wallet'       => ['name' => 'My Wallet',           'icon' => 'ri-wallet-3-line',         'route' => 'topup.wallet',           'permission' => 'Buy services',        'phase' => 1, 'color' => '#F5A623', 'description' => 'Fund your wallet, see your balance and statement.'],
         'support'      => ['name' => 'Support Chat',        'icon' => 'ri-customer-service-2-line','route' => 'admin.support.index',   'permission' => 'Manage support',      'phase' => 1, 'color' => '#0EA5E9', 'description' => 'Chat with customers: answer, assign and solve.'],
         'transactions' => ['name' => 'Transactions',        'icon' => 'ri-exchange-funds-line',   'route' => 'admin.transactions.index','permission' => 'View transactions',  'phase' => 1, 'color' => '#2563EB', 'description' => 'Every purchase on the platform: status, requery, refunds.'],
+        'reports'      => ['name' => 'Reports & Analytics', 'icon' => 'ri-bar-chart-box-line',    'route' => 'admin.reports.index',    'permission' => 'View reports',        'phase' => 1, 'color' => '#6250D6', 'description' => 'Sales, profit, success rates, vendors, channels and top customers — with CSV exports.'],
         'fundings'     => ['name' => 'Wallet Fundings',     'icon' => 'ri-bank-card-line',        'route' => 'admin.fundings.index',   'permission' => 'View wallets',        'phase' => 1, 'color' => '#10B981', 'description' => 'Card and transfer top-ups, manual credits and debits.'],
         'catalogue'    => ['name' => 'Services & Pricing',  'icon' => 'ri-price-tag-3-line',      'route' => 'admin.services.index',   'permission' => 'Manage services',     'phase' => 1, 'color' => '#7C3AED', 'description' => 'Billers, plans, providers, price tiers and countries.'],
         'resellers'    => ['name' => 'Resellers & API',     'icon' => 'ri-code-box-line',         'route' => 'topup.developer',        'permission' => 'Use reseller API',    'phase' => 2, 'color' => '#0F172A', 'description' => 'API keys, webhooks and documentation for resellers and businesses.'],

@@ -49,8 +49,7 @@ class DashboardController extends Controller
                 'daily'         => Transaction::where('status', Transaction::SUCCESSFUL)->where('created_at', '>=', now()->subDays(13)->startOfDay())
                     ->get(['created_at', 'total'])->groupBy(fn ($t) => $t->created_at->format('Y-m-d'))->map->sum('total'),
                 'recent'        => Transaction::with('user:id,name', 'service:id,name,short_name,color,category')->latest('id')->limit(8)->get(),
-                'balances'      => Cache::remember('provider-balances', 300, fn () => collect(['vtpass', 'termii'])
-                    ->mapWithKeys(fn ($k) => [$providers->get($k)->name() => $providers->get($k)->configured() ? rescue(fn () => $providers->get($k)->balance(), null, false) : null])->all()),
+                'balances'      => collect($providers->balances())->mapWithKeys(fn ($b) => [$b['name'] => $b['balance']])->all(),
                 'sandbox'       => Service::where('is_active', true)->where('provider', 'sandbox')->count(),
             ];
         }

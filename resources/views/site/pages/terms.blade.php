@@ -1,7 +1,7 @@
 @extends('layouts.site')
 @section('header', 'light')
-@section('title', 'Terms of service | ' . ($brand['name'] ?? 'AfriTopup'))
-@php $name = $brand['name'] ?? 'AfriTopup'; $co = $brand['company'] ?? $name; @endphp
+@section('title', 'Terms of service | ' . ($brand['name'] ?? 'Pericharge'))
+@php $name = $brand['name'] ?? 'Pericharge'; $co = $brand['company'] ?? $name; @endphp
 
 @section('content')
 @include('site.partials.page-hero', ['crumb' => 'Terms', 'eyebrow' => 'Legal', 'title' => 'Terms of service', 'lead' => 'Last updated ' . now()->format('j F Y') . '. Please read these terms before using ' . $name . '.'])

@@ -1,7 +1,7 @@
 @extends('layouts.site')
-@section('title', 'Agents & resellers — earn on every payment | ' . ($brand['name'] ?? 'AfriTopup'))
+@section('title', 'Agents & resellers — earn on every payment | ' . ($brand['name'] ?? 'Pericharge'))
 @php
-    $name = $brand['name'] ?? 'AfriTopup';
+    $name = $brand['name'] ?? 'Pericharge';
     $register = Route::has('register') ? route('register') : route('login');
     $disc = \Database\Seeders\CatalogueSeeder::DISCOUNTS;
     $cats = config('afritopup.categories');

@@ -1,7 +1,7 @@
 @php
     use App\Models\Transaction; use App\Support\Money;
     $m = fn ($v) => Money::format($v, $t->currency);
-    $name = config('afritopup.name', 'AfriTopup');
+    $name = config('afritopup.name', 'Pericharge');
     $green = config('afritopup.primary_color') ?: '#0B8457';
     $what = $t->product?->name ?? trim(($t->service?->display_name ?? '') . ' ' . $t->category_label);
     $status = ['successful' => ['#08744B', '#E3F7EE'], 'failed' => ['#B42318', '#FDE8E8'], 'refunded' => ['#1D4ED8', '#EAF2FF']][$t->status] ?? ['#946200', '#FFF4DE'];
@@ -51,6 +51,7 @@
 
     <div class="foot">
         {{ config('afritopup.company') ?: $name }}{{ config('afritopup.support_email') ? ' · ' . config('afritopup.support_email') : '' }}{{ config('afritopup.support_phone') ? ' · ' . config('afritopup.support_phone') : '' }}<br>
+        {{ \App\Support\Brand::productOf() }}<br>
         Generated {{ now()->format('j M Y, g:i A') }} · Powered &amp; developed by {{ config('afritopup.developer', 'Qudroid Systems') }}
     </div>
 </body></html>

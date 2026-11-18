@@ -29,7 +29,7 @@ class NotificationPresenter
             'body' => $d['body'] ?? '',
             'type' => $type,
             'group' => $group,
-            'group_label' => PortalNotifier::GROUPS[$group][0] ?? 'AfriTopup',
+            'group_label' => PortalNotifier::GROUPS[$group][0] ?? 'Pericharge',
             'icon' => $d['icon'] ?? (PortalNotifier::ICONS[$type] ?? 'ri-notification-3-line'),
             'color' => self::COLORS[$group] ?? self::COLORS['system'],
             'category' => $d['category'] ?? PortalNotifier::categoryOf($type, $d['key'] ?? null),

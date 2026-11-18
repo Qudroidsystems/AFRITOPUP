@@ -1,5 +1,5 @@
 @php
-    $siteName = $brand['name'] ?? 'AfriTopup';
+    $siteName = $brand['name'] ?? 'Pericharge';
     $hexRgb = fn ($hex, $fallback) => preg_match('/^#[0-9a-f]{6}$/i', (string) $hex) ? implode(', ', array_map('hexdec', str_split(substr($hex, 1), 2))) : $fallback;
     $primary = ($brand['primary_color'] ?? null) ?: '#0B8457';
     $accent = ($brand['accent_color'] ?? null) ?: '#F5A623';
@@ -170,7 +170,7 @@
             </div>
         </div>
         <div class="s-footer-bottom">
-            <span>&copy; {{ now()->year }} {{ $brand['company'] ?? $siteName }}. All rights reserved.</span>
+            <span>&copy; {{ now()->year }} {{ $brand['company'] ?? $siteName }}. All rights reserved. {{ \App\Support\Brand::productOf() }}</span>
             <div class="s-pay-logos" aria-label="Payment methods"><span>Visa</span><span>Mastercard</span><span>Verve</span><span>Bank transfer</span><span>Secured by Paystack</span></div>
             @if(!empty($brand['developer']))
                 <span>Developed by <a href="{{ $brand['developer_url'] ?? '#' }}" target="_blank" rel="noopener"><b>{{ $brand['developer'] }}</b></a></span>

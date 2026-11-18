@@ -1,7 +1,7 @@
 @extends('layouts.site')
-@section('title', 'Developers — VTU & bill payment API | ' . ($brand['name'] ?? 'AfriTopup'))
+@section('title', 'Developers — VTU & bill payment API | ' . ($brand['name'] ?? 'Pericharge'))
 @php
-    $name = $brand['name'] ?? 'AfriTopup';
+    $name = $brand['name'] ?? 'Pericharge';
     $base = url('/api/reseller/v1');
     $register = Route::has('register') ? route('register') : route('login');
     $endpoints = [

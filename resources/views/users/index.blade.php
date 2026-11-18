@@ -597,7 +597,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; }
                             </div>
                             <div class="col-12">
                                 <label class="u-form-label">Email Address</label>
-                                <input type="email" id="email" name="email" class="u-form-input" placeholder="name@afritopup.com" required>
+                                <input type="email" id="email" name="email" class="u-form-input" placeholder="name@pericharge.com" required>
                             </div>
                             <div class="col-12">
                                 <label class="u-form-label">Account Type</label>

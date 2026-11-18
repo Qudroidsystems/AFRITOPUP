@@ -19,7 +19,14 @@ use Illuminate\Support\Facades\Schema;
 class Settings
 {
     public const SECRET = ['paystack.test_secret_key', 'paystack.live_secret_key',
-        'provider.vtpass.api_key', 'provider.vtpass.secret_key', 'provider.termii.api_key', 'provider.reloadly.client_secret'];
+        'provider.vtpass.api_key', 'provider.vtpass.secret_key', 'provider.termii.api_key', 'provider.reloadly.client_secret',
+        'provider.clubkonnect.api_key'];
+
+    /** Secret keys: the list above, plus each custom vendor's token. */
+    public static function isSecret(string $key): bool
+    {
+        return in_array($key, self::SECRET, true) || (bool) preg_match('/^provider\.custom-[a-z0-9-]+\.token$/', $key);
+    }
 
     protected const CACHE = 'portal-settings';
 
@@ -48,7 +55,7 @@ class Settings
     {
         if (!$this->has($key)) return $default;
         $value = $this->rows()[$key];
-        if (in_array($key, self::SECRET, true)) {
+        if (self::isSecret($key)) {
             try {
                 return Crypt::decryptString($value);
             } catch (DecryptException $e) {
@@ -76,7 +83,7 @@ class Settings
             }
             if (is_array($value)) $value = json_encode($value);
             $value = (string) $value;
-            if (in_array($key, self::SECRET, true)) $value = Crypt::encryptString($value);
+            if (self::isSecret($key)) $value = Crypt::encryptString($value);
             Setting::updateOrCreate(['key' => $key], ['value' => $value, 'updated_by' => $by?->id]);
         }
         $this->flush();
@@ -149,7 +156,42 @@ class Settings
         'vtpass' => ['mode', 'api_key', 'public_key', 'secret_key'],
         'termii' => ['api_key', 'sender_id', 'channel', 'base_url'],
         'reloadly' => ['mode', 'client_id', 'client_secret'],
+        'clubkonnect' => ['user_id', 'api_key'],
     ];
+
+    // ── Custom VTU vendors (Husmodata-style API), any number of them ────
+
+    /** slug => [name, base_url, ids => [network => [...], cable => [...], disco => [...]]] (tokens are stored apart, encrypted). */
+    public function customVendors(): array
+    {
+        return (array) ($this->json('vendors.custom') ?? []);
+    }
+
+    public function customVendor(string $slug): ?array
+    {
+        $v = $this->customVendors()[$slug] ?? null;
+        if ($v === null) return null;
+        $v['token'] = $this->get("provider.custom-$slug.token");
+
+        return $v;
+    }
+
+    public function saveCustomVendor(string $slug, array $data, ?string $token, bool $clearToken, ?User $by = null): void
+    {
+        $all = $this->customVendors();
+        $all[$slug] = $data;
+        $values = ['vendors.custom' => $all];
+        if ($clearToken) $values["provider.custom-$slug.token"] = null;
+        elseif (filled($token)) $values["provider.custom-$slug.token"] = trim($token);
+        $this->put($values, $by);
+    }
+
+    public function removeCustomVendor(string $slug, ?User $by = null): void
+    {
+        $all = $this->customVendors();
+        unset($all[$slug]);
+        $this->put(['vendors.custom' => $all ?: null, "provider.custom-$slug.token" => null], $by);
+    }
 
     /** config('afritopup.providers.{key}') with saved values on top. */
     public function provider(string $key): array

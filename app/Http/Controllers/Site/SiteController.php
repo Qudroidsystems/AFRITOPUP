@@ -196,7 +196,7 @@ class SiteController extends Controller
     /** FAQ entries; a category adds its own questions first. */
     public static function faqs(?string $category = null): array
     {
-        $name = config('afritopup.name', 'AfriTopup');
+        $name = config('afritopup.name', 'Pericharge');
         $general = [
             ['How fast is delivery?', 'Most airtime, data, cable and electricity payments are delivered within seconds. If a network is slow, your purchase shows as “processing” and we keep checking until it completes — or refund your wallet automatically if it fails.'],
             ['How do I fund my wallet?', 'Pay with your debit card, or send a bank transfer to your personal account number shown on the Wallet page — it credits your wallet automatically, day or night.'],

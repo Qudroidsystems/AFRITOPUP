@@ -58,7 +58,7 @@ class TermiiProvider implements Provider
         $body = [
             'api_key' => $c['api_key'],
             'to'      => count($to) === 1 ? $to[0] : $to,
-            'from'    => $t->meta['sender'] ?? ($c['sender_id'] ?? 'AfriTopup'),
+            'from'    => $t->meta['sender'] ?? ($c['sender_id'] ?? 'Pericharge'),
             'sms'     => (string) ($t->meta['message'] ?? ''),
             'type'    => 'plain',
             'channel' => ($t->meta['route'] ?? null) === 'dnd' ? 'dnd' : ($c['channel'] ?? 'generic'),

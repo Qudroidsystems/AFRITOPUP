@@ -32,7 +32,7 @@ class CatalogueController extends Controller
             'countries' => Country::ordered()->get(),
             'services'  => $services,
             'providers' => $this->providers->options(),
-            'balances'  => collect(['vtpass', 'termii'])->mapWithKeys(fn ($k) => [$k => $this->providers->get($k)->configured() ? rescue(fn () => $this->providers->get($k)->balance(), null, false) : null]),
+            'balances'  => collect($this->providers->balances())->mapWithKeys(fn ($b) => [$b['name'] => $b['balance']])->all(),
         ]);
     }
 
@@ -96,6 +96,7 @@ class CatalogueController extends Controller
             'products.*.cost'     => 'required|numeric|min:0',
             'products.*.price'    => 'required|numeric|min:0',
             'products.*.validity' => 'nullable|string|max:40',
+            'products.*.vendor_code' => 'nullable|string|max:80',
             'new.code'            => 'nullable|string|max:80',
             'new.name'            => 'required_with:new.code|nullable|string|max:150',
             'new.cost'            => 'required_with:new.code|nullable|numeric|min:0',
@@ -105,8 +106,13 @@ class CatalogueController extends Controller
         foreach ($d['products'] ?? [] as $id => $row) {
             $p = Product::where('service_id', $service->id)->find($id);
             if (!$p) continue;
-            $p->update(['name' => $row['name'], 'cost' => $row['cost'], 'price' => $row['price'], 'validity' => $row['validity'] ?? null,
+            $p->fill(['name' => $row['name'], 'cost' => $row['cost'], 'price' => $row['price'], 'validity' => $row['validity'] ?? null,
                 'is_active' => !empty($request->input("products.$id.is_active"))]);
+            if (array_key_exists('vendor_code', $row) && !in_array($service->provider, ['sandbox', 'manual'], true)) {
+                $vc = trim((string) $row['vendor_code']);
+                $p->setCodeFor($service->provider, $vc === '' || $vc === $p->code ? null : $vc);
+            }
+            $p->save();
         }
         if (!empty($d['new']['code'])) {
             Product::updateOrCreate(['service_id' => $service->id, 'code' => trim($d['new']['code'])],
@@ -120,7 +126,7 @@ class CatalogueController extends Controller
     public function importOperators(Country $country)
     {
         $reloadly = $this->providers->get('reloadly');
-        if (!$reloadly->configured()) return back()->with('error', 'Enter the Reloadly keys under Settings → VTU & SMS providers first.');
+        if (!$reloadly->configured()) return back()->with('error', 'Enter the Reloadly keys under Settings → VTU vendors first.');
 
         try {
             $ops = $reloadly->operators($country->code);
@@ -198,7 +204,7 @@ class CatalogueController extends Controller
             'short_name'    => 'nullable|string|max:40',
             'logo'          => 'nullable|string|max:255',
             'color'         => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-            'provider'      => ['required', Rule::in(array_keys(ProviderManager::DRIVERS))],
+            'provider'      => ['required', Rule::in($this->providers->keys())],
             'provider_code' => 'nullable|string|max:80',
             'min_amount'    => 'nullable|numeric|min:0',
             'max_amount'    => 'nullable|numeric|min:0',

@@ -8,4 +8,5 @@ Date: {{ ($f->paid_at ?? $f->created_at)->format('j M Y, g:i A') }}
 Open your wallet: {{ $url }}
 
 --
-{{ $brand['company'] ?? $brand['name'] ?? 'AfriTopup' }}
+{{ $brand['company'] ?? $brand['name'] ?? 'Pericharge' }}
+{{ \App\Support\Brand::productOf() }}

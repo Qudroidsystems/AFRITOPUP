@@ -14,6 +14,9 @@ Route::prefix('admin/settings')->name('portal-settings.')->middleware('permissio
     Route::post('/website', [SettingsController::class, 'saveWebsite'])->name('website.save');
 
     Route::get('/providers', [SettingsController::class, 'providers'])->name('providers');
-    Route::post('/providers/{provider}', [SettingsController::class, 'saveProvider'])->where('provider', 'vtpass|termii|reloadly')->name('providers.save');
-    Route::post('/providers/{provider}/test', [SettingsController::class, 'testProvider'])->where('provider', 'vtpass|termii|reloadly')->middleware('throttle:10,1,settings.providers.test')->name('providers.test');
+    Route::post('/providers/routing', [SettingsController::class, 'switchVendor'])->name('providers.routing');
+    Route::post('/providers/custom', [SettingsController::class, 'saveCustomVendor'])->name('providers.custom.save');
+    Route::post('/providers/custom/{slug}/delete', [SettingsController::class, 'deleteCustomVendor'])->where('slug', '[a-z0-9-]+')->name('providers.custom.delete');
+    Route::post('/providers/{provider}', [SettingsController::class, 'saveProvider'])->where('provider', 'vtpass|termii|reloadly|clubkonnect')->name('providers.save');
+    Route::post('/providers/{provider}/test', [SettingsController::class, 'testProvider'])->where('provider', '[a-z0-9-]+')->middleware('throttle:10,1,settings.providers.test')->name('providers.test');
 });

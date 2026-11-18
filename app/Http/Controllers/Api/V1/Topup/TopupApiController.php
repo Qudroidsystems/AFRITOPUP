@@ -133,7 +133,7 @@ class TopupApiController extends ApiController
 
     public function senders(Request $request)
     {
-        $default = (string) (app(Settings::class)->provider('termii')['sender_id'] ?? 'AfriTopup');
+        $default = (string) (app(Settings::class)->provider('termii')['sender_id'] ?? 'Pericharge');
 
         return $this->ok([
             'default'  => $default,

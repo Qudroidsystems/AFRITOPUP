@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
 @php
-    $name = $brand['name'] ?? 'AfriTopup';
+    $name = $brand['name'] ?? 'Pericharge';
     $services = collect($entry['services'] ?? []);
     $canQuickPay = $entry && in_array($key, ['airtime', 'data', 'cable', 'electricity', 'education'], true);
     $register = Route::has('register') ? route('register') : route('login');

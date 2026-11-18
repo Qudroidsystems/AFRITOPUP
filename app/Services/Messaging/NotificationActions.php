@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
  * app. A notification names its target (`target: {kind, id}`) and its buttons;
  * run() performs one and marks the notification read with what was done.
  *
- * AfriTopup has no actionable notifications yet. Add a kind to BUTTONS and a
+ * Pericharge has no actionable notifications yet. Add a kind to BUTTONS and a
  * case to perform() when one is needed (e.g. approving a manual wallet top-up).
  */
 class NotificationActions

@@ -6,7 +6,7 @@
 --}}
 @php
     $me = auth()->user();
-    $siteName = $brand['name'] ?? 'AfriTopup';
+    $siteName = $brand['name'] ?? 'Pericharge';
     $primary = ($brand['primary_color'] ?? null) ?: '#0B8457';
     $accent = ($brand['accent_color'] ?? null) ?: '#F5A623';
     $rgb = fn ($hex) => implode(', ', array_map('hexdec', str_split(substr($hex, 1), 2)));
@@ -102,7 +102,7 @@
 
 <footer class="a-foot">
     <div class="a-wrap">
-        <span>&copy; {{ now()->year }} {{ $brand['company'] ?? $siteName }}</span>
+        <span>&copy; {{ now()->year }} {{ $brand['company'] ?? $siteName }} &middot; {{ \App\Support\Brand::productOf() }}</span>
         <span class="a-foot-links"><a href="{{ route('site.page', 'faq') }}">Help</a><a href="{{ route('site.page', 'terms') }}">Terms</a><a href="{{ route('site.page', 'privacy') }}">Privacy</a></span>
         @if(!empty($brand['developer']))<span>Developed by <a href="{{ $brand['developer_url'] ?? '#' }}" target="_blank" rel="noopener"><b>{{ $brand['developer'] }}</b></a></span>@endif
     </div>

@@ -1,4 +1,4 @@
-# AfriTopup
+# Pericharge
 
 **Your One-Stop Digital Payment and Recharge Platform.**
 

@@ -26,4 +26,5 @@ Date:       {{ $t->created_at->format('j M Y, g:i A') }}
 View receipt: {{ $url }}
 
 --
-{{ $brand['company'] ?? $brand['name'] ?? 'AfriTopup' }} · Reply to this e-mail if something is wrong.
+{{ $brand['company'] ?? $brand['name'] ?? 'Pericharge' }} · Reply to this e-mail if something is wrong.
+{{ \App\Support\Brand::productOf() }}

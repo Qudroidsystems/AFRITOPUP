@@ -1,4 +1,4 @@
-/* AfriTopup support chat (customer page + admin inbox). Works with or without site.css. */
+/* Pericharge support chat (customer page + admin inbox). Works with or without site.css. */
 .ch { --ch-green: var(--s-green, #0B8457); --ch-ink: var(--s-ink, #0D1B16); --ch-muted: var(--s-muted, #6B7C75); --ch-line: var(--s-line, #E4ECE8);
     display: flex; flex-direction: column; min-height: 0; height: 100%; background: #fff; position: relative; }
 .ch.is-drop::after { content: "Drop to attach"; position: absolute; inset: 8px; border: 2px dashed var(--ch-green); border-radius: 18px; background: rgba(11, 132, 87, .06);

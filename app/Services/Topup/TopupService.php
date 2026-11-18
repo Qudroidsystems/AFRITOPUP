@@ -105,7 +105,7 @@ class TopupService
         $t->forceFill(['status' => Transaction::PROCESSING, 'attempts' => $t->attempts + 1, 'last_checked_at' => now()])->save();
 
         try {
-            $result = $this->providers->for($t->service)->purchase($t);
+            $result = $this->providers->forTransaction($t)->purchase($t);
         } catch (\Throwable $e) {
             Log::error('Provider error on purchase', ['ref' => $t->reference, 'provider' => $t->provider, 'error' => $e->getMessage()]);
             $result = ProviderResult::processing('Waiting for the network to confirm.');
@@ -121,7 +121,7 @@ class TopupService
         $t->forceFill(['attempts' => $t->attempts + 1, 'last_checked_at' => now()])->save();
 
         try {
-            $result = $this->providers->for($t->service)->requery($t);
+            $result = $this->providers->forTransaction($t)->requery($t);
         } catch (\Throwable $e) {
             Log::warning('Provider error on requery', ['ref' => $t->reference, 'error' => $e->getMessage()]);
 
@@ -308,7 +308,7 @@ class TopupService
         if (mb_strlen($message) > 918) throw new TopupException('The message is too long (6 pages at most).', 'message_too_long');
 
         $sender = trim((string) ($in['sender'] ?? ''));
-        $default = (string) (app(\App\Services\Settings\Settings::class)->provider('termii')['sender_id'] ?? 'AfriTopup');
+        $default = (string) (app(\App\Services\Settings\Settings::class)->provider('termii')['sender_id'] ?? 'Pericharge');
         if ($sender === '' || strcasecmp($sender, $default) === 0) {
             $sender = $default;
         } elseif (!SmsSenderId::where('user_id', $user->id)->where('sender_id', $sender)->where('status', 'approved')->exists()) {

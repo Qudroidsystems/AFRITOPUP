@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{{ $pagetitle ?? 'Dashboard' }} | {{ $brand['name'] ?? 'AfriTopup' }}</title>
+    <title>{{ $pagetitle ?? 'Dashboard' }} | {{ $brand['name'] ?? 'Pericharge' }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="{{ $brand['company'] ?? 'AfriTopup' }} — digital payments and recharge platform" name="description">
+    <meta content="{{ $brand['company'] ?? 'Pericharge' }} — digital payments and recharge platform" name="description">
     <meta content="" name="author">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -30,9 +30,7 @@
     <!-- layout.js must run AFTER the CSS above -->
     <script src="{{ asset('theme/layouts/assets/js/layout.js') }}"></script>
 
-    <!-- NProgress -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js"></script>
+    {{-- No NProgress bar: the page loader (layouts.partials.app-loader) is the one loading indicator. --}}
 
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -383,13 +381,13 @@
         <!-- LOGO -->
         <div class="navbar-brand-box">
             @php
-                $brandName      = $brand['name'] ?? config('app.name', 'AfriTopup');
+                $brandName      = $brand['name'] ?? config('app.name', 'Pericharge');
                 $brandLogo      = asset($brand['logo'] ?? 'theme/layouts/assets/images/logo-dark.png');
                 $brandLogoLight = asset($brand['logo_light'] ?? 'theme/layouts/assets/images/logo-light.png');
                 $brandLogoSmall = asset($brand['logo_small'] ?? 'theme/layouts/assets/images/logo-sm.png');
             @endphp
 
-            {{-- The AfriTopup logotype; the light copy shows on dark sidebars. --}}
+            {{-- The Pericharge logotype; the light copy shows on dark sidebars. --}}
             <a href="{{ route('dashboard') }}" class="logo logo-dark" aria-label="{{ $brandName }}">
                 <span class="logo-sm"><x-brand-logo mark size="30px" /></span>
                 <span class="logo-lg"><x-brand-logo size="22px" /></span>
@@ -473,6 +471,13 @@
                             <a href="{{ route('admin.support.index') }}" class="nav-link menu-link {{ request()->routeIs('admin.support.*') ? 'active' : '' }}">
                                 <i class="ri-customer-service-2-line"></i> <span>Support chat</span>
                                 <span class="badge rounded-pill bg-success ms-auto" data-support-waiting @if(!$supportWaiting) style="display:none" @endif>{{ $supportWaiting }}</span>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('View reports')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.reports.index') }}" class="nav-link menu-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                                <i class="ri-bar-chart-box-line"></i> <span>Reports &amp; analytics</span>
                             </a>
                         </li>
                     @endcan
@@ -759,14 +764,14 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6">
-                    {{ now()->year }} &copy; {{ $brand['company'] ?? 'AfriTopup' }} &middot; {{ $brand['name'] ?? 'AfriTopup' }}
+                    {{ now()->year }} &copy; {{ $brand['company'] ?? 'Peridote Global Limited' }} &middot; {{ \App\Support\Brand::productOf() }}
                 </div>
                 <div class="col-sm-6">
                     <div class="text-sm-end">
                         @if(!empty($brand['developer']))
                             Developed by <a href="{{ $brand['developer_url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="fw-semibold">{{ $brand['developer'] }}</a>
                         @else
-                            <a href="{{ $brand['website'] ?? 'https://afritopup.com' }}" target="_blank" rel="noopener noreferrer" class="fw-semibold">{{ preg_replace('#^https?://#', '', $brand['website'] ?? 'afritopup.com') }}</a>
+                            <a href="{{ $brand['website'] ?? 'https://pericharge.com' }}" target="_blank" rel="noopener noreferrer" class="fw-semibold">{{ preg_replace('#^https?://#', '', $brand['website'] ?? 'pericharge.com') }}</a>
                         @endif
                     </div>
                 </div>
@@ -776,7 +781,7 @@
 </div>
 
 <button class="btn btn-dark btn-icon" id="back-to-top"><i class="bi bi-caret-up fs-3xl"></i></button>
-<div id="preloader"><div id="status"><div class="spinner-border text-primary avatar-sm" role="status"><span class="visually-hidden">Loading...</span></div></div></div>
+{{-- The theme's #preloader spinner is not used: the page loader is the one loading indicator. --}}
 
 <!-- Customizer trigger -->
 <div class="customizer-setting d-none d-md-block">
@@ -1101,7 +1106,7 @@
         initImageModal();
         initSearchTooltip();
         initReset();
-        initNProgress();
+
     });
 })();
 </script>
@@ -1142,7 +1147,7 @@
         @can('Manage settings')
         {title:'Payment gateways (Paystack)', url:'{{ route("portal-settings.payments") }}',                  icon:'mdi-credit-card-settings-outline', category:'Administration', keywords:['paystack','keys','api','webhook','payments','settings']},
         {title:'Website & app links',       url:'{{ route("portal-settings.website") }}',                     icon:'mdi-web',              category:'Administration',     keywords:['google play','app store','social','facebook','whatsapp','links','website','support']},
-        {title:'VTU & SMS providers',       url:'{{ route("portal-settings.providers") }}',                   icon:'mdi-power-plug',       category:'Administration',     keywords:['vtpass','termii','keys','provider','api','settings']},
+        {title:'VTU vendors & routing',       url:'{{ route("portal-settings.providers") }}',                   icon:'mdi-power-plug',       category:'Administration',     keywords:['vtpass','clubkonnect','termii','vendor','switch','keys','provider','api','settings']},
         @endcan
 
         /* ── Buy & Pay ── */
@@ -1157,6 +1162,9 @@
         /* ── Operations ── */
         @can('View transactions')
         {title:'Support chat',              url:'{{ route("admin.support.index") }}',                         icon:'mdi-chat-processing',  category:'Operations',         keywords:['chat','messages','customers','help','support','inbox']},
+        @can('View reports')
+        {title:'Reports & analytics',       url:'{{ route("admin.reports.index") }}',                         icon:'mdi-chart-bar',        category:'Operations',         keywords:['report','analytics','statistics','stats','profit','sales','revenue','export']},
+        @endcan
         {title:'All transactions',          url:'{{ route("admin.transactions.index") }}',                    icon:'mdi-swap-horizontal',  category:'Operations',         keywords:['purchases','refund','requery','failed']},
         @endcan
         @can('View wallets')

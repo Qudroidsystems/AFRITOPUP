@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Session;
 
 /*
 |--------------------------------------------------------------------------
-| AfriTopup — web routes (foundation)
+| Pericharge — web routes (foundation)
 |--------------------------------------------------------------------------
 | Authentication, users, roles and permissions, profile, notifications and
 | the activity log. Each module (buying, wallet, admin catalogue …) adds its

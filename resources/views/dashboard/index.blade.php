@@ -46,6 +46,11 @@
         <div class="row g-3 mb-3">
             <div class="col-xl-8">
                 <x-cb.card title="Sales, last 14 days" icon="ri-bar-chart-2-line">
+                    <x-slot:tools>
+                        @can('View reports')
+                            <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-soft-primary"><i class="ri-bar-chart-box-line me-1"></i>Full reports</a>
+                        @endcan
+                    </x-slot:tools>
                     @php
                         $days = collect(range(13, 0))->map(fn ($i) => now()->subDays($i)->format('Y-m-d'));
                         $max = max(1, (float) $overview['daily']->max());

@@ -45,7 +45,7 @@
                                     <div class="col-md-5"><label class="form-label small">Allowed IPs (optional)</label><input class="form-control form-control-sm" name="allowed_ips" value="{{ implode(', ', (array) $k->allowed_ips) }}"></div>
                                     <div class="col-md-2"><button class="btn btn-sm btn-primary w-100">Save</button></div>
                                 </form>
-                                <div class="small mt-2">Webhook secret (for checking <code>X-AfriTopup-Signature</code>): <span class="at-mono">{{ $k->webhook_secret }}</span></div>
+                                <div class="small mt-2">Webhook secret (for checking <code>X-Pericharge-Signature</code>): <span class="at-mono">{{ $k->webhook_secret }}</span></div>
                             </td></tr>
                             @endunless
                         @endforeach

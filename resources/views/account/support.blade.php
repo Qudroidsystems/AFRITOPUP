@@ -1,7 +1,7 @@
 @extends('layouts.account')
 
 @php
-    $name = $brand['name'] ?? 'AfriTopup';
+    $name = $brand['name'] ?? 'Pericharge';
     $agent = $conv->assignee;
     $txLabel = fn ($t) => trim(($t->service?->display_name ?? 'Payment') . ' · ' . \App\Support\Money::format($t->total, $t->currency));
 @endphp

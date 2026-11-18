@@ -1,6 +1,6 @@
 @php
     $m = fn ($v) => \App\Support\Money::format($v, $s['currency']);
-    $name = config('afritopup.name', 'AfriTopup');
+    $name = config('afritopup.name', 'Pericharge');
     $green = config('afritopup.primary_color') ?: '#0B8457';
     $tz = config('app.timezone');
     $u = $s['user'];
@@ -26,7 +26,7 @@
     .page:after { content: counter(page); }
 </style></head>
 <body>
-    <div class="foot">{{ config('afritopup.company') ?: $name }} · Statement {{ $s['number'] }} · Generated {{ now($tz)->format('j M Y, g:i A') }} · Page <span class="page"></span> · Powered &amp; developed by {{ config('afritopup.developer', 'Qudroid Systems') }}</div>
+    <div class="foot">{{ \App\Support\Brand::productOf() }} · Statement {{ $s['number'] }} · Generated {{ now($tz)->format('j M Y, g:i A') }} · Page <span class="page"></span> · Powered &amp; developed by {{ config('afritopup.developer', 'Qudroid Systems') }}</div>
 
     <table width="100%"><tr>
         <td><span class="brand">{{ $name }}</span><br><span class="muted">{{ config('afritopup.tagline') }}</span></td>

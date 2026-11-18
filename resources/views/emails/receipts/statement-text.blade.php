@@ -6,4 +6,5 @@ Hi {{ $firstName }}, here is the statement you asked for (PDF attached).
 @endforeach
 
 --
-{{ $brand['company'] ?? $brand['name'] ?? 'AfriTopup' }}
+{{ $brand['company'] ?? $brand['name'] ?? 'Pericharge' }}
+{{ \App\Support\Brand::productOf() }}

@@ -76,7 +76,7 @@ class BuyController extends Controller
             'wallet'    => $user->wallet($country->currency),
             'hasPin'    => $user->hasTransactionPin(),
             'schools'   => $category === 'education' ? School::where('is_active', true)->where('country_code', $country->code)->orderBy('name')->get(['id', 'name', 'city', 'fee_items']) : collect(),
-            'senders'   => $category === 'sms' ? collect([(string) (app(Settings::class)->provider('termii')['sender_id'] ?? 'AfriTopup')])
+            'senders'   => $category === 'sms' ? collect([(string) (app(Settings::class)->provider('termii')['sender_id'] ?? 'Pericharge')])
                 ->merge(SmsSenderId::where('user_id', $user->id)->where('status', 'approved')->pluck('sender_id'))->unique()->values() : collect(),
         ]);
     }

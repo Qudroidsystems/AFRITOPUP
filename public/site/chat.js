@@ -1,5 +1,5 @@
 /*
- * AfriTopup support chat — one widget for the customer page and the admin inbox.
+ * Pericharge support chat — one widget for the customer page and the admin inbox.
  *
  *   new SupportChat(rootEl, {
  *     messagesUrl, sendUrl, typingUrl,     // JSON endpoints

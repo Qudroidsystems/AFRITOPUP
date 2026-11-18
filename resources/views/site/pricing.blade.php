@@ -1,6 +1,6 @@
 @extends('layouts.site')
 @section('header', 'light')
-@section('title', 'Prices — data plans, TV bouquets & exam PINs | ' . ($brand['name'] ?? 'AfriTopup'))
+@section('title', 'Prices — data plans, TV bouquets & exam PINs | ' . ($brand['name'] ?? 'Pericharge'))
 @section('description', 'Live prices for data bundles, DStv, GOtv and StarTimes bouquets, and exam PINs. No hidden fees.')
 
 @php

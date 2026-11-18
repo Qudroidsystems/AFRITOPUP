@@ -1,6 +1,6 @@
 @extends('layouts.site')
 @section('header', 'light')
-@section('title', 'Help centre | ' . ($brand['name'] ?? 'AfriTopup'))
+@section('title', 'Help centre | ' . ($brand['name'] ?? 'Pericharge'))
 
 @section('content')
 @include('site.partials.page-hero', ['crumb' => 'Help centre', 

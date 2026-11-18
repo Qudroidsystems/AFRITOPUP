@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/** A school that receives fees paid through AfriTopup. Payouts are made by staff. */
+/** A school that receives fees paid through Pericharge. Payouts are made by staff. */
 class School extends Model
 {
     protected $fillable = ['country_code', 'name', 'code', 'city', 'contact_email', 'contact_phone', 'bank_name', 'account_number', 'account_name', 'fee_items', 'is_active'];

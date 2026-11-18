@@ -130,13 +130,13 @@ class VtpassProvider implements Provider
                 $p['phone'] = $t->recipient;
                 break;
             case 'data':
-                $p += ['billersCode' => $t->recipient, 'variation_code' => $t->product?->code];
+                $p += ['billersCode' => $t->recipient, 'variation_code' => $t->product?->codeFor('vtpass')];
                 $p['phone'] = $t->recipient;
                 break;
             case 'cable':
                 $p += [
                     'billersCode'       => $t->recipient,
-                    'variation_code'    => $t->product?->code,
+                    'variation_code'    => $t->product?->codeFor('vtpass'),
                     'subscription_type' => ($t->meta['subscription_type'] ?? 'change') === 'renew' ? 'renew' : 'change',
                     'quantity'          => 1,
                 ];
@@ -145,7 +145,7 @@ class VtpassProvider implements Provider
                 $p += ['billersCode' => $t->recipient, 'variation_code' => $t->meta['meter_type'] ?? 'prepaid'];
                 break;
             case 'education':
-                $p += ['variation_code' => $t->product?->code, 'quantity' => $t->quantity];
+                $p += ['variation_code' => $t->product?->codeFor('vtpass'), 'quantity' => $t->quantity];
                 if (!empty($t->meta['profile_id'])) $p['billersCode'] = $t->meta['profile_id'];
                 break;
         }
@@ -218,7 +218,7 @@ class VtpassProvider implements Provider
 
         $body = ['billersCode' => $customerId, 'serviceID' => $service->provider_code ?: $service->code];
         if ($service->category === 'electricity') $body['type'] = $extra['meter_type'] ?? 'prepaid';
-        if ($service->category === 'education' && $product) $body['type'] = $product->code;
+        if ($service->category === 'education' && $product) $body['type'] = $product->codeFor('vtpass');
 
         try {
             $res = $this->post('/merchant-verify', $body);
