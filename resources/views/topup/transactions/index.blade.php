@@ -12,7 +12,7 @@
         <form class="d-flex gap-2 flex-wrap p-3 border-bottom" method="GET">
             <input class="form-control" style="max-width:260px" name="q" value="{{ request('q') }}" placeholder="Reference or number">
             <select class="form-select" style="max-width:180px" name="category"><option value="">All services</option>
-                @foreach(config('afritopup.categories') as $k => $c)<option value="{{ $k }}" @selected(request('category') === $k)>{{ $c['name'] }}</option>@endforeach</select>
+                @foreach(config('pericharge.categories') as $k => $c)<option value="{{ $k }}" @selected(request('category') === $k)>{{ $c['name'] }}</option>@endforeach</select>
             <select class="form-select" style="max-width:160px" name="status"><option value="">Any status</option>
                 @foreach(\App\Models\Transaction::STATUSES as $k => [$l])<option value="{{ $k }}" @selected(request('status') === $k)>{{ $l }}</option>@endforeach</select>
             <button class="btn btn-soft-primary">Filter</button>

@@ -5,7 +5,7 @@ namespace App\Support;
 use Illuminate\Support\Facades\Route;
 
 /**
- * The portal's modules as listed in config/afritopup.php → modules.
+ * The portal's modules as listed in config/pericharge.php → modules.
  *
  *  - live:    the module's route exists (it has been built and installed)
  *  - allowed: the user may open it (holds its permission, or is Super Administrator)
@@ -18,7 +18,7 @@ class Modules
         $user ??= auth()->user();
         $out = [];
 
-        foreach ((array) config('afritopup.modules', []) as $key => $m) {
+        foreach ((array) config('pericharge.modules', []) as $key => $m) {
             $live = !empty($m['route']) && Route::has($m['route']);
             $allowed = $user && (empty($m['permission']) || self::can($user, $m['permission']));
             $out[$key] = $m + [

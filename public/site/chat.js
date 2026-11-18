@@ -308,7 +308,7 @@
             }, { passive: true });
             document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { this.poll(); this.schedule(); } });
             // Instant updates when websockets are on.
-            window.addEventListener('afri:support', () => this.poll());
+            window.addEventListener('pericharge:support', () => this.poll());
             this.updateSend();
         }
     }

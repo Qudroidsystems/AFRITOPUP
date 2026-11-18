@@ -93,7 +93,7 @@ class Transaction extends Model
 
     public function getCategoryLabelAttribute(): string
     {
-        return config('afritopup.categories.' . $this->category . '.name', ucfirst($this->category));
+        return config('pericharge.categories.' . $this->category . '.name', ucfirst($this->category));
     }
 
     /** "MTN Airtime ₦500 to 0803…" — one line for lists and notifications. */

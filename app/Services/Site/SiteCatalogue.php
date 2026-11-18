@@ -37,10 +37,10 @@ class SiteCatalogue
         $code = strtoupper((string) $code);
 
         return ($code ? Country::active()->where('code', $code)->first() : null)
-            ?? Country::active()->where('code', config('afritopup.default_country', 'NG'))->first()
+            ?? Country::active()->where('code', config('pericharge.default_country', 'NG'))->first()
             ?? Country::active()->ordered()->first()
             // Nothing seeded yet: still show the site.
-            ?? new Country(['code' => config('afritopup.default_country', 'NG'), 'name' => 'Nigeria', 'currency' => 'NGN', 'dial_code' => '234', 'flag' => '🇳🇬']);
+            ?? new Country(['code' => config('pericharge.default_country', 'NG'), 'name' => 'Nigeria', 'currency' => 'NGN', 'dial_code' => '234', 'flag' => '🇳🇬']);
     }
 
     public function countries(): Collection
@@ -58,7 +58,7 @@ class SiteCatalogue
                 'country'    => $country->only(['code', 'name', 'currency', 'dial_code', 'flag']),
                 'symbol'     => Money::symbol($country->currency),
                 'prefixes'   => self::PREFIXES[$country->code] ?? (object) [],
-                'categories' => collect(config('afritopup.categories'))->filter(fn ($c, $k) => $services->has($k))->map(fn ($c, $k) => [
+                'categories' => collect(config('pericharge.categories'))->filter(fn ($c, $k) => $services->has($k))->map(fn ($c, $k) => [
                     'key' => $k, 'name' => $c['name'], 'icon' => $c['icon'], 'color' => $c['color'],
                     'recipient_label' => $c['recipient_label'], 'url' => route('site.service', $k),
                     'services' => $services[$k]->map(fn (Service $s) => [

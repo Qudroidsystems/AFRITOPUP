@@ -4,7 +4,7 @@
     A store without a link shows "Coming soon" and points to the app section.
 --}}
 @php
-    $links = config('afritopup.app_links', []);
+    $links = config('pericharge.app_links', []);
     $stores = [
         'android' => ['ri-google-play-fill', 'Get it on', 'Google Play', 'Google Play'],
         'ios'     => ['ri-apple-fill', 'Download on the', 'App Store', 'the App Store'],

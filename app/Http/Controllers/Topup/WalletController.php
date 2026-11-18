@@ -28,7 +28,7 @@ class WalletController extends Controller
             'entries'   => $wallet->entries()->latest('id')->paginate(20),
             'fundings'  => $user->fundings()->latest('id')->limit(5)->get(),
             'hasPin'    => $user->hasTransactionPin(),
-            'cfg'       => config('afritopup.funding'),
+            'cfg'       => config('pericharge.funding'),
             'account'   => $user->virtualAccounts()->where('is_active', true)->first(),
         ]);
     }

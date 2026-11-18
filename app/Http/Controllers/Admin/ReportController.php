@@ -35,7 +35,7 @@ class ReportController extends Controller
             'customers'  => $r->customers(),
             'currencies' => ReportService::currencies(),
             'vendors'    => $this->vendorNames($providers),
-            'categories' => collect(config('afritopup.categories'))->map(fn ($c) => $c['name'])->all(),
+            'categories' => collect(config('pericharge.categories'))->map(fn ($c) => $c['name'])->all(),
         ]);
     }
 
@@ -45,7 +45,7 @@ class ReportController extends Controller
         abort_unless(in_array($what, ['daily', 'categories', 'vendors', 'channels', 'services', 'transactions'], true), 404);
         $r = new ReportService($request->query());
         $names = $this->vendorNames($providers);
-        $cats = collect(config('afritopup.categories'))->map(fn ($c) => $c['name'])->all();
+        $cats = collect(config('pericharge.categories'))->map(fn ($c) => $c['name'])->all();
         $file = 'pericharge-' . $what . '-' . $r->from->format('Ymd') . '-' . $r->to->format('Ymd') . '.csv';
 
         return response()->streamDownload(function () use ($r, $what, $names, $cats) {

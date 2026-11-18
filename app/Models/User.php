@@ -102,7 +102,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
 
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole(config('afritopup.super_admin_role', 'Super Administrator'));
+        return $this->hasRole(config('pericharge.super_admin_role', 'Super Administrator'));
     }
 
     public function isActive(): bool
@@ -112,7 +112,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
 
     public function getUserTypeLabelAttribute(): string
     {
-        return config('afritopup.user_types.' . $this->user_type, ucfirst((string) $this->user_type));
+        return config('pericharge.user_types.' . $this->user_type, ucfirst((string) $this->user_type));
     }
 
     // ── Wallet, purchases and pricing ─────────────────────────────────
@@ -198,7 +198,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
     /** Customers must confirm their e-mail before buying; staff accounts are created by admins. */
     public function needsEmailVerification(): bool
     {
-        return config('afritopup.require_email_verification', true) && !$this->isStaff() && !$this->hasVerifiedEmail();
+        return config('pericharge.require_email_verification', true) && !$this->isStaff() && !$this->hasVerifiedEmail();
     }
 
     /** A referral code, made on first use for accounts created before codes existed. */
@@ -214,9 +214,9 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
 
     public function currency(): string
     {
-        $country = $this->country_code ?: config('afritopup.default_country', 'NG');
+        $country = $this->country_code ?: config('pericharge.default_country', 'NG');
 
-        return (string) (Country::where('code', $country)->value('currency') ?: config('afritopup.default_currency', 'NGN'));
+        return (string) (Country::where('code', $country)->value('currency') ?: config('pericharge.default_currency', 'NGN'));
     }
 
     public function transactions(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -307,7 +307,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
     public function getAvatarUrlAttribute(): string
     {
         return $this->avatar_path_url
-            ?? 'https://ui-avatars.com/api/?name=' . urlencode((string) $this->name) . '&color=FFFFFF&format=png&background=' . ltrim((string) config('afritopup.primary_color', '#0B8457'), '#');
+            ?? 'https://ui-avatars.com/api/?name=' . urlencode((string) $this->name) . '&color=FFFFFF&format=png&background=' . ltrim((string) config('pericharge.primary_color', '#0B8457'), '#');
     }
 
     public function getFormattedDobAttribute(): ?string

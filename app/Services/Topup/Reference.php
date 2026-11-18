@@ -9,7 +9,7 @@ class Reference
 {
     public static function make(?string $prefix = null): string
     {
-        $prefix ??= (string) config('afritopup.reference_prefix', 'PRC');
+        $prefix ??= (string) config('pericharge.reference_prefix', 'PRC');
 
         return $prefix . '-' . now('Africa/Lagos')->format('Ymd') . '-' . strtoupper(Str::random(8));
     }

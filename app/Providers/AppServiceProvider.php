@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Branding for every view (layout, login, e-mails).
         app(\App\Services\Settings\Settings::class)->applySiteToConfig();
-        View::share('brand', config('afritopup'));
+        View::share('brand', config('pericharge'));
 
         // Which page shell: customers, agents and resellers get the customer
         // area (layouts.account); staff get the admin panel (layouts.master).

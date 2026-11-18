@@ -53,7 +53,7 @@ class SiteController extends Controller
 
     public function service(Request $request, string $category)
     {
-        $cat = config('afritopup.categories.' . $category);
+        $cat = config('pericharge.categories.' . $category);
         abort_unless($cat, 404);
         $country = $this->catalogue->country($request->query('country', $request->user()?->country_code));
         $catalogue = $this->catalogue->catalogue($country);
@@ -126,7 +126,7 @@ class SiteController extends Controller
         $msg = ContactMessage::create($data + ['user_id' => $request->user()?->id, 'ip' => $request->ip()]);
 
         rescue(function () use ($msg) {
-            $to = config('afritopup.support_email');
+            $to = config('pericharge.support_email');
             if ($to) {
                 Mail::raw("New message from the website\n\nFrom: {$msg->name} <{$msg->email}> {$msg->phone}\nTopic: " . (ContactMessage::TOPICS[$msg->topic] ?? $msg->topic) . "\n\n{$msg->message}",
                     fn ($m) => $m->to($to)->replyTo($msg->email, $msg->name)->subject('[Website] ' . (ContactMessage::TOPICS[$msg->topic] ?? 'Message') . ' — ' . $msg->name));
@@ -143,7 +143,7 @@ class SiteController extends Controller
     public function app(Request $request): RedirectResponse
     {
         $ua = strtolower((string) $request->userAgent());
-        $links = config('afritopup.app_links', []);
+        $links = config('pericharge.app_links', []);
         $ios = str_contains($ua, 'iphone') || str_contains($ua, 'ipad') || str_contains($ua, 'ipod');
         $android = str_contains($ua, 'android');
 
@@ -168,7 +168,7 @@ class SiteController extends Controller
     public function quickPay(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'category'   => 'required|string|in:' . implode(',', array_keys(config('afritopup.categories'))),
+            'category'   => 'required|string|in:' . implode(',', array_keys(config('pericharge.categories'))),
             'service'    => 'nullable|string|max:60',
             'recipient'  => 'nullable|string|max:30',
             'amount'     => 'nullable|numeric|min:0|max:10000000',
@@ -189,14 +189,14 @@ class SiteController extends Controller
 
         $request->session()->put('url.intended', $url);
 
-        return redirect()->route(config('afritopup.allow_registration') && !$request->boolean('login') ? 'register' : 'login')
+        return redirect()->route(config('pericharge.allow_registration') && !$request->boolean('login') ? 'register' : 'login')
             ->with('status', 'Create a free account (or log in) to finish your payment — your order is saved.');
     }
 
     /** FAQ entries; a category adds its own questions first. */
     public static function faqs(?string $category = null): array
     {
-        $name = config('afritopup.name', 'Pericharge');
+        $name = config('pericharge.name', 'Pericharge');
         $general = [
             ['How fast is delivery?', 'Most airtime, data, cable and electricity payments are delivered within seconds. If a network is slow, your purchase shows as “processing” and we keep checking until it completes — or refund your wallet automatically if it fails.'],
             ['How do I fund my wallet?', 'Pay with your debit card, or send a bank transfer to your personal account number shown on the Wallet page — it credits your wallet automatically, day or night.'],

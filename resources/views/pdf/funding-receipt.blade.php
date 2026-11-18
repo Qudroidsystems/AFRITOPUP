@@ -1,7 +1,7 @@
 @php
     $m = fn ($v) => \App\Support\Money::format($v, $f->currency);
-    $name = config('afritopup.name', 'Pericharge');
-    $green = config('afritopup.primary_color') ?: '#0B8457';
+    $name = config('pericharge.name', 'Pericharge');
+    $green = config('pericharge.primary_color') ?: '#0B8457';
 @endphp
 <!doctype html>
 <html><head><meta charset="utf-8"><title>Receipt {{ $f->reference }}</title>
@@ -25,5 +25,5 @@
         <tr><td class="muted">Date</td><td class="v">{{ ($f->paid_at ?? $f->created_at)->format('j M Y, g:i A') }}</td></tr>
         <tr><td class="muted">Customer</td><td class="v">{{ $f->user?->name }}</td></tr>
     </table>
-    <div class="foot">{{ \App\Support\Brand::productOf() }} · Generated {{ now()->format('j M Y, g:i A') }} · Powered &amp; developed by {{ config('afritopup.developer', 'Qudroid Systems') }}</div>
+    <div class="foot">{{ \App\Support\Brand::productOf() }} · Generated {{ now()->format('j M Y, g:i A') }} · Powered &amp; developed by {{ config('pericharge.developer', 'Qudroid Systems') }}</div>
 </body></html>

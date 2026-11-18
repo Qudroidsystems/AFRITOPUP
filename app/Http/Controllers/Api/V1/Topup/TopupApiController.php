@@ -26,7 +26,7 @@ class TopupApiController extends ApiController
 
     protected function country(Request $request): Country
     {
-        return Country::byCode($request->user()->country_code ?: config('afritopup.default_country', 'NG')) ?? Country::active()->ordered()->firstOrFail();
+        return Country::byCode($request->user()->country_code ?: config('pericharge.default_country', 'NG')) ?? Country::active()->ordered()->firstOrFail();
     }
 
     /** Categories with their services for the user's country. */
@@ -38,7 +38,7 @@ class TopupApiController extends ApiController
         return $this->ok([
             'country'    => $country->only(['code', 'name', 'currency', 'dial_code', 'flag']),
             'countries'  => Country::active()->ordered()->get(['code', 'name', 'currency', 'dial_code', 'flag']),
-            'categories' => collect(config('afritopup.categories'))->filter(fn ($c, $k) => $services->has($k))->map(fn ($c, $k) => [
+            'categories' => collect(config('pericharge.categories'))->filter(fn ($c, $k) => $services->has($k))->map(fn ($c, $k) => [
                 'key' => $k, 'name' => $c['name'], 'color' => $c['color'], 'icon' => $c['icon'],
                 'services' => $services[$k]->map(fn (Service $s) => $this->service($s))->values(),
             ])->values(),

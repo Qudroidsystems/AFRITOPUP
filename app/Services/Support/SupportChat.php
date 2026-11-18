@@ -178,7 +178,7 @@ class SupportChat
 
     protected function notifyCustomer(SupportConversation $conv, User $staff, SupportMessage $msg): void
     {
-        rescue(fn () => PushService::toUsers([$conv->user_id], Str::before(trim($staff->name), ' ') . ' · ' . config('afritopup.name') . ' Support',
+        rescue(fn () => PushService::toUsers([$conv->user_id], Str::before(trim($staff->name), ' ') . ' · ' . config('pericharge.name') . ' Support',
             Str::limit($conv->last_message_preview ?: 'New message', 120), ['type' => 'support', 'route' => '/support', 'conversation' => (string) $conv->id]), report: false);
     }
 

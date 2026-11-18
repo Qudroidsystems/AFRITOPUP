@@ -17,7 +17,7 @@ class StatementMail extends Mailable
     {
         $s = $this->summary;
 
-        return new Envelope(subject: 'Your ' . config('afritopup.name') . ' statement: ' . $s['from']->format('j M Y') . ' – ' . $s['to']->format('j M Y'), tags: ['statement']);
+        return new Envelope(subject: 'Your ' . config('pericharge.name') . ' statement: ' . $s['from']->format('j M Y') . ' – ' . $s['to']->format('j M Y'), tags: ['statement']);
     }
 
     public function content(): Content

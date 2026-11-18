@@ -19,8 +19,8 @@ class FundingReceiptMail extends Mailable
 
     public function envelope(): Envelope
     {
-        $name = config('afritopup.name');
-        $support = config('afritopup.support_email');
+        $name = config('pericharge.name');
+        $support = config('pericharge.support_email');
 
         return new Envelope(subject: 'Wallet funded: ' . \App\Support\Money::format($this->funding->amount, $this->funding->currency) . ' — ' . $name,
             replyTo: $support ? [new Address($support, $name . ' Support')] : [], tags: ['receipt', 'funding']);

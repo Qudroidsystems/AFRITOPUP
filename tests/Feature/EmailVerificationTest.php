@@ -74,7 +74,7 @@ it('locks a code after five wrong tries and limits resends', function () {
 });
 
 it('lets staff in without a code and skips the gate for social sign-ins', function () {
-    $admin = User::where('email', strtolower(config('afritopup.super_admin.email')))->first();
+    $admin = User::where('email', strtolower(config('pericharge.super_admin.email')))->first();
     $admin->forceFill(['email_verified_at' => null, 'must_change_password' => false])->save();
     $this->actingAs($admin)->get(route('dashboard'))->assertOk();
 });

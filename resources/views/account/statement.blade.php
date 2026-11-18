@@ -71,7 +71,7 @@
             <div class="a-card mb-4">
                 <div class="a-card-head"><h2>Spending by service</h2></div>
                 @forelse($s['spend'] as $row)
-                    @php $pct = $s['debits'] > 0 ? min(100, round($row['total'] / max($s['spend']->sum('total'), 1) * 100)) : 0; $c = config('afritopup.categories.' . $row['category'] . '.color', '#0B8457'); @endphp
+                    @php $pct = $s['debits'] > 0 ? min(100, round($row['total'] / max($s['spend']->sum('total'), 1) * 100)) : 0; $c = config('pericharge.categories.' . $row['category'] . '.color', '#0B8457'); @endphp
                     <div class="mb-3">
                         <div class="d-flex justify-content-between small fw-semibold"><span>{{ $row['label'] }} <span class="text-muted fw-normal">· {{ $row['count'] }}</span></span><span>{{ $m($row['total']) }}</span></div>
                         <div class="progress mt-1" style="height:6px;border-radius:6px"><div class="progress-bar" style="width: {{ $pct }}%; background: {{ $c }}"></div></div>

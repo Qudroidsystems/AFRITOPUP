@@ -22,7 +22,7 @@
     <x-cb.card :flush="true">
         <form class="row g-2 p-3 border-bottom" method="GET">
             <div class="col-lg-3"><input class="form-control" name="q" value="{{ request('q') }}" placeholder="Reference, number, customer"></div>
-            <div class="col-lg-2"><select class="form-select" name="category"><option value="">All services</option>@foreach(config('afritopup.categories') as $k => $c)<option value="{{ $k }}" @selected(request('category') === $k)>{{ $c['name'] }}</option>@endforeach</select></div>
+            <div class="col-lg-2"><select class="form-select" name="category"><option value="">All services</option>@foreach(config('pericharge.categories') as $k => $c)<option value="{{ $k }}" @selected(request('category') === $k)>{{ $c['name'] }}</option>@endforeach</select></div>
             <div class="col-lg-2"><select class="form-select" name="status"><option value="">Any status</option>@foreach(\App\Models\Transaction::STATUSES as $k => [$l])<option value="{{ $k }}" @selected(request('status') === $k)>{{ $l }}</option>@endforeach</select></div>
             <div class="col-lg-1"><select class="form-select" name="channel"><option value="">Channel</option>@foreach(['web', 'app', 'api'] as $c)<option value="{{ $c }}" @selected(request('channel') === $c)>{{ strtoupper($c) }}</option>@endforeach</select></div>
             <div class="col-lg-3 d-flex gap-2"><input type="date" class="form-control" name="from" value="{{ request('from') }}"><input type="date" class="form-control" name="to" value="{{ request('to') }}"></div>

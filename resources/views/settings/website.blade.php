@@ -3,12 +3,12 @@
 @php
     $f = fn ($key) => old(\Illuminate\Support\Str::afterLast($key, '.'), $v[$key] ?? '');
     $socials = [
-        'facebook'  => ['Facebook', 'ri-facebook-circle-fill', '#1877F2', 'https://facebook.com/afritopup'],
-        'x'         => ['X (Twitter)', 'ri-twitter-x-line', '#111111', 'https://x.com/afritopup'],
-        'instagram' => ['Instagram', 'ri-instagram-line', '#E4405F', 'https://instagram.com/afritopup'],
-        'linkedin'  => ['LinkedIn', 'ri-linkedin-box-fill', '#0A66C2', 'https://linkedin.com/company/afritopup'],
-        'youtube'   => ['YouTube', 'ri-youtube-fill', '#FF0000', 'https://youtube.com/@afritopup'],
-        'tiktok'    => ['TikTok', 'ri-tiktok-fill', '#111111', 'https://tiktok.com/@afritopup'],
+        'facebook'  => ['Facebook', 'ri-facebook-circle-fill', '#1877F2', 'https://facebook.com/pericharge'],
+        'x'         => ['X (Twitter)', 'ri-twitter-x-line', '#111111', 'https://x.com/pericharge'],
+        'instagram' => ['Instagram', 'ri-instagram-line', '#E4405F', 'https://instagram.com/pericharge'],
+        'linkedin'  => ['LinkedIn', 'ri-linkedin-box-fill', '#0A66C2', 'https://linkedin.com/company/pericharge'],
+        'youtube'   => ['YouTube', 'ri-youtube-fill', '#FF0000', 'https://youtube.com/@pericharge'],
+        'tiktok'    => ['TikTok', 'ri-tiktok-fill', '#111111', 'https://tiktok.com/@pericharge'],
     ];
 @endphp
 
@@ -26,12 +26,12 @@
                     <p class="text-muted small">Shown on the website (hero, header, footer, phone banner and QR code) and in the customer area. Leave blank until the app is published — the buttons then say “Coming soon”.</p>
                     <div class="mb-3">
                         <label class="form-label fw-semibold" for="android"><i class="ri-google-play-fill text-success me-1"></i>Google Play link</label>
-                        <input id="android" name="android" class="form-control @error('android') is-invalid @enderror" value="{{ $f('app_links.android') }}" placeholder="https://play.google.com/store/apps/details?id=com.afritopup.app">
+                        <input id="android" name="android" class="form-control @error('android') is-invalid @enderror" value="{{ $f('app_links.android') }}" placeholder="https://play.google.com/store/apps/details?id=com.pericharge.app">
                         @error('android')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div>
                         <label class="form-label fw-semibold" for="ios"><i class="ri-apple-fill me-1"></i>App Store link</label>
-                        <input id="ios" name="ios" class="form-control @error('ios') is-invalid @enderror" value="{{ $f('app_links.ios') }}" placeholder="https://apps.apple.com/app/afritopup/id0000000000">
+                        <input id="ios" name="ios" class="form-control @error('ios') is-invalid @enderror" value="{{ $f('app_links.ios') }}" placeholder="https://apps.apple.com/app/pericharge/id0000000000">
                         @error('ios')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </x-cb.card>

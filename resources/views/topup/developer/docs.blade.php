@@ -22,7 +22,7 @@
 <pre>{ "success": true, "data": { "balance": 152340.5, "currency": "NGN" } }</pre>
 
                 <h5>GET /services?category=data</h5>
-                <p>Categories: <code>{{ implode('</code>, <code>', array_keys(config('afritopup.categories'))) }}</code>. Each service has a <code>code</code> (e.g. <code>mtn</code>, <code>mtn-data</code>, <code>dstv</code>, <code>ikeja-electric</code>, <code>waec</code>) and says whether it needs a <code>product</code>, an <code>amount</code> or verification.</p>
+                <p>Categories: <code>{{ implode('</code>, <code>', array_keys(config('pericharge.categories'))) }}</code>. Each service has a <code>code</code> (e.g. <code>mtn</code>, <code>mtn-data</code>, <code>dstv</code>, <code>ikeja-electric</code>, <code>waec</code>) and says whether it needs a <code>product</code>, an <code>amount</code> or verification.</p>
 
                 <h5>GET /services/{code}/products</h5>
                 <p>Plans with <code>code</code>, <code>name</code>, <code>validity</code> and <code>your_price</code>.</p>

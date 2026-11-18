@@ -15,8 +15,8 @@ beforeEach(function () {
     $b64 = fn ($s) => rtrim(strtr(base64_encode($s), '+/', '-_'), '=');
     $jwks = ['keys' => [['kty' => 'RSA', 'kid' => 'k1', 'alg' => 'RS256', 'n' => $b64($d['n']), 'e' => $b64($d['e'])]]];
     Http::fake(['www.googleapis.com/*' => Http::response($jwks), 'appleid.apple.com/*' => Http::response($jwks)]);
-    config(['afritopup.social.google.client_ids' => ['web-client.apps.googleusercontent.com'], 'afritopup.social.google.web_client_id' => 'web-client.apps.googleusercontent.com',
-        'afritopup.social.apple.client_ids' => ['com.afritopup.app']]);
+    config(['pericharge.social.google.client_ids' => ['web-client.apps.googleusercontent.com'], 'pericharge.social.google.web_client_id' => 'web-client.apps.googleusercontent.com',
+        'pericharge.social.apple.client_ids' => ['com.pericharge.app']]);
 
     $this->jwt = function (array $claims, $key = null) use ($b64) {
         $h = $b64(json_encode(['alg' => 'RS256', 'kid' => 'k1', 'typ' => 'JWT']));
@@ -47,7 +47,7 @@ test('a verified e-mail links to the existing account', function () {
 });
 
 test('apple sign-in uses the name the app sends', function () {
-    $t = ($this->jwt)(['iss' => 'https://appleid.apple.com', 'aud' => 'com.afritopup.app', 'sub' => 'a-9', 'email' => 'x1@privaterelay.appleid.com', 'email_verified' => 'true']);
+    $t = ($this->jwt)(['iss' => 'https://appleid.apple.com', 'aud' => 'com.pericharge.app', 'sub' => 'a-9', 'email' => 'x1@privaterelay.appleid.com', 'email_verified' => 'true']);
     $this->postJson('/api/v1/auth/social', ['provider' => 'apple', 'id_token' => $t, 'name' => 'Tunde Bakare'])->assertCreated();
     expect(User::where('apple_id', 'a-9')->value('name'))->toBe('Tunde Bakare');
 });

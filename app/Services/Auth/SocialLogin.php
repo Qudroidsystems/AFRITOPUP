@@ -40,7 +40,7 @@ class SocialLogin
             return [$user, false];
         }
 
-        if (!config('afritopup.allow_registration')) throw new RuntimeException('Sign-up is closed. Please contact support.');
+        if (!config('pericharge.allow_registration')) throw new RuntimeException('Sign-up is closed. Please contact support.');
         if ($email === '') throw new RuntimeException(ucfirst($provider) . ' did not share an e-mail address. Please allow e-mail access and try again.');
 
         $name = trim((string) ($name ?: ($claims['name'] ?? trim(($claims['given_name'] ?? '') . ' ' . ($claims['family_name'] ?? '')))));
@@ -51,7 +51,7 @@ class SocialLogin
                 'name'          => mb_substr($name, 0, 255),
                 'email'         => $email,
                 'user_type'     => User::TYPE_CUSTOMER,
-                'country_code'  => config('afritopup.default_country', 'NG'),
+                'country_code'  => config('pericharge.default_country', 'NG'),
                 'referral_code' => strtoupper(Str::random(8)),
                 'password'      => Hash::make(Str::random(40)),   // they sign in with the provider; "forgot password" sets one
             ]);

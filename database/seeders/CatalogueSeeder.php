@@ -10,7 +10,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Price tiers and the Nigerian catalogue. Services start on the `sandbox`
- * provider (or AFRITOPUP_SEED_PROVIDER) with their VTpass serviceIDs already
+ * provider (or PERICHARGE_SEED_PROVIDER) with their VTpass serviceIDs already
  * filled in, so going live is: enter the VTpass keys, switch each service's
  * provider to VTpass and press "Load plans from provider".
  *
@@ -37,7 +37,7 @@ class CatalogueSeeder extends Seeder
             PriceTier::firstOrCreate(['code' => $code], ['name' => $name, 'description' => $desc, 'is_default' => $default, 'position' => $i]);
         }
 
-        $provider = env('AFRITOPUP_SEED_PROVIDER', 'sandbox');
+        $provider = env('PERICHARGE_SEED_PROVIDER', 'sandbox');
         $smsProvider = $provider === 'sandbox' ? 'sandbox' : 'termii';
         $pos = 0;
 

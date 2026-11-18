@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('username', 60)->nullable()->unique();
             $table->string('phone_number', 30)->nullable()->index();
 
-            // customer | agent | reseller | staff (see config/afritopup.php)
+            // customer | agent | reseller | staff (see config/pericharge.php)
             $table->string('user_type', 20)->default('customer')->index();
 
             // Profile

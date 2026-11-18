@@ -79,7 +79,7 @@
             <div class="col-xl-4">
                 <x-cb.card title="Last 30 days by service" icon="ri-pie-chart-line" :flush="true">
                     @forelse($overview['byCategory'] as $row)
-                        @php $cat = config('afritopup.categories.' . $row->category); @endphp
+                        @php $cat = config('pericharge.categories.' . $row->category); @endphp
                         <div class="d-flex align-items-center gap-3 px-3 py-2 border-bottom">
                             <span class="at-cat-mini" style="color: {{ $cat['color'] ?? '#0B8457' }}"><i class="{{ $cat['icon'] ?? 'ri-shopping-bag-line' }} fs-20"></i></span>
                             <div class="flex-grow-1"><div class="fw-semibold">{{ $cat['name'] ?? $row->category }}</div><div class="small text-muted">{{ number_format($row->n) }} purchases</div></div>

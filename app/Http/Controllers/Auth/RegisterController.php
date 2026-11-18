@@ -79,7 +79,7 @@ class RegisterController extends Controller
             'email'         => strtolower($data['email']),
             'phone_number'  => $data['phone_number'],
             'user_type'     => User::TYPE_CUSTOMER,
-            'country_code'  => config('afritopup.default_country', 'NG'),
+            'country_code'  => config('pericharge.default_country', 'NG'),
             'referred_by'   => $referrer?->id,
             'referral_code' => strtoupper(\Illuminate\Support\Str::random(8)),
             'password'      => Hash::make($data['password']),

@@ -58,7 +58,7 @@ class ReportService
         if ($from->diffInDays($to) > 731) $from = $to->subDays(731)->startOfDay();   // two years at most
         $this->from = $from;
         $this->to = $to;
-        $this->currency = strtoupper((string) ($f['currency'] ?? '')) ?: (string) config('afritopup.default_currency', 'NGN');
+        $this->currency = strtoupper((string) ($f['currency'] ?? '')) ?: (string) config('pericharge.default_currency', 'NGN');
         $this->category = ($f['category'] ?? null) ?: null;
         $this->vendor = ($f['vendor'] ?? null) ?: null;
         $this->channel = ($f['channel'] ?? null) ?: null;
@@ -238,7 +238,7 @@ class ReportService
     {
         $c = Transaction::query()->distinct()->pluck('currency')->filter()->values()->all();
 
-        return $c ?: [(string) config('afritopup.default_currency', 'NGN')];
+        return $c ?: [(string) config('pericharge.default_currency', 'NGN')];
     }
 
     public function filters(): array

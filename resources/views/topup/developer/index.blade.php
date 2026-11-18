@@ -58,7 +58,7 @@
             <x-cb.card title="New key" icon="ri-add-line">
                 <form method="POST" action="{{ route('topup.developer.keys.store') }}">@csrf
                     <div class="mb-2"><label class="form-label fw-semibold">Name</label><input class="form-control" name="name" placeholder="e.g. My shop website" required maxlength="80"></div>
-                    <div class="mb-2"><label class="form-label fw-semibold">Webhook URL <span class="text-muted fw-normal">(optional)</span></label><input class="form-control" name="webhook_url" placeholder="https://example.com/afritopup-webhook"></div>
+                    <div class="mb-2"><label class="form-label fw-semibold">Webhook URL <span class="text-muted fw-normal">(optional)</span></label><input class="form-control" name="webhook_url" placeholder="https://example.com/pericharge-webhook"></div>
                     <div class="mb-3"><label class="form-label fw-semibold">Allowed IPs <span class="text-muted fw-normal">(optional)</span></label><input class="form-control" name="allowed_ips" placeholder="203.0.113.10, 203.0.113.11"><div class="form-text">Leave empty to allow any IP.</div></div>
                     <button class="btn btn-success w-100">Create key</button>
                 </form>

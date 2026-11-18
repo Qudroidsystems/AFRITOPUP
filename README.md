@@ -24,13 +24,13 @@ activity log and the mobile API (`/api/v1`).
 ## First run (XAMPP)
 
 ```bash
-cp .env.example .env          # set DB_DATABASE=afritopup and the AFRITOPUP_ADMIN_* values
+cp .env.example .env          # set DB_DATABASE=pericharge and the PERICHARGE_ADMIN_* values
 php artisan key:generate
 php artisan migrate --seed    # roles, permissions, admin, countries, Nigerian catalogue
 php artisan storage:link
 ```
 
-Open `http://localhost/AFRITOPUP/public` and sign in as `AFRITOPUP_ADMIN_EMAIL`
+Open `http://localhost/AFRITOPUP/public` and sign in as `PERICHARGE_ADMIN_EMAIL`
 (you must choose a new password). Every service starts on the **sandbox**
 provider, so you can buy end to end without real money:
 
@@ -40,7 +40,7 @@ provider, so you can buy end to end without real money:
 | `1111` | stays *processing* until `php artisan topup:requery` |
 | anything else | delivered |
 
-Cron (production): `* * * * * cd /path/to/afritopup && php artisan schedule:run`.
+Cron (production): `* * * * * cd /path/to/pericharge && php artisan schedule:run`.
 This runs the queue (reseller webhooks, push) and re-checks stuck purchases every five minutes.
 
 ## Going live
@@ -74,7 +74,7 @@ routes/
   modules/topup.php, admin.php, settings.php
   api_v1.php + api_v1/topup.php mobile app
   reseller.php                  /api/reseller/v1
-config/afritopup.php            brand (white-label via .env), categories, providers, funding fees
+config/pericharge.php            brand (white-label via .env), categories, providers, funding fees
 ```
 
 **Money** is stored as `decimal(18,2)` and calculated in minor units

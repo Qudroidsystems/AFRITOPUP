@@ -105,7 +105,7 @@ class Settings
     }
 
     // ── Website & app (Settings → Website & app) ────────────────────────
-    /** config('afritopup.<field>') that admins can set; saved as "site.<field>". */
+    /** config('pericharge.<field>') that admins can set; saved as "site.<field>". */
     public const SITE_FIELDS = [
         'app_links.android', 'app_links.ios',
         'social_links.facebook', 'social_links.x', 'social_links.instagram', 'social_links.linkedin',
@@ -113,12 +113,12 @@ class Settings
         'support_email', 'support_phone', 'address',
     ];
 
-    /** Put saved website settings over config('afritopup'), so every page, e-mail and the app see them. */
+    /** Put saved website settings over config('pericharge'), so every page, e-mail and the app see them. */
     public function applySiteToConfig(): void
     {
         try {
             foreach (self::SITE_FIELDS as $field) {
-                if ($this->has("site.$field")) config(["afritopup.$field" => $this->get("site.$field")]);
+                if ($this->has("site.$field")) config(["pericharge.$field" => $this->get("site.$field")]);
             }
         } catch (\Throwable $e) {
             // Settings table not migrated yet.
@@ -193,10 +193,10 @@ class Settings
         $this->put(['vendors.custom' => $all ?: null, "provider.custom-$slug.token" => null], $by);
     }
 
-    /** config('afritopup.providers.{key}') with saved values on top. */
+    /** config('pericharge.providers.{key}') with saved values on top. */
     public function provider(string $key): array
     {
-        $c = (array) config('afritopup.providers.' . $key, []);
+        $c = (array) config('pericharge.providers.' . $key, []);
         foreach (self::PROVIDER_FIELDS[$key] ?? [] as $field) {
             if ($this->has("provider.$key.$field")) $c[$field] = $this->get("provider.$key.$field");
         }

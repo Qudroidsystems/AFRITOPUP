@@ -10,7 +10,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->seed(DatabaseSeeder::class);
     $this->seed(DemoSeeder::class);
-    $this->admin = User::where('email', 'admin@afritopup.test')->first();
+    $this->admin = User::where('email', 'admin@pericharge.test')->first();
 });
 
 it('shows "coming soon" store buttons until the admin adds the links', function () {
@@ -19,21 +19,21 @@ it('shows "coming soon" store buttons until the admin adds the links', function 
 });
 
 it('lets the admin set store, social and contact links, and the website uses them', function () {
-    $play = 'https://play.google.com/store/apps/details?id=com.afritopup.app';
-    $ios = 'https://apps.apple.com/app/afritopup/id6400000000';
+    $play = 'https://play.google.com/store/apps/details?id=com.pericharge.app';
+    $ios = 'https://apps.apple.com/app/pericharge/id6400000000';
 
     $this->actingAs($this->admin)->get(route('portal-settings.website'))->assertOk()->assertSee('Google Play link');
     $this->actingAs($this->admin)->post(route('portal-settings.website.save'), [
-        'android' => $play, 'ios' => $ios, 'instagram' => 'https://instagram.com/afritopup', 'whatsapp' => '0803 123 4567',
+        'android' => $play, 'ios' => $ios, 'instagram' => 'https://instagram.com/pericharge', 'whatsapp' => '0803 123 4567',
         'support_email' => 'help@pericharge.com', 'support_phone' => '+234 803 123 4567',
     ])->assertSessionHas('success');
 
     // A fresh request reads the saved settings.
     app()->forgetInstance(\App\Services\Settings\Settings::class);
     app(\App\Services\Settings\Settings::class)->applySiteToConfig();
-    \Illuminate\Support\Facades\View::share('brand', config('afritopup'));
+    \Illuminate\Support\Facades\View::share('brand', config('pericharge'));
 
-    $this->get('/')->assertSee($play, false)->assertSee($ios, false)->assertSee('https://instagram.com/afritopup', false)->assertSee('id="appBar"', false);
+    $this->get('/')->assertSee($play, false)->assertSee($ios, false)->assertSee('https://instagram.com/pericharge', false)->assertSee('id="appBar"', false);
     $this->get('/contact')->assertSee('help@pericharge.com')->assertSee('https://wa.me/2348031234567', false);
 
     $this->get(route('site.app'), ['User-Agent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)'])->assertRedirect($ios);
@@ -45,6 +45,6 @@ it('rejects links that are not the right store, and keeps customers out', functi
     $this->actingAs($this->admin)->post(route('portal-settings.website.save'), ['android' => 'https://example.com/app.apk', 'ios' => 'http://apps.apple.com/x'])
         ->assertSessionHasErrors(['android', 'ios']);
 
-    $customer = User::where('email', 'customer@afritopup.test')->first();
+    $customer = User::where('email', 'customer@pericharge.test')->first();
     $this->actingAs($customer)->get(route('portal-settings.website'))->assertForbidden();
 });

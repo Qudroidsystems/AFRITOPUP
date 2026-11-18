@@ -27,7 +27,7 @@ class FundingService
     /** Fee the customer pays on top of the amount they want in the wallet. */
     public function fee(string|float $amount): string
     {
-        $c = (array) config('afritopup.funding');
+        $c = (array) config('pericharge.funding');
         $minor = Money::minor($amount);
         $fee = intdiv($minor * (int) round(((float) ($c['fee_percent'] ?? 0)) * 100) + 5000, 10000) + Money::minor($c['fee_flat'] ?? 0);
         $cap = Money::minor($c['fee_cap'] ?? 0);
@@ -39,7 +39,7 @@ class FundingService
     /** @return array{funding: WalletFunding, url: string} the page to send the customer to */
     public function start(User $user, string|float $amount, string $callbackUrl, string $channel = 'web'): array
     {
-        $c = (array) config('afritopup.funding');
+        $c = (array) config('pericharge.funding');
         if (!is_numeric($amount)) throw new TopupException('Enter the amount.');
         if ((float) $amount < (float) $c['min']) throw new TopupException('The smallest top-up is ' . Money::format($c['min'], $user->currency()) . '.');
         if ((float) $amount > (float) $c['max']) throw new TopupException('The largest top-up is ' . Money::format($c['max'], $user->currency()) . '.');
@@ -139,7 +139,7 @@ class FundingService
     /** Fee taken from a bank transfer before it is credited (percent + flat, capped). */
     public function transferFee(string|float $amount): string
     {
-        $c = (array) config('afritopup.funding');
+        $c = (array) config('pericharge.funding');
         $minor = Money::minor($amount);
         $fee = intdiv($minor * (int) round(((float) ($c['transfer_fee_percent'] ?? 0)) * 100) + 5000, 10000) + Money::minor($c['transfer_fee_flat'] ?? 0);
         $cap = Money::minor($c['transfer_fee_cap'] ?? 0);
@@ -161,7 +161,7 @@ class FundingService
                 $code = $this->paystack->customer($user->email, $parts[0], count($parts) > 1 ? end($parts) : $parts[0], $user->phone_number);
                 $user->forceFill(['paystack_customer_code' => $code])->save();
             }
-            $a = $this->paystack->dedicatedAccount($user->paystack_customer_code, config('afritopup.funding.transfer_bank'));
+            $a = $this->paystack->dedicatedAccount($user->paystack_customer_code, config('pericharge.funding.transfer_bank'));
         } catch (\RuntimeException $e) {
             Log::warning('Dedicated account failed', ['user' => $user->id, 'error' => $e->getMessage()]);
             throw new TopupException('We could not create your account number yet. ' . $e->getMessage(), 'gateway_error', 502);

@@ -45,7 +45,7 @@ class UserController extends Controller
         }
         $role_counts['No Role'] = User::doesntHave('roles')->count();
 
-        $userTypes = config('afritopup.user_types');
+        $userTypes = config('pericharge.user_types');
 
         return view('users.index', compact('data', 'roles', 'role_permissions', 'pagetitle', 'role_counts', 'userTypes'));
     }
@@ -64,7 +64,7 @@ class UserController extends Controller
                 'password'     => 'required|min:8|confirmed',
                 'roles'        => 'required|array',
                 'roles.*'      => 'exists:roles,name',
-                'user_type'    => ['nullable', Rule::in(array_keys(config('afritopup.user_types')))],
+                'user_type'    => ['nullable', Rule::in(array_keys(config('pericharge.user_types')))],
                 'phone_number' => 'nullable|string|max:30',
                 'job_title'    => 'nullable|string|max:120',
                 'must_change_password' => 'nullable|boolean',
@@ -123,7 +123,7 @@ class UserController extends Controller
                 'password'     => 'nullable|min:8|confirmed',
                 'roles'        => 'required|array',
                 'roles.*'      => 'exists:roles,name',
-                'user_type'    => ['nullable', Rule::in(array_keys(config('afritopup.user_types')))],
+                'user_type'    => ['nullable', Rule::in(array_keys(config('pericharge.user_types')))],
                 'phone_number' => 'nullable|string|max:30',
                 'job_title'    => 'nullable|string|max:120',
             ]);
@@ -165,7 +165,7 @@ class UserController extends Controller
         if ($user->id === auth()->id()) {
             return response()->json(['success' => false, 'message' => 'You cannot disable your own account.'], 422);
         }
-        if (!$user->is_disabled && $user->isSuperAdmin() && User::role(config('afritopup.super_admin_role'))->where('is_disabled', false)->count() <= 1) {
+        if (!$user->is_disabled && $user->isSuperAdmin() && User::role(config('pericharge.super_admin_role'))->where('is_disabled', false)->count() <= 1) {
             return response()->json(['success' => false, 'message' => 'There must always be at least one active Super Administrator.'], 422);
         }
 
@@ -282,7 +282,7 @@ class UserController extends Controller
      */
     protected function assignableRoles(array $roles, ?User $target = null): array
     {
-        $super = config('afritopup.super_admin_role');
+        $super = config('pericharge.super_admin_role');
         if (auth()->user()?->isSuperAdmin()) {
             return array_values($roles);
         }
@@ -296,7 +296,7 @@ class UserController extends Controller
 
     protected function wouldRemoveLastSuperAdmin(User $user, array $newRoles): bool
     {
-        $super = config('afritopup.super_admin_role');
+        $super = config('pericharge.super_admin_role');
         if (!$user->hasRole($super) || in_array($super, $newRoles, true)) {
             return false;
         }

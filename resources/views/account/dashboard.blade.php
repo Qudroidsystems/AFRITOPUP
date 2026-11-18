@@ -106,7 +106,7 @@
                     @php $svc = $b->service; @endphp
                     <a class="a-txn" href="{{ route('topup.buy.form', [$b->category, 'service' => $svc?->code, 'recipient' => $b->recipient]) }}">
                         {!! $tile($svc, 38) !!}
-                        <div class="a-txn-main"><b>{{ $b->label ?: $b->recipient }}</b><small>{{ $svc?->display_name }} {{ strtolower(config('afritopup.categories.' . $b->category . '.name', '')) }}{{ $b->label ? ' · ' . $b->recipient : '' }}</small></div>
+                        <div class="a-txn-main"><b>{{ $b->label ?: $b->recipient }}</b><small>{{ $svc?->display_name }} {{ strtolower(config('pericharge.categories.' . $b->category . '.name', '')) }}{{ $b->label ? ' · ' . $b->recipient : '' }}</small></div>
                         <i class="ri-arrow-right-s-line fs-5" style="color: var(--s-muted)"></i>
                     </a>
                 @empty

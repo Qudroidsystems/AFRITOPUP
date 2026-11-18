@@ -36,7 +36,7 @@ Route::controller(\App\Http\Controllers\Site\SiteController::class)->group(funct
 });
 
 Auth::routes([
-    'register' => (bool) config('afritopup.allow_registration'),
+    'register' => (bool) config('pericharge.allow_registration'),
     'verify'   => false,
 ]);
 

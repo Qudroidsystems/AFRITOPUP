@@ -14,9 +14,9 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->seed(DatabaseSeeder::class);
     $this->seed(DemoSeeder::class);
-    $this->customer = User::where('email', 'customer@afritopup.test')->first();
-    $this->support = User::where('email', 'support@afritopup.test')->first();
-    $this->finance = User::where('email', 'finance@afritopup.test')->first();
+    $this->customer = User::where('email', 'customer@pericharge.test')->first();
+    $this->support = User::where('email', 'support@pericharge.test')->first();
+    $this->finance = User::where('email', 'finance@pericharge.test')->first();
 });
 
 it('lets a customer chat with support on the website, with read receipts and unread counts', function () {
@@ -47,7 +47,7 @@ it('lets a customer chat with support on the website, with read receipts and unr
 });
 
 it('does not let a customer attach someone else\'s payment', function () {
-    $agent = User::where('email', 'agent@afritopup.test')->first();
+    $agent = User::where('email', 'agent@pericharge.test')->first();
     $theirs = $agent->transactions()->first();
     $this->actingAs($this->customer)->postJson(route('support.send'), ['body' => 'look', 'transaction' => $theirs->reference])
         ->assertCreated()->assertJsonPath('message.transaction', null);
@@ -62,7 +62,7 @@ it('stores attachments privately and only shows them to the chat owner and suppo
 
     $this->actingAs($this->customer)->get(route('support.attachment', $msg))->assertOk();
     $this->actingAs($this->support)->get(route('support.attachment', $msg))->assertOk();
-    $this->actingAs(User::where('email', 'agent@afritopup.test')->first())->get(route('support.attachment', $msg))->assertNotFound();
+    $this->actingAs(User::where('email', 'agent@pericharge.test')->first())->get(route('support.attachment', $msg))->assertNotFound();
 
     $this->actingAs($this->customer)->postJson(route('support.send'), ['attachment' => UploadedFile::fake()->create('virus.exe', 10)])->assertStatus(422);
     $this->actingAs($this->customer)->postJson(route('support.send'), [])->assertStatus(422);
@@ -115,7 +115,7 @@ it('serves chat photos to the app with its token', function () {
     $url = $res->json('data.message.attachment.url');
     expect($url)->toContain('/api/v1/support/files/');
     $this->withToken($token)->get($url)->assertOk();
-    $other = User::where('email', 'agent@afritopup.test')->first()->createToken('x')->plainTextToken;
+    $other = User::where('email', 'agent@pericharge.test')->first()->createToken('x')->plainTextToken;
     $this->app['auth']->forgetGuards();
     $this->withToken($other)->get($url)->assertNotFound();
 });

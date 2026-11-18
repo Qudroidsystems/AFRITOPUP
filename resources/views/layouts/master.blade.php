@@ -360,11 +360,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link href="{{ asset('css/cb-ui.css') }}?v={{ @filemtime(public_path('css/cb-ui.css')) }}" rel="stylesheet">
-    {{-- Apple-style skin on top of CB UI (body.qd-apple). The tint is the brand colour from config/afritopup.php. --}}
+    {{-- Apple-style skin on top of CB UI (body.qd-apple). The tint is the brand colour from config/pericharge.php. --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="{{ asset('css/qd-apple.css') }}?v={{ @filemtime(public_path('css/qd-apple.css')) }}" rel="stylesheet">
     @php
-        $qdTint = preg_match('/^#[0-9a-f]{6}$/i', (string) config('afritopup.primary_color')) ? config('afritopup.primary_color') : '#405189';
+        $qdTint = preg_match('/^#[0-9a-f]{6}$/i', (string) config('pericharge.primary_color')) ? config('pericharge.primary_color') : '#405189';
         $qdRgb = implode(', ', array_map('hexdec', str_split(substr($qdTint, 1), 2)));
     @endphp
     <style>:root { --qd-tint: {{ $qdTint }}; --qd-tint-rgb: {{ $qdRgb }}; }</style>
@@ -431,7 +431,7 @@
                             <div class="collapse menu-dropdown {{ request()->routeIs('topup.buy*') ? 'show' : '' }}" id="sidebarBuy">
                                 <ul class="nav nav-sm flex-column">
                                     <li class="nav-item"><a href="{{ route('topup.buy') }}" class="nav-link {{ request()->routeIs('topup.buy') ? 'active' : '' }}">All services</a></li>
-                                    @foreach(config('afritopup.categories') as $catKey => $cat)
+                                    @foreach(config('pericharge.categories') as $catKey => $cat)
                                         <li class="nav-item"><a href="{{ route('topup.buy.form', $catKey) }}" class="nav-link {{ request()->is('buy/' . $catKey) ? 'active' : '' }}">{{ $cat['name'] }}</a></li>
                                     @endforeach
                                 </ul>
@@ -1154,7 +1154,7 @@
         @can('Buy services')
         {title:'My Wallet',                 url:'{{ route("topup.wallet") }}',                                icon:'mdi-wallet',           category:'Buy & Pay',          keywords:['fund','balance','top up','paystack','pin']},
         {title:'My Transactions',           url:'{{ route("topup.transactions") }}',                          icon:'mdi-receipt',          category:'Buy & Pay',          keywords:['history','receipts','purchases']},
-        @foreach(config('afritopup.categories') as $catKey => $cat)
+        @foreach(config('pericharge.categories') as $catKey => $cat)
         {title:@json('Buy ' . $cat['name']),  url:@json(route('topup.buy.form', $catKey)),                    icon:'mdi-cart',             category:'Buy & Pay',          keywords:@json([$catKey, strtolower($cat['name'])])},
         @endforeach
         @endcan

@@ -18,7 +18,7 @@
                 <form method="POST" action="{{ $s->exists ? route('admin.services.update', $s) : route('admin.services.store') }}">
                     @csrf @if($s->exists) @method('PUT') @endif
                     <div class="row g-2">
-                        <div class="col-6"><label class="form-label small fw-semibold">Category</label><select class="form-select" name="category">@foreach(config('afritopup.categories') as $k => $c)<option value="{{ $k }}" @selected(old('category', $s->category) === $k)>{{ $c['name'] }}</option>@endforeach</select></div>
+                        <div class="col-6"><label class="form-label small fw-semibold">Category</label><select class="form-select" name="category">@foreach(config('pericharge.categories') as $k => $c)<option value="{{ $k }}" @selected(old('category', $s->category) === $k)>{{ $c['name'] }}</option>@endforeach</select></div>
                         <div class="col-6"><label class="form-label small fw-semibold">Country</label><select class="form-select" name="country_code">@foreach($countries as $c)<option value="{{ $c->code }}" @selected(old('country_code', $s->country_code) === $c->code)>{{ $c->flag }} {{ $c->name }}</option>@endforeach</select></div>
                         <div class="col-8"><label class="form-label small fw-semibold">Name</label><input class="form-control" name="name" value="{{ old('name', $s->name) }}" required maxlength="100"></div>
                         <div class="col-4"><label class="form-label small fw-semibold">Short name</label><input class="form-control" name="short_name" value="{{ old('short_name', $s->short_name) }}" maxlength="40"></div>

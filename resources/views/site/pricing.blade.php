@@ -4,7 +4,7 @@
 @section('description', 'Live prices for data bundles, DStv, GOtv and StarTimes bouquets, and exam PINs. No hidden fees.')
 
 @php
-    $cats = config('afritopup.categories');
+    $cats = config('pericharge.categories');
     $register = Route::has('register') ? route('register') : route('login');
     $first = $groups->keys()->first();
 @endphp

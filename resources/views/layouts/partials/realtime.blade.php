@@ -38,7 +38,7 @@
         // The bell and incoming calls, on every page.
         api.on('user.' + me, 'notification', () => document.dispatchEvent(new CustomEvent('realtime:notification')));
         api.on('user.' + me, 'call', () => document.dispatchEvent(new CustomEvent('realtime:call')));
-        api.on('user.' + me, 'support', () => window.dispatchEvent(new CustomEvent('afri:support')));
+        api.on('user.' + me, 'support', () => window.dispatchEvent(new CustomEvent('pericharge:support')));
     } catch (e) { console.warn('Realtime off:', e); }
 })();
 </script>

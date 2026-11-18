@@ -26,10 +26,10 @@ class SocialTokenVerifier
         ],
     ];
 
-    /** Our client IDs for the provider (config/afritopup.php → social). */
+    /** Our client IDs for the provider (config/pericharge.php → social). */
     public static function audiences(string $provider): array
     {
-        return array_values(array_filter(array_map('trim', (array) config("afritopup.social.$provider.client_ids", []))));
+        return array_values(array_filter(array_map('trim', (array) config("pericharge.social.$provider.client_ids", []))));
     }
 
     public static function enabled(string $provider): bool

@@ -58,7 +58,7 @@ class AuthController extends ApiController
     /** Customer sign-up from the app (when registration is open). Returns a token like login. */
     public function register(Request $request)
     {
-        if (!config('afritopup.allow_registration')) return $this->fail('Sign-up is closed. Please contact support.', 403, 'registration_closed');
+        if (!config('pericharge.allow_registration')) return $this->fail('Sign-up is closed. Please contact support.', 403, 'registration_closed');
 
         $data = $request->validate([
             'name'         => 'required|string|max:255',
@@ -78,7 +78,7 @@ class AuthController extends ApiController
             'email'         => strtolower($data['email']),
             'phone_number'  => $data['phone_number'],
             'user_type'     => User::TYPE_CUSTOMER,
-            'country_code'  => config('afritopup.default_country', 'NG'),
+            'country_code'  => config('pericharge.default_country', 'NG'),
             'referred_by'   => $referrer?->id,
             'referral_code' => strtoupper(\Illuminate\Support\Str::random(8)),
             'password'      => Hash::make($data['password']),
@@ -94,7 +94,7 @@ class AuthController extends ApiController
             'token'      => $token->plainTextToken,
             'token_type' => 'Bearer',
             'user'       => ApiUserPresenter::present($user->fresh()),
-        ], 'Welcome to ' . config('afritopup.name') . '! Enter the 6-digit code we sent to ' . $user->email . '.', 201);
+        ], 'Welcome to ' . config('pericharge.name') . '! Enter the 6-digit code we sent to ' . $user->email . '.', 201);
     }
 
     /**
@@ -129,7 +129,7 @@ class AuthController extends ApiController
             'token_type' => 'Bearer',
             'created'    => $created,
             'user'       => ApiUserPresenter::present($user->fresh()),
-        ], $created ? 'Welcome to ' . config('afritopup.name') . '!' : 'Signed in.', $created ? 201 : 200);
+        ], $created ? 'Welcome to ' . config('pericharge.name') . '!' : 'Signed in.', $created ? 201 : 200);
     }
 
     public function me(Request $request)

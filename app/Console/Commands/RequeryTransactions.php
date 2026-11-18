@@ -15,7 +15,7 @@ class RequeryTransactions extends Command
 
     public function handle(TopupService $topup): int
     {
-        $after = (int) config('afritopup.requery_after_minutes', 2);
+        $after = (int) config('pericharge.requery_after_minutes', 2);
         $open = Transaction::with('service')->where('status', Transaction::PROCESSING)
             ->where('provider', '!=', 'manual')
             ->where('created_at', '<=', now()->subMinutes($after))

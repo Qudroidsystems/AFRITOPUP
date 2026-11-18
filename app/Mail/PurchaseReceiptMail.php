@@ -20,21 +20,21 @@ class PurchaseReceiptMail extends Mailable
     public function envelope(): Envelope
     {
         $t = $this->txn;
-        $name = config('afritopup.name');
+        $name = config('pericharge.name');
         $what = $t->product?->name ?? trim(($t->service?->display_name ?? '') . ' ' . $t->category_label);
         $subject = match ($t->status) {
             Transaction::SUCCESSFUL => "Receipt: {$what} for {$t->recipient}",
             Transaction::REFUNDED   => "Refunded: {$what} for {$t->recipient}",
             default                 => "Payment failed: {$what} for {$t->recipient}",
         };
-        $support = config('afritopup.support_email');
+        $support = config('pericharge.support_email');
 
         return new Envelope(subject: $subject . ' — ' . $name, replyTo: $support ? [new Address($support, $name . ' Support')] : [], tags: ['receipt', $t->status]);
     }
 
     public function headers(): Headers
     {
-        return new Headers(messageId: $this->txn->reference . '.' . $this->txn->status . '@' . (parse_url(config('app.url'), PHP_URL_HOST) ?: 'afritopup'), text: ['X-Entity-Ref-ID' => $this->txn->reference . '-' . $this->txn->status]);
+        return new Headers(messageId: $this->txn->reference . '.' . $this->txn->status . '@' . (parse_url(config('app.url'), PHP_URL_HOST) ?: 'pericharge'), text: ['X-Entity-Ref-ID' => $this->txn->reference . '-' . $this->txn->status]);
     }
 
     public function content(): Content

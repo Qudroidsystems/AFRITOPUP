@@ -45,7 +45,7 @@ class Service extends Model
 
     public function categoryConfig(): array
     {
-        return (array) config('afritopup.categories.' . $this->category, []);
+        return (array) config('pericharge.categories.' . $this->category, []);
     }
 
     /** Does the customer pick a plan? A service's options can override its category (e.g. school fees: no plans, typed amount). */

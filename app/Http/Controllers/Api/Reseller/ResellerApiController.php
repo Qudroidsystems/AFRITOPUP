@@ -27,7 +27,7 @@ class ResellerApiController extends ApiController
 
     protected function country(Request $request): Country
     {
-        return Country::byCode($request->user()->country_code ?: config('afritopup.default_country', 'NG')) ?? Country::firstOrFail();
+        return Country::byCode($request->user()->country_code ?: config('pericharge.default_country', 'NG')) ?? Country::firstOrFail();
     }
 
     protected function findService(Request $request, string $code): Service

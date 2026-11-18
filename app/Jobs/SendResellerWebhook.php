@@ -39,8 +39,7 @@ class SendResellerWebhook implements ShouldQueue
         $body = json_encode(['event' => 'transaction.' . $t->status, 'data' => $t->present()], JSON_UNESCAPED_SLASHES);
         $res = Http::withHeaders([
             'Content-Type'          => 'application/json',
-            'X-Pericharge-Signature' => $sig = hash_hmac('sha256', $body, (string) $key->webhook_secret),
-            'X-AfriTopup-Signature'  => $sig,   // old name, kept for integrations built before the rename
+            'X-Pericharge-Signature' => hash_hmac('sha256', $body, (string) $key->webhook_secret),
         ])->timeout(15)->withBody($body, 'application/json')->post($key->webhook_url);
 
         if (!$res->successful()) $this->release($this->backoff()[min($this->attempts() - 1, 3)] ?? 600);

@@ -33,7 +33,7 @@
                                 <div class="col-md-5"><select class="form-select form-select-sm" name="vendor" required>
                                     @foreach($row['options'] as $k => $o)<option value="{{ $k }}" @disabled(!$o['ready']) @selected(count($row['current']) === 1 && isset($row['current'][$k]))>{{ $o['name'] }}{{ $o['ready'] ? '' : ' — keys not set' }}</option>@endforeach
                                 </select></div>
-                                @if(config('afritopup.categories.' . $cat . '.product'))
+                                @if(config('pericharge.categories.' . $cat . '.product'))
                                     <div class="col-md-2"><div class="input-group input-group-sm" title="New plans are priced at the vendor's cost plus this percentage"><input class="form-control" type="number" name="markup" min="0" max="100" step="0.5" value="5"><span class="input-group-text">%</span></div></div>
                                     <div class="col-md-3 small">
                                         <div class="form-check"><input class="form-check-input" type="checkbox" name="sync" value="1" id="sy{{ $cat }}" checked><label class="form-check-label" for="sy{{ $cat }}">Import plans</label></div>

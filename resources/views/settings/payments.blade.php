@@ -88,7 +88,7 @@
                 <ul class="small mb-0 ps-3">
                     <li>Secret keys are stored encrypted. If the app's <code>APP_KEY</code> ever changes, enter them again.</li>
                     <li>Anything left empty here falls back to the <code>PAYSTACK_*</code> values in <code>.env</code>.</li>
-                    <li>Customers pay the funding fee set in <code>config/afritopup.php</code> → <code>funding</code> on top of the amount they add.</li>
+                    <li>Customers pay the funding fee set in <code>config/pericharge.php</code> → <code>funding</code> on top of the amount they add.</li>
                     <li>Keys are in the Paystack dashboard under <strong>Settings → API Keys &amp; Webhooks</strong>.</li>
                 </ul>
             </x-cb.card>

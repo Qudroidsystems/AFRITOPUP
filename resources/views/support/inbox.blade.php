@@ -136,7 +136,7 @@
     }
     refresh();
     setInterval(function () { refresh(); }, 5000);
-    window.addEventListener('afri:support', refresh);
+    window.addEventListener('pericharge:support', refresh);
 
     var t;
     document.querySelector('[data-inbox-search]').addEventListener('input', function (e) { clearTimeout(t); t = setTimeout(function () { q = e.target.value.trim(); refresh(); }, 250); });

@@ -5,7 +5,7 @@
     and links only to our own domain. Keep copy plain — no "FREE!!!", no shorteners.
 --}}
 @php
-    $name = $brand['name'] ?? config('afritopup.name', 'Pericharge');
+    $name = $brand['name'] ?? config('pericharge.name', 'Pericharge');
     $green = ($brand['primary_color'] ?? null) ?: '#0B8457';
     $gold = ($brand['accent_color'] ?? null) ?: '#F5A623';
     $p = array_merge([''], \App\Support\Brand::wordmark($name));
@@ -26,7 +26,7 @@
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
             <tr><td style="padding:0 6px 18px;font-family:Arial,Helvetica,sans-serif;">
                 <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-                    <td style="background:{{ $green }};border-radius:9px;width:32px;height:32px;text-align:center;color:#ffffff;font:bold 17px Arial,Helvetica,sans-serif;">{{ mb_strtoupper(mb_substr($name, 0, 1)) }}</td>
+                    <td style="width:32px;height:32px;"><img src="{{ asset('images/brand/pericharge-mark-96.png') }}" width="32" height="32" alt="{{ mb_strtoupper(mb_substr($name, 0, 1)) }}" style="display:block;border:0;border-radius:9px;background:{{ $green }};color:#ffffff;font:bold 17px Arial,Helvetica,sans-serif;text-align:center;"></td>
                     <td style="padding-left:9px;font:bold 20px Arial,Helvetica,sans-serif;letter-spacing:-0.3px;"><span style="color:{{ $green }};">{{ $p[1] ?? $name }}</span><span style="color:{{ $gold }};">{{ $p[2] ?? '' }}</span></td>
                 </tr></table>
             </td></tr>

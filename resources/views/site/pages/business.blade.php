@@ -4,7 +4,7 @@
     $name = $brand['name'] ?? 'Pericharge';
     $register = Route::has('register') ? route('register') : route('login');
     $disc = \Database\Seeders\CatalogueSeeder::DISCOUNTS;
-    $cats = config('afritopup.categories');
+    $cats = config('pericharge.categories');
 @endphp
 
 @section('content')

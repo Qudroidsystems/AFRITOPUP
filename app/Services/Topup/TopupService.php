@@ -320,7 +320,7 @@ class TopupService
             ->map(fn ($n) => str_starts_with($n, '0') ? $country->dial_code . substr($n, 1) : $n)
             ->filter(fn ($n) => strlen($n) >= 10 && strlen($n) <= 15)->unique()->values();
         if ($numbers->isEmpty()) throw new TopupException('Add at least one valid phone number.', 'recipients_required');
-        $max = (int) config('afritopup.sms.max_recipients', 10000);
+        $max = (int) config('pericharge.sms.max_recipients', 10000);
         if ($numbers->count() > $max) throw new TopupException('You can send to at most ' . number_format($max) . ' numbers at once.', 'too_many_recipients');
 
         $len = mb_strlen($message);
@@ -364,7 +364,7 @@ class TopupService
     protected function describe(Transaction $t): string
     {
         $name = $t->service?->display_name ?? '';
-        $what = $t->product?->name ?: trim($name . ' ' . config('afritopup.categories.' . $t->category . '.name', $t->category));
+        $what = $t->product?->name ?: trim($name . ' ' . config('pericharge.categories.' . $t->category . '.name', $t->category));
 
         return $what . ' — ' . $t->recipient;
     }

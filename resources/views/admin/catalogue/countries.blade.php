@@ -21,6 +21,6 @@
             </tbody>
         </table></div>
     </x-cb.card>
-    <p class="small text-muted">Opening a new market: press <strong>Import networks from Reloadly</strong> (after entering the Reloadly keys), check the services and prices it created, then open the country here. Customers pick their country on the Buy page and in the app; each country has its own wallet in its own currency. New customers are placed in {{ config('afritopup.default_country') }} unless their account says otherwise.</p>
+    <p class="small text-muted">Opening a new market: press <strong>Import networks from Reloadly</strong> (after entering the Reloadly keys), check the services and prices it created, then open the country here. Customers pick their country on the Buy page and in the app; each country has its own wallet in its own currency. New customers are placed in {{ config('pericharge.default_country') }} unless their account says otherwise.</p>
 </div></div></div>
 @endsection

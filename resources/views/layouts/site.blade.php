@@ -3,14 +3,14 @@
     $hexRgb = fn ($hex, $fallback) => preg_match('/^#[0-9a-f]{6}$/i', (string) $hex) ? implode(', ', array_map('hexdec', str_split(substr($hex, 1), 2))) : $fallback;
     $primary = ($brand['primary_color'] ?? null) ?: '#0B8457';
     $accent = ($brand['accent_color'] ?? null) ?: '#F5A623';
-    $cats = config('afritopup.categories');
+    $cats = config('pericharge.categories');
     $blurbs = \App\Http\Controllers\Site\SiteController::BLURBS;
     $me = auth()->user();
     $headerMode = trim($__env->yieldContent('header', 'dark'));   // dark (over a dark hero) | light
     $metaTitle = trim($__env->yieldContent('title')) ?: ($siteName . ' — ' . ($brand['tagline'] ?? 'Recharge & pay bills'));
     $metaDesc = trim($__env->yieldContent('description')) ?: 'Buy airtime and data, pay for DStv, GOtv and electricity, buy exam PINs and send bulk SMS — instantly, from one wallet. ' . $siteName . ' is ' . lcfirst(rtrim($brand['tagline'] ?? '', '.')) . '.';
-    $social = array_filter(config('afritopup.social_links', []));
-    $apps = config('afritopup.app_links', []);
+    $social = array_filter(config('pericharge.social_links', []));
+    $apps = config('pericharge.app_links', []);
 @endphp
 <!doctype html>
 <html lang="en" class="no-js">
@@ -28,7 +28,7 @@
     <meta property="og:description" content="{{ $metaDesc }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta name="twitter:card" content="summary_large_image">
-    <link rel="icon" href="{{ asset($brand['favicon'] ?? 'images/brand/afritopup-mark.svg') }}">
+    <link rel="icon" href="{{ asset($brand['favicon'] ?? 'images/brand/pericharge-mark.svg') }}">
 
     <link rel="preload" href="{{ asset('site/vendor/fonts/plus-jakarta-sans-latin-800-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ asset('site/vendor/fonts/plus-jakarta-sans-latin-500-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
@@ -83,7 +83,7 @@
                     @endif
                 @else
                     <a href="{{ route('login') }}" class="s-btn s-btn--ghost s-btn--sm s-hide-md">Log in</a>
-                    @if(config('afritopup.allow_registration'))
+                    @if(config('pericharge.allow_registration'))
                         <a href="{{ route('register') }}" class="s-btn s-btn--gold s-btn--sm">Get started</a>
                     @endif
                 @endauth
@@ -116,7 +116,7 @@
             @auth
                 <a href="{{ route('dashboard') }}" class="s-btn s-btn--block">Go to my account <i class="ri-arrow-right-line"></i></a>
             @else
-                @if(config('afritopup.allow_registration'))<a href="{{ route('register') }}" class="s-btn s-btn--block">Create free account</a>@endif
+                @if(config('pericharge.allow_registration'))<a href="{{ route('register') }}" class="s-btn s-btn--block">Create free account</a>@endif
                 <a href="{{ route('login') }}" class="s-btn s-btn--ghost s-btn--block">Log in</a>
             @endauth
         </div>
@@ -180,7 +180,7 @@
 </footer>
 
 <button class="s-top" id="toTop" type="button" aria-label="Back to top"><i class="ri-arrow-up-line"></i></button>
-@if(array_filter(config('afritopup.app_links', [])))
+@if(array_filter(config('pericharge.app_links', [])))
     <div class="s-appbar" id="appBar" role="complementary" aria-label="Get the app">
         <button type="button" class="s-appbar-x" data-appbar-close aria-label="Close"><i class="ri-close-line"></i></button>
         <x-brand-logo mark size="30px" />

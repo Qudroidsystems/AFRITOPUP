@@ -18,14 +18,14 @@ use Illuminate\Support\Str;
  *   php artisan db:seed --class=DemoSeeder
  *
  * Every account: password "password", transaction PIN "1234".
- *   customer@afritopup.test  ₦50,000   (referred by the agent)
- *   agent@afritopup.test     ₦250,000  + ₦3,500 referral earnings
- *   reseller@afritopup.test  ₦1,000,000 (with an API key)
+ *   customer@pericharge.test  ₦50,000   (referred by the agent)
+ *   agent@pericharge.test     ₦250,000  + ₦3,500 referral earnings
+ *   reseller@pericharge.test  ₦1,000,000 (with an API key)
  *
  * Web admin (staff) accounts, same password:
- *   admin@afritopup.test     Super Administrator (everything)
- *   support@afritopup.test   Support Officer
- *   finance@afritopup.test   Finance Officer
+ *   admin@pericharge.test     Super Administrator (everything)
+ *   support@pericharge.test   Support Officer
+ *   finance@pericharge.test   Finance Officer
  *
  * Purchases run against the sandbox provider, so nothing real is bought.
  * Safe to run again: existing accounts are topped back up to the amounts
@@ -38,16 +38,16 @@ class DemoSeeder extends Seeder
 
     public const ACCOUNTS = [
         // email, name, type, phone, wallet (NGN)
-        ['customer@afritopup.test', 'Ada Customer', User::TYPE_CUSTOMER, '08030000001', 50000],
-        ['agent@afritopup.test', 'Tunde Agent', User::TYPE_AGENT, '08030000002', 250000],
-        ['reseller@afritopup.test', 'Bola Reseller', User::TYPE_RESELLER, '08030000003', 1000000],
+        ['customer@pericharge.test', 'Ada Customer', User::TYPE_CUSTOMER, '08030000001', 50000],
+        ['agent@pericharge.test', 'Tunde Agent', User::TYPE_AGENT, '08030000002', 250000],
+        ['reseller@pericharge.test', 'Bola Reseller', User::TYPE_RESELLER, '08030000003', 1000000],
     ];
 
     /** email, name, role, job title */
     public const STAFF = [
-        ['admin@afritopup.test', 'Demo Admin', 'Super Administrator', 'Platform administrator'],
-        ['support@afritopup.test', 'Demo Support', 'Support Officer', 'Customer support'],
-        ['finance@afritopup.test', 'Demo Finance', 'Finance Officer', 'Finance & reconciliation'],
+        ['admin@pericharge.test', 'Demo Admin', 'Super Administrator', 'Platform administrator'],
+        ['support@pericharge.test', 'Demo Support', 'Support Officer', 'Customer support'],
+        ['finance@pericharge.test', 'Demo Finance', 'Finance Officer', 'Finance & reconciliation'],
     ];
 
     public const ROLE_FOR = [User::TYPE_CUSTOMER => 'Customer', User::TYPE_AGENT => 'Agent', User::TYPE_RESELLER => 'Reseller'];
@@ -121,7 +121,7 @@ class DemoSeeder extends Seeder
 
         $this->command?->newLine();
         $this->command?->info('Sign in with any account above. Password: ' . self::PASSWORD . ' · PIN: ' . self::PIN);
-        $this->command?->info('Web admin: admin@afritopup.test / ' . self::PASSWORD);
+        $this->command?->info('Web admin: admin@pericharge.test / ' . self::PASSWORD);
         \App\Services\Receipts\ReceiptMailer::$muted = false;
     }
 

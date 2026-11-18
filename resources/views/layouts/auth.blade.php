@@ -14,7 +14,7 @@
     <meta content="{{ $brand['company'] ?? 'Pericharge' }}" name="author">
     <link rel="shortcut icon" href="{{ asset($brand['favicon']) }}">
     <link rel="icon" href="{{ asset($brand['favicon']) }}">
-    <link rel="apple-touch-icon" href="{{ asset($brand['logo_small']) }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/brand/apple-touch-icon.png') }}">
     <!-- Fonts css load -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
@@ -541,7 +541,7 @@
                                             </div>
 
                                             <ul class="auth-user-list list-unstyled">
-                                                @foreach(collect(config('afritopup.modules'))->take(5)->values() as $index => $mod)
+                                                @foreach(collect(config('pericharge.modules'))->take(5)->values() as $index => $mod)
                                                     <li style="animation-delay: {{ $index * 0.2 }}s;">
                                                         <span class="avatar-sm d-inline-block" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $mod['name'] }}">
                                                             <span class="avatar-title bg-white shadow-lg rounded-circle fs-4" style="color: {{ $mod['color'] ?? '#405189' }};">

@@ -29,7 +29,7 @@ class WalletApiController extends ApiController
             'currency'        => $w->currency,
             'is_locked'       => $w->is_locked,
             'has_pin'         => $user->hasTransactionPin(),
-            'funding'         => config('afritopup.funding'),
+            'funding'         => config('pericharge.funding'),
             'referral_code'   => $user->referral_code,
         ]);
     }
@@ -97,7 +97,7 @@ class WalletApiController extends ApiController
 
     protected function feeLine(): string
     {
-        $c = (array) config('afritopup.funding');
+        $c = (array) config('pericharge.funding');
         if ((float) ($c['transfer_fee_percent'] ?? 0) <= 0 && (float) ($c['transfer_fee_flat'] ?? 0) <= 0) return 'No fee';
         $pct = rtrim(rtrim(number_format((float) $c['transfer_fee_percent'], 2), '0'), '.');
 

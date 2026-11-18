@@ -139,7 +139,7 @@ test('buyer pages open for a customer, admin pages do not', function () {
     foreach (['dashboard', 'topup.buy', 'topup.wallet', 'topup.transactions', 'topup.sender-ids'] as $r) {
         $this->actingAs($this->user)->get(route($r))->assertOk();
     }
-    foreach (array_keys(config('afritopup.categories')) as $c) {
+    foreach (array_keys(config('pericharge.categories')) as $c) {
         $this->actingAs($this->user)->get(route('topup.buy.form', $c))->assertOk();
     }
     $this->actingAs($this->user)->getJson(route('topup.services.products', ($this->svc)('mtn-data')))->assertOk()->assertJsonCount(5, 'products');

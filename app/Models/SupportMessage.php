@@ -44,7 +44,7 @@ class SupportMessage extends Model
             'from_staff' => $this->from_staff,
             'mine'       => null,   // filled in per viewer
             'sender'     => $this->type === 'event' ? null : ($this->from_staff
-                ? ($forStaff ? $this->sender?->name : (\Illuminate\Support\Str::before((string) $this->sender?->name, ' ') ?: 'Support') . ' · ' . config('afritopup.name') . ' Support')
+                ? ($forStaff ? $this->sender?->name : (\Illuminate\Support\Str::before((string) $this->sender?->name, ' ') ?: 'Support') . ' · ' . config('pericharge.name') . ' Support')
                 : $this->sender?->name),
             'body'       => $this->body,
             'attachment' => $this->attachment_path ? [

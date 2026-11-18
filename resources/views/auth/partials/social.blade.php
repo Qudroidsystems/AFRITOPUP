@@ -1,11 +1,11 @@
 {{--
     "Continue with Google / Apple" for the sign-in and sign-up pages. Each button appears once its
-    provider is configured (config/afritopup.php → social). The provider's script gives the page an
+    provider is configured (config/pericharge.php → social). The provider's script gives the page an
     ID token; it is posted to auth.social, verified on the server and the person is signed in.
 --}}
 @php
-    $gId = config('afritopup.social.google.web_client_id');
-    $aId = config('afritopup.social.apple.web_client_id');
+    $gId = config('pericharge.social.google.web_client_id');
+    $aId = config('pericharge.social.apple.web_client_id');
     $showGoogle = $gId && \App\Services\Auth\SocialTokenVerifier::enabled('google');
     $showApple = $aId && \App\Services\Auth\SocialTokenVerifier::enabled('apple');
 @endphp

@@ -89,9 +89,9 @@ class SettingsController extends Controller
 
     public function providers(Request $request, ProviderManager $manager)
     {
-        $country = strtoupper((string) $request->query('country', config('afritopup.default_country', 'NG')));
+        $country = strtoupper((string) $request->query('country', config('pericharge.default_country', 'NG')));
         $routing = $manager->routing($country);
-        $categories = collect(config('afritopup.categories'))->map(fn ($c, $k) => [
+        $categories = collect(config('pericharge.categories'))->map(fn ($c, $k) => [
             'name'    => $c['name'],
             'current' => $routing[$k] ?? [],
             'options' => collect($manager->options($k))->map(fn ($name, $key) => ['name' => $name, 'ready' => in_array($key, ['sandbox', 'manual'], true) || $manager->get($key)->configured()])->all(),
@@ -167,7 +167,7 @@ class SettingsController extends Controller
     public function switchVendor(Request $request, ProviderManager $manager)
     {
         $d = $request->validate([
-            'category' => ['required', \Illuminate\Validation\Rule::in(array_keys(config('afritopup.categories')))],
+            'category' => ['required', \Illuminate\Validation\Rule::in(array_keys(config('pericharge.categories')))],
             'country'  => 'required|exists:countries,code',
             'vendor'   => ['required', \Illuminate\Validation\Rule::in($manager->keys())],
             'markup'   => 'nullable|numeric|min:0|max:100',
@@ -182,7 +182,7 @@ class SettingsController extends Controller
         } catch (\InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         }
-        $cat = config('afritopup.categories.' . $d['category'] . '.name', $d['category']);
+        $cat = config('pericharge.categories.' . $d['category'] . '.name', $d['category']);
 
         $msg = "{$cat}: {$r['moved']} service(s) moved to {$vendor->name()}.";
         if ($r['synced']) $msg .= " Plans imported for {$r['synced']} service(s): {$r['added']} new" . ($request->boolean('activate') ? '' : ' (switched off until you price them)') . ", {$r['retired']} not offered by this vendor switched off.";
@@ -239,7 +239,7 @@ class SettingsController extends Controller
 
     public function website()
     {
-        $values = collect(Settings::SITE_FIELDS)->mapWithKeys(fn ($f) => [$f => config("afritopup.$f")])->all();
+        $values = collect(Settings::SITE_FIELDS)->mapWithKeys(fn ($f) => [$f => config("pericharge.$f")])->all();
 
         return view('settings.website', [
             'pagetitle' => 'Website & app',
@@ -261,8 +261,8 @@ class SettingsController extends Controller
             'support_phone' => 'nullable|string|max:40',
             'address'   => 'nullable|string|max:255',
         ], [
-            'android.regex' => 'Use the Google Play link, e.g. https://play.google.com/store/apps/details?id=com.afritopup.app',
-            'ios.regex'     => 'Use the App Store link, e.g. https://apps.apple.com/app/afritopup/id1234567890',
+            'android.regex' => 'Use the Google Play link, e.g. https://play.google.com/store/apps/details?id=com.pericharge.app',
+            'ios.regex'     => 'Use the App Store link, e.g. https://apps.apple.com/app/pericharge/id1234567890',
             '*.url'         => 'Enter a full https:// link.',
         ]);
 

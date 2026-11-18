@@ -25,7 +25,7 @@ class BuyController extends Controller
 
     protected function country(Request $request): Country
     {
-        $code = $request->user()->country_code ?: config('afritopup.default_country', 'NG');
+        $code = $request->user()->country_code ?: config('pericharge.default_country', 'NG');
 
         return Country::byCode($code) ?? Country::active()->ordered()->firstOrFail();
     }
@@ -51,7 +51,7 @@ class BuyController extends Controller
             'pagetitle'  => 'Buy & Pay',
             'country'    => $country,
             'countries'  => Country::active()->ordered()->get(),
-            'categories' => collect(config('afritopup.categories'))->filter(fn ($c, $k) => $services->has($k)),
+            'categories' => collect(config('pericharge.categories'))->filter(fn ($c, $k) => $services->has($k)),
             'services'   => $services,
             'wallet'     => $request->user()->wallet($country->currency),
             'recent'     => $request->user()->transactions()->with('service', 'product')->latest('id')->limit(6)->get(),
@@ -60,16 +60,16 @@ class BuyController extends Controller
 
     public function show(Request $request, string $category)
     {
-        abort_unless(config('afritopup.categories.' . $category), 404);
+        abort_unless(config('pericharge.categories.' . $category), 404);
         $country = $this->country($request);
         $services = Service::active()->in($country->code)->where('category', $category)->ordered()->get();
         abort_if($services->isEmpty(), 404);
         $user = $request->user();
 
         return view('topup.buy.form', [
-            'pagetitle' => config('afritopup.categories.' . $category . '.name'),
+            'pagetitle' => config('pericharge.categories.' . $category . '.name'),
             'category'  => $category,
-            'cat'       => config('afritopup.categories.' . $category),
+            'cat'       => config('pericharge.categories.' . $category),
             'country'   => $country,
             'services'  => $services,
             'selected'  => $services->firstWhere('code', $request->query('service')) ?? $services->first(),

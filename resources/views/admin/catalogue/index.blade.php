@@ -24,7 +24,7 @@
         <x-cb.card><div class="empty-state"><i class="ri-price-tag-3-line"></i><h6>No services in this country yet</h6><p>Add the billers you will sell here, and switch the country on under <a href="{{ route('admin.countries.index') }}">Countries</a>.</p></div></x-cb.card>
     @endif
 
-    @foreach(config('afritopup.categories') as $key => $cat)
+    @foreach(config('pericharge.categories') as $key => $cat)
         @continue(!$services->has($key))
         <x-cb.card :title="$cat['name']" :icon="$cat['icon']" :count="$services[$key]->count()" :flush="true">
             <div class="table-responsive"><table class="cb-table stack">

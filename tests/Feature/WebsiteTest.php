@@ -16,7 +16,7 @@ it('serves every public page', function () {
     foreach (['/', '/pricing', '/about', '/business', '/developers', '/faq', '/contact', '/terms', '/privacy'] as $url) {
         $this->get($url)->assertOk();
     }
-    foreach (array_keys(config('afritopup.categories')) as $cat) {
+    foreach (array_keys(config('pericharge.categories')) as $cat) {
         $this->get(route('site.service', $cat))->assertOk();
     }
     $this->get('/pay/nonsense')->assertNotFound();
@@ -43,7 +43,7 @@ it('sends a visitor from quick-pay through sign-up straight back to their order'
 
 it('takes a signed-in customer from quick-pay to the filled-in buy form', function () {
     $this->seed(DemoSeeder::class);
-    $user = User::where('email', 'customer@afritopup.test')->first();
+    $user = User::where('email', 'customer@pericharge.test')->first();
     $plan = Product::whereHas('service', fn ($q) => $q->where('code', 'mtn-data'))->first();
 
     $to = route('topup.buy.form', ['category' => 'data', 'service' => 'mtn-data', 'recipient' => '08031234567', 'product' => $plan->id]);
@@ -62,8 +62,8 @@ it('saves contact messages and ignores bots', function () {
 
 it('gives customers the customer area and staff the admin panel', function () {
     $this->seed(DemoSeeder::class);
-    $customer = User::where('email', 'customer@afritopup.test')->first();
-    $admin = User::where('email', 'admin@afritopup.test')->first();
+    $customer = User::where('email', 'customer@pericharge.test')->first();
+    $admin = User::where('email', 'admin@pericharge.test')->first();
 
     $this->actingAs($customer)->get(route('dashboard'))->assertOk()->assertSee('a-tabbar', false)->assertSee('Pay again');
     foreach (['topup.buy', 'topup.wallet', 'topup.transactions', 'account.profile', 'notifications.index'] as $r) {

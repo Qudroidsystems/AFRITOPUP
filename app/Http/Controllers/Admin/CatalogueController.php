@@ -22,7 +22,7 @@ class CatalogueController extends Controller
 
     public function index(Request $request)
     {
-        $country = strtoupper($request->query('country', config('afritopup.default_country', 'NG')));
+        $country = strtoupper($request->query('country', config('pericharge.default_country', 'NG')));
         $services = Service::withCount(['products', 'products as active_products_count' => fn ($q) => $q->where('is_active', true)])
             ->in($country)->ordered()->get()->groupBy('category');
 
@@ -166,7 +166,7 @@ class CatalogueController extends Controller
 
     public function toggleCountry(Country $country)
     {
-        if ($country->is_active && $country->code === config('afritopup.default_country')) return back()->with('error', 'The default country cannot be switched off.');
+        if ($country->is_active && $country->code === config('pericharge.default_country')) return back()->with('error', 'The default country cannot be switched off.');
         $country->forceFill(['is_active' => !$country->is_active])->save();
 
         return back()->with('success', $country->name . ($country->is_active ? ' is now open to customers.' : ' is now hidden from customers.'));
@@ -197,7 +197,7 @@ class CatalogueController extends Controller
     protected function serviceData(Request $request, ?Service $s = null): array
     {
         $d = $request->validate([
-            'category'      => ['required', Rule::in(array_keys(config('afritopup.categories')))],
+            'category'      => ['required', Rule::in(array_keys(config('pericharge.categories')))],
             'country_code'  => 'required|exists:countries,code',
             'code'          => ['required', 'alpha_dash', 'max:60', Rule::unique('services')->where('country_code', $request->input('country_code'))->ignore($s?->id)],
             'name'          => 'required|string|max:100',

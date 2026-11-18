@@ -17,7 +17,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->seed(DatabaseSeeder::class);
     $this->seed(DemoSeeder::class);
-    $this->customer = User::where('email', 'customer@afritopup.test')->first();
+    $this->customer = User::where('email', 'customer@pericharge.test')->first();
     Mail::fake();
 });
 
@@ -27,7 +27,7 @@ it('e-mails a receipt with a PDF copy when a purchase succeeds, once', function 
 
     Mail::assertSent(PurchaseReceiptMail::class, function ($m) use ($t) {
         $html = $m->render();
-        return $m->txn->is($t) && $m->hasTo('customer@afritopup.test')
+        return $m->txn->is($t) && $m->hasTo('customer@pericharge.test')
             && str_contains($html, $t->reference) && count($m->attachments()) === 1
             && str_contains($m->envelope()->subject, 'Receipt');
     });
@@ -45,8 +45,8 @@ it('respects the e-mail receipts switch, and resellers are off by default', func
     app(TopupService::class)->purchase($this->customer->fresh(), ['service_id' => Service::where('code', 'mtn')->value('id'), 'recipient' => '08031112222', 'amount' => 100], 'web');
     Mail::assertNotSent(PurchaseReceiptMail::class);
 
-    expect(User::where('email', 'reseller@afritopup.test')->first()->wantsEmailReceipts())->toBeFalse()
-        ->and(User::where('email', 'agent@afritopup.test')->first()->wantsEmailReceipts())->toBeTrue();
+    expect(User::where('email', 'reseller@pericharge.test')->first()->wantsEmailReceipts())->toBeFalse()
+        ->and(User::where('email', 'agent@pericharge.test')->first()->wantsEmailReceipts())->toBeTrue();
 });
 
 it('e-mails a receipt when the wallet is funded by transfer', function () {
@@ -74,7 +74,7 @@ it('builds a statement that balances, as a page, PDF, CSV and e-mail', function 
     expect($csv->streamedContent())->toContain('Opening balance')->toContain('Money in');
 
     $this->actingAs($this->customer)->post(route('account.statement.email'), compact('from', 'to'))->assertSessionHas('success');
-    Mail::assertSent(StatementMail::class, fn ($m) => $m->hasTo('customer@afritopup.test') && count($m->attachments()) === 1);
+    Mail::assertSent(StatementMail::class, fn ($m) => $m->hasTo('customer@pericharge.test') && count($m->attachments()) === 1);
 });
 
 it('gives the app statements and PDF receipts, only for the owner', function () {
@@ -86,7 +86,7 @@ it('gives the app statements and PDF receipts, only for the owner', function () 
 
     $mine = $this->customer->transactions()->first();
     $this->withToken($token)->get('/api/v1/transactions/' . $mine->reference . '/receipt')->assertOk();
-    $theirs = User::where('email', 'agent@afritopup.test')->first()->transactions()->first();
+    $theirs = User::where('email', 'agent@pericharge.test')->first()->transactions()->first();
     $this->withToken($token)->get('/api/v1/transactions/' . $theirs->reference . '/receipt')->assertNotFound();
 
     $this->withToken($token)->putJson('/api/v1/me/email-receipts', ['email_receipts' => false])->assertOk()->assertJsonPath('data.email_receipts', false);

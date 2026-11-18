@@ -82,7 +82,7 @@
             @php $i = 0; @endphp
             @php
                 // airtime + data wide on top, three cards, then SMS as a full-width banner.
-                $order = collect(config('afritopup.categories'))->sortBy(fn ($c, $k) => array_search($k, ['airtime', 'data', 'cable', 'electricity', 'education', 'sms']));
+                $order = collect(config('pericharge.categories'))->sortBy(fn ($c, $k) => array_search($k, ['airtime', 'data', 'cable', 'electricity', 'education', 'sms']));
             @endphp
             @foreach($order as $k => $c)
                 @php
@@ -177,7 +177,7 @@
                                 <div class="s-ph-actions"><span>+ Fund</span><span>Transfer</span><span>History</span></div>
                             </div>
                             <div class="s-ph-grid">
-                                @foreach(config('afritopup.categories') as $k => $c)
+                                @foreach(config('pericharge.categories') as $k => $c)
                                     @if($loop->index < 8)
                                         <div><i style="background: color-mix(in srgb, {{ $c['color'] }} 14%, #fff); color: {{ $c['color'] }}" class="{{ $c['icon'] }}"></i>{{ \Illuminate\Support\Str::before($c['name'], ' ') }}</div>
                                     @endif

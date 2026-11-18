@@ -8,7 +8,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->seed(DatabaseSeeder::class);
-    $this->admin = User::where('email', config('afritopup.super_admin.email'))->first();
+    $this->admin = User::where('email', config('pericharge.super_admin.email'))->first();
     $this->admin->forceFill(['must_change_password' => false])->save();
 });
 
@@ -113,7 +113,7 @@ test('the mobile api signs in and returns the user', function () {
     $user->forceFill(['user_type' => 'staff'])->save();
     $user->assignRole('Support Officer');
 
-    $this->getJson('/api/v1/app/config')->assertOk()->assertJsonPath('data.name', config('afritopup.name'));
+    $this->getJson('/api/v1/app/config')->assertOk()->assertJsonPath('data.name', config('pericharge.name'));
 
     $token = $this->postJson('/api/v1/auth/login', ['login' => 'app@example.com', 'password' => 'Password1', 'device_name' => 'Pixel'])
         ->assertOk()->assertJsonPath('data.user.user_type', 'staff')->json('data.token');

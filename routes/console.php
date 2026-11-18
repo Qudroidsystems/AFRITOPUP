@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schedule;
 
 /*
 | Scheduler — needs ONE cron job running every minute:
-|   * * * * * cd /path/to/afritopup && php artisan schedule:run >> /dev/null 2>&1
+|   * * * * * cd /path/to/pericharge && php artisan schedule:run >> /dev/null 2>&1
 */
 
 // Queued jobs (reseller webhooks, push notifications) on hosting without a queue worker.

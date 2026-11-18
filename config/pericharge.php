@@ -14,58 +14,58 @@
 
 return [
 
-    'name'          => env('AFRITOPUP_NAME', 'Pericharge'),
-    'company'       => env('AFRITOPUP_COMPANY', 'Peridote Global Limited'),
+    'name'          => env('PERICHARGE_NAME', 'Pericharge'),
+    'company'       => env('PERICHARGE_COMPANY', 'Peridote Global Limited'),
     // Footer line on every page, e-mail and receipt: "Pericharge is a product of Peridote Global Limited".
-    'owner'         => env('AFRITOPUP_OWNER', 'Peridote Global Limited'),
+    'owner'         => env('PERICHARGE_OWNER', 'Peridote Global Limited'),
     // How the logotype splits the name into its two colours (blank = split at the second capital).
-    'wordmark'      => array_values(array_filter([env('AFRITOPUP_WORDMARK_A', 'Peri'), env('AFRITOPUP_WORDMARK_B', 'charge')], 'strlen')),
+    'wordmark'      => array_values(array_filter([env('PERICHARGE_WORDMARK_A', 'Peri'), env('PERICHARGE_WORDMARK_B', 'charge')], 'strlen')),
     // Credit shown in the footer, on the sign-in page and in the app.
-    'developer'     => env('AFRITOPUP_DEVELOPER', 'Qudroid Systems'),
-    'developer_url' => env('AFRITOPUP_DEVELOPER_URL', 'https://qudroids.com'),
-    'tagline'       => env('AFRITOPUP_TAGLINE', 'Your One-Stop Digital Payment and Recharge Platform.'),
-    'website'       => env('AFRITOPUP_WEBSITE', 'https://pericharge.com'),
-    'support_email' => env('AFRITOPUP_SUPPORT_EMAIL', 'support@pericharge.com'),
-    'support_phone' => env('AFRITOPUP_SUPPORT_PHONE'),
-    'address'       => env('AFRITOPUP_ADDRESS'),          // shown on receipts
+    'developer'     => env('PERICHARGE_DEVELOPER', 'Qudroid Systems'),
+    'developer_url' => env('PERICHARGE_DEVELOPER_URL', 'https://qudroids.com'),
+    'tagline'       => env('PERICHARGE_TAGLINE', 'Your One-Stop Digital Payment and Recharge Platform.'),
+    'website'       => env('PERICHARGE_WEBSITE', 'https://pericharge.com'),
+    'support_email' => env('PERICHARGE_SUPPORT_EMAIL', 'support@pericharge.com'),
+    'support_phone' => env('PERICHARGE_SUPPORT_PHONE'),
+    'address'       => env('PERICHARGE_ADDRESS'),          // shown on receipts
 
     // Brand colour for the layout accents and the mobile app theme.
     // Website footer / app download buttons (leave blank to hide a social link).
     'app_links' => [
-        'android' => env('AFRITOPUP_ANDROID_URL'),
-        'ios'     => env('AFRITOPUP_IOS_URL'),
+        'android' => env('PERICHARGE_ANDROID_URL'),
+        'ios'     => env('PERICHARGE_IOS_URL'),
     ],
     'social_links' => [
-        'facebook'  => env('AFRITOPUP_FACEBOOK_URL'),
-        'x'         => env('AFRITOPUP_X_URL'),
-        'instagram' => env('AFRITOPUP_INSTAGRAM_URL'),
-        'linkedin'  => env('AFRITOPUP_LINKEDIN_URL'),
-        'youtube'   => env('AFRITOPUP_YOUTUBE_URL'),
-        'tiktok'    => env('AFRITOPUP_TIKTOK_URL'),
-        'whatsapp'  => env('AFRITOPUP_WHATSAPP_URL'),
+        'facebook'  => env('PERICHARGE_FACEBOOK_URL'),
+        'x'         => env('PERICHARGE_X_URL'),
+        'instagram' => env('PERICHARGE_INSTAGRAM_URL'),
+        'linkedin'  => env('PERICHARGE_LINKEDIN_URL'),
+        'youtube'   => env('PERICHARGE_YOUTUBE_URL'),
+        'tiktok'    => env('PERICHARGE_TIKTOK_URL'),
+        'whatsapp'  => env('PERICHARGE_WHATSAPP_URL'),
     ],
 
-    'primary_color' => env('AFRITOPUP_PRIMARY_COLOR') ?: '#0B8457',
-    'accent_color'  => env('AFRITOPUP_ACCENT_COLOR') ?: '#F5A623',
+    'primary_color' => env('PERICHARGE_PRIMARY_COLOR') ?: '#0B8457',
+    'accent_color'  => env('PERICHARGE_ACCENT_COLOR') ?: '#F5A623',
 
     // Paths under public/.
-    'logo'       => env('AFRITOPUP_LOGO', 'images/brand/afritopup-logo-dark.svg'),
-    'logo_light' => env('AFRITOPUP_LOGO_LIGHT', 'images/brand/afritopup-logo-light.svg'),
-    'logo_small' => env('AFRITOPUP_LOGO_SMALL', 'images/brand/afritopup-mark.svg'),
-    'favicon'    => env('AFRITOPUP_FAVICON', 'images/brand/afritopup-mark.svg'),
+    'logo'       => env('PERICHARGE_LOGO', 'images/brand/pericharge-logo-dark.svg'),
+    'logo_light' => env('PERICHARGE_LOGO_LIGHT', 'images/brand/pericharge-logo-light.svg'),
+    'logo_small' => env('PERICHARGE_LOGO_SMALL', 'images/brand/pericharge-mark.svg'),
+    'favicon'    => env('PERICHARGE_FAVICON', 'images/brand/pericharge-mark.svg'),
 
     // Customers create their own accounts (web and app). Staff are invited.
     // Customers confirm their e-mail (6-digit code or link) before they can buy.
-    'require_email_verification' => (bool) env('AFRITOPUP_REQUIRE_EMAIL_VERIFICATION', true),
+    'require_email_verification' => (bool) env('PERICHARGE_REQUIRE_EMAIL_VERIFICATION', true),
 
-    'allow_registration' => (bool) env('AFRITOPUP_ALLOW_REGISTRATION', true),
+    'allow_registration' => (bool) env('PERICHARGE_ALLOW_REGISTRATION', true),
 
     /*
     | Sign in with Google / Apple (web and app). A provider is offered once it
     | has at least one client ID. Tokens are accepted for any listed ID.
     |   google: the Web client ID (also the app's serverClientId), plus the
     |           Android and iOS client IDs from Google Cloud → Credentials.
-    |   apple:  the app's bundle ID (com.afritopup.app) and, for the website,
+    |   apple:  the app's bundle ID (com.pericharge.app) and, for the website,
     |           the Services ID; `web_client_id` is the Services ID.
     */
     'social' => [
@@ -75,7 +75,7 @@ return [
             'ios_client_id' => env('GOOGLE_IOS_CLIENT_ID'),
         ],
         'apple' => [
-            'client_ids'    => array_filter(explode(',', (string) env('APPLE_CLIENT_IDS', 'com.afritopup.app'))),
+            'client_ids'    => array_filter(explode(',', (string) env('APPLE_CLIENT_IDS', 'com.pericharge.app'))),
             'web_client_id' => env('APPLE_SERVICES_ID'),
         ],
     ],
@@ -85,9 +85,9 @@ return [
     | Change the password after the first sign-in.
     */
     'super_admin' => [
-        'name'     => env('AFRITOPUP_ADMIN_NAME', 'Super Administrator'),
-        'email'    => env('AFRITOPUP_ADMIN_EMAIL', 'admin@pericharge.com'),
-        'password' => env('AFRITOPUP_ADMIN_PASSWORD', 'ChangeMe@123'),
+        'name'     => env('PERICHARGE_ADMIN_NAME', 'Super Administrator'),
+        'email'    => env('PERICHARGE_ADMIN_EMAIL', 'admin@pericharge.com'),
+        'password' => env('PERICHARGE_ADMIN_PASSWORD', 'ChangeMe@123'),
     ],
 
     // The role that bypasses every permission check.
@@ -106,11 +106,11 @@ return [
     ],
 
     // The country and currency new accounts start in.
-    'default_country'  => env('AFRITOPUP_DEFAULT_COUNTRY', 'NG'),
-    'default_currency' => env('AFRITOPUP_DEFAULT_CURRENCY', 'NGN'),
+    'default_country'  => env('PERICHARGE_DEFAULT_COUNTRY', 'NG'),
+    'default_currency' => env('PERICHARGE_DEFAULT_CURRENCY', 'NGN'),
 
     // Transaction references look like PRC-20261111-8F3K2Q9X.
-    'reference_prefix' => env('AFRITOPUP_REFERENCE_PREFIX', 'AFT'),
+    'reference_prefix' => env('PERICHARGE_REFERENCE_PREFIX', 'AFT'),
 
     /*
     | Wallet funding: smallest and largest single top-up, and Paystack's fee
@@ -118,30 +118,30 @@ return [
     | 0 to absorb the fee.
     */
     'funding' => [
-        'min'         => (float) env('AFRITOPUP_FUND_MIN', 100),
-        'max'         => (float) env('AFRITOPUP_FUND_MAX', 1000000),
-        'fee_percent' => (float) env('AFRITOPUP_FUND_FEE_PERCENT', 1.5),
-        'fee_flat'    => (float) env('AFRITOPUP_FUND_FEE_FLAT', 0),
-        'fee_cap'     => (float) env('AFRITOPUP_FUND_FEE_CAP', 2000),
+        'min'         => (float) env('PERICHARGE_FUND_MIN', 100),
+        'max'         => (float) env('PERICHARGE_FUND_MAX', 1000000),
+        'fee_percent' => (float) env('PERICHARGE_FUND_FEE_PERCENT', 1.5),
+        'fee_flat'    => (float) env('PERICHARGE_FUND_FEE_FLAT', 0),
+        'fee_cap'     => (float) env('PERICHARGE_FUND_FEE_CAP', 2000),
 
         // Bank transfer into the customer's own account number (Paystack dedicated account):
         // the fee is taken from the amount received (Paystack charges 1%, capped at ₦300).
-        'transfer_fee_percent' => (float) env('AFRITOPUP_TRANSFER_FEE_PERCENT', 1),
-        'transfer_fee_flat'    => (float) env('AFRITOPUP_TRANSFER_FEE_FLAT', 0),
-        'transfer_fee_cap'     => (float) env('AFRITOPUP_TRANSFER_FEE_CAP', 300),
-        'transfer_bank'        => env('AFRITOPUP_TRANSFER_BANK', 'wema-bank'),   // wema-bank | titan-paystack
+        'transfer_fee_percent' => (float) env('PERICHARGE_TRANSFER_FEE_PERCENT', 1),
+        'transfer_fee_flat'    => (float) env('PERICHARGE_TRANSFER_FEE_FLAT', 0),
+        'transfer_fee_cap'     => (float) env('PERICHARGE_TRANSFER_FEE_CAP', 300),
+        'transfer_bank'        => env('PERICHARGE_TRANSFER_BANK', 'wema-bank'),   // wema-bank | titan-paystack
     ],
 
     /*
     | A purchase still "processing" at the provider after this many minutes
     | is re-checked by `php artisan topup:requery` (scheduled every 5 minutes).
     */
-    'requery_after_minutes' => (int) env('AFRITOPUP_REQUERY_AFTER', 2),
+    'requery_after_minutes' => (int) env('PERICHARGE_REQUERY_AFTER', 2),
 
     // SMS: characters per page (plain GSM text) and the largest number of recipients per send.
     'sms' => [
         'page_length'    => 160,
-        'max_recipients' => (int) env('AFRITOPUP_SMS_MAX_RECIPIENTS', 10000),
+        'max_recipients' => (int) env('PERICHARGE_SMS_MAX_RECIPIENTS', 10000),
     ],
 
     /*

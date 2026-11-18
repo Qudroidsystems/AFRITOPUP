@@ -33,7 +33,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#ffffff">
     <meta name="robots" content="noindex">
-    <link rel="icon" href="{{ asset($brand['favicon'] ?? 'images/brand/afritopup-mark.svg') }}">
+    <link rel="icon" href="{{ asset($brand['favicon'] ?? 'images/brand/pericharge-mark.svg') }}">
     <link rel="preload" href="{{ asset('site/vendor/fonts/plus-jakarta-sans-latin-700-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
     @if($theme)
         {{-- The portal's Bootstrap build keeps every existing page's components identical. --}}

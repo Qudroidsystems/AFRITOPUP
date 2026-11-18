@@ -10,7 +10,7 @@ class AppConfigController extends ApiController
 {
     public function show()
     {
-        $b = config('afritopup');
+        $b = config('pericharge');
 
         return $this->ok([
             'name'          => $b['name'],

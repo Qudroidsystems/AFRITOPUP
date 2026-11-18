@@ -56,10 +56,10 @@ class DashboardController extends Controller
 
         $buyer = null;
         if ($user->can('Buy services')) {
-            $country = $user->country_code ?: config('afritopup.default_country', 'NG');
+            $country = $user->country_code ?: config('pericharge.default_country', 'NG');
             $buyer = [
                 'wallet'     => $user->wallet(),
-                'categories' => collect(config('afritopup.categories'))->filter(fn ($c, $k) => Service::active()->in($country)->where('category', $k)->exists()),
+                'categories' => collect(config('pericharge.categories'))->filter(fn ($c, $k) => Service::active()->in($country)->where('category', $k)->exists()),
                 'recent'     => $user->transactions()->with('service', 'product')->latest('id')->limit(6)->get(),
                 'spentMonth' => $user->transactions()->where('status', Transaction::SUCCESSFUL)->where('created_at', '>=', now()->startOfMonth())->sum('total'),
                 'hasPin'     => $user->hasTransactionPin(),
@@ -79,7 +79,7 @@ class DashboardController extends Controller
     protected function customer(Request $request)
     {
         $user = $request->user();
-        $country = \App\Models\Country::byCode($user->country_code ?: config('afritopup.default_country', 'NG'));
+        $country = \App\Models\Country::byCode($user->country_code ?: config('pericharge.default_country', 'NG'));
         $currency = $country?->currency ?? 'NGN';
         $ok = $user->transactions()->where('status', Transaction::SUCCESSFUL);
 
@@ -88,7 +88,7 @@ class DashboardController extends Controller
             'wallet'      => $user->wallet($currency),
             'earnings'    => $user->earningsWallet($currency),
             'account'     => $user->virtualAccounts()->where('is_active', true)->first(),
-            'categories'  => collect(config('afritopup.categories'))->filter(fn ($c, $k) => Service::active()->in($country?->code ?? 'NG')->where('category', $k)->exists()),
+            'categories'  => collect(config('pericharge.categories'))->filter(fn ($c, $k) => Service::active()->in($country?->code ?? 'NG')->where('category', $k)->exists()),
             'recent'      => $user->transactions()->with('service')->latest('id')->limit(6)->get(),
             'saved'       => $user->beneficiaries()->with('service')->orderByDesc('last_used_at')->limit(6)->get(),
             'spentMonth'  => (clone $ok)->where('created_at', '>=', now()->startOfMonth())->sum('total'),

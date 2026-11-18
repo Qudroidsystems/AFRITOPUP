@@ -62,7 +62,7 @@ class StatementService
 
         $spend = Transaction::where('user_id', $user->id)->where('currency', $wallet->currency)->where('status', Transaction::SUCCESSFUL)
             ->whereBetween('created_at', [$from, $to])->selectRaw('category, count(*) as n, sum(total) as total')->groupBy('category')->get()
-            ->map(fn ($r) => ['category' => $r->category, 'label' => config('afritopup.categories.' . $r->category . '.name', ucfirst($r->category)), 'count' => (int) $r->n, 'total' => (float) $r->total])
+            ->map(fn ($r) => ['category' => $r->category, 'label' => config('pericharge.categories.' . $r->category . '.name', ucfirst($r->category)), 'count' => (int) $r->n, 'total' => (float) $r->total])
             ->sortByDesc('total')->values();
 
         return [
@@ -97,7 +97,7 @@ class StatementService
         return response()->streamDownload(function () use ($s) {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");   // UTF-8 BOM so Excel shows ₦ correctly
-            fputcsv($out, [config('afritopup.name') . ' wallet statement', $s['user']->name, $s['user']->email]);
+            fputcsv($out, [config('pericharge.name') . ' wallet statement', $s['user']->name, $s['user']->email]);
             fputcsv($out, ['Period', $s['from']->format('j M Y') . ' – ' . $s['to']->format('j M Y'), 'Currency', $s['currency']]);
             fputcsv($out, ['Opening balance', number_format($s['opening'], 2, '.', ''), 'Closing balance', number_format($s['closing'], 2, '.', '')]);
             fputcsv($out, []);
